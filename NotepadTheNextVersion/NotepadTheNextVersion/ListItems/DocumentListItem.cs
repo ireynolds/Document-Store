@@ -11,9 +11,9 @@ using System.Windows.Shapes;
 using NotepadTheNextVersion.Models;
 using System.Collections.Generic;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
-    public class DocumentListItem : ListingsListItem
+    public class DocumentListItem : IListingsListItem
     {
         private static readonly Thickness displayNameTextBox_Margin = new Thickness(10, 0, 0, 25);
         private static readonly FontFamily displayNameTextBox_FontFamily = new FontFamily("Segoe WP SemiLight");

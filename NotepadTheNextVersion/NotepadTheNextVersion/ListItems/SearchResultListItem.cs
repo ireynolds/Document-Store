@@ -9,14 +9,14 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using System.Text.RegularExpressions;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Models;
 
-namespace NotepadTheNextVersion.Search
+namespace NotepadTheNextVersion.ListItems
 {
-    public class SearchResultListItem2 : StackPanel
+    public class SearchResultListItem : StackPanel
     {
-        private SearchResult2 _result;
+        private SearchResult _result;
 
         public Document Source
         {
@@ -28,7 +28,7 @@ namespace NotepadTheNextVersion.Search
 
         private static readonly int CHARS_TO_INCLUDE = 20;
 
-        public SearchResultListItem2(SearchResult2 result)
+        public SearchResultListItem(SearchResult result)
         {
             _result = result;
 

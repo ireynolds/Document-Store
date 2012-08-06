@@ -9,7 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 
-namespace NotepadTheNextVersion.StaticClasses
+namespace NotepadTheNextVersion.Utilities
 {
     public static class StringUtils
     {

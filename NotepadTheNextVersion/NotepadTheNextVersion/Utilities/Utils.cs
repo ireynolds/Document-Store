@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using NotepadTheNextVersion.Views;
+using NotepadTheNextVersion.ListItems;
 using System.Windows;
 using System.Windows.Controls;
 using NotepadTheNextVersion.Models;
@@ -10,7 +10,7 @@ using System.IO.IsolatedStorage;
 using NotepadTheNextVersion.Enumerations;
 using System.Windows.Media;
 
-namespace NotepadTheNextVersion.StaticClasses
+namespace NotepadTheNextVersion.Utilities
 {
     public static class Utils
     {
@@ -54,7 +54,7 @@ namespace NotepadTheNextVersion.StaticClasses
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 string[] pathArray = path.Split(new char[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
-                string currPath = string.Empty; 
+                string currPath = string.Empty;
                 // Skip the last because it's the filename
                 for (int i = 0; i < pathArray.Length - 1; i++)
                 {

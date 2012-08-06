@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System;
 using NotepadTheNextVersion.Models;
 using System.Windows.Media.Animation;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Enumerations;
 using System.IO;
 
@@ -95,7 +95,7 @@ namespace NotepadTheNextVersion
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
-            string rootName = (string)SettingsUtils.GetSetting(Setting.RootDirectoryName);
+            string rootName = (string)SettingUtils.GetSetting(Setting.RootDirectoryName);
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 if (!isf.DirectoryExists(rootName))
@@ -109,12 +109,12 @@ namespace NotepadTheNextVersion
             // Add test data
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                //IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.txt");
-                //s1.Close();
-                //IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.txt");
-                //s2.Close();
-                //isf.CreateDirectory(rootName + "/Dir");
-                //isf.CreateDirectory(rootName + "/Dir2");
+                IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.txt");
+                s1.Close();
+                IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.txt");
+                s2.Close();
+                isf.CreateDirectory(rootName + "/Dir");
+                isf.CreateDirectory(rootName + "/Dir2");
                 WriteFiles(new string[] { "Dir1", "Dir2" });
             }
         }
@@ -206,7 +206,7 @@ namespace NotepadTheNextVersion
             int length = testText.Length / directories.Length;
             for (int i = 0; i < directories.Length; i++)
             {
-                string dir = (string)SettingsUtils.GetSetting(Setting.RootDirectoryName) + "\\" + directories[i];
+                string dir = (string)SettingUtils.GetSetting(Setting.RootDirectoryName) + "\\" + directories[i];
                 IsolatedStorageFile.GetUserStoreForApplication().CreateDirectory(dir);
 
                 int outStart = (outCount - 1) * length;

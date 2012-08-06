@@ -1,225 +1,142 @@
-﻿using System;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Documents;
-using System.Windows.Ink;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
-using System.Windows.Shapes;
+﻿using System.ComponentModel;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.IO.IsolatedStorage;
-using System.IO;
+using NotepadTheNextVersion.Models;
+using System;
+using System.Text.RegularExpressions;
+using NotepadTheNextVersion.Utilities;
 
-namespace NotepadTheNextVersion.Search
+namespace NotepadTheNextVersion.ListItems
 {
+    public delegate void SearchCompletedEventHandler(string pattern, List<SearchResult> results);
     public class Searcher
     {
-        private Collection<SearchableFile> allFiles;
-        private Dictionary<string, KeyValuePair<Collection<SearchableFile>, Collection<SearchResultFile>>> lastSearchResults; // searchTerm => (searchable files, search results)
+        private BackgroundWorker _worker;
+        private IList<Document> _scope;
+        private static Regex WhitespaceRgx = new Regex("[\r\n\t]+");
+        private string _next;
+        private Dictionary<string, Triple> _pastResults;
 
-        private const int SURROUNDING_CHARS = 20;
+        public SearchCompletedEventHandler SearchCompleted;
 
-        public Searcher(string rootDirectory)
+        public bool IsSearching
         {
-            using (IsolatedStorageFile myIsolatedStorage = IsolatedStorageFile.GetUserStoreForApplication())
+            get
             {
-                allFiles = getFiles(System.IO.Path.Combine(rootDirectory, "*"), myIsolatedStorage, new ObservableCollection<SearchableFile>());
+                return _worker.IsBusy;
             }
-            lastSearchResults = new Dictionary<string, KeyValuePair<Collection<SearchableFile>, Collection<SearchResultFile>>>();
         }
 
-        private Collection<SearchableFile> getFiles(string pattern, IsolatedStorageFile storeFile, Collection<SearchableFile> list)
+        public Searcher(IList<Document> DocumentsToSearch)
         {
-            string root = System.IO.Path.GetDirectoryName(pattern);
-
-            foreach (string fileName in storeFile.GetFileNames(pattern))
-            {
-                string filePath = System.IO.Path.Combine(root, fileName);
-                string fileText = string.Empty;
-                using (StreamReader myReader = new StreamReader(new IsolatedStorageFileStream(filePath, FileMode.Open, storeFile)))
-                {
-                    fileText = myReader.ReadToEnd();
-                }
-                list.Add(new SearchableFile(filePath, fileName, root, storeFile.GetLastWriteTime(filePath), fileText));
-            }
-
-            foreach (string dirName in storeFile.GetDirectoryNames(pattern))
-            {
-                pattern = System.IO.Path.Combine(root, dirName);
-                list = getFiles(pattern + "/*", storeFile, list);
-            }
-
-            return list;
+            _worker = new BackgroundWorker();
+            _worker.DoWork += new DoWorkEventHandler(Search);
+            _worker.RunWorkerCompleted += new RunWorkerCompletedEventHandler(ReturnResults);
+            _scope = Copy(DocumentsToSearch);
+            _pastResults = new Dictionary<string, Triple>();
         }
 
-        public IList<SearchResultFile> search(string searchTerm)
+        public void SetNextSearchPattern(string pattern)
         {
-            IList<SearchResultFile> results;
+            _next = pattern;
 
-            // find any exact match
-            // find a good match
-            string LongestStartsWith = FindLongestStartsWith(searchTerm);
-            if (lastSearchResults.ContainsKey(searchTerm))
+            if (!IsSearching)
             {
-                results = new ObservableCollection<SearchResultFile>();
-                KeyValuePair<Collection<SearchableFile>, Collection<SearchResultFile>> pastSearch;
-                lastSearchResults.TryGetValue(searchTerm, out pastSearch);
-                foreach (SearchResultFile r in pastSearch.Value)
-                {
-                    results.Add(r);
-                }
+                _worker.RunWorkerAsync(_next);
+                _next = null;
             }
-            else if (!string.IsNullOrEmpty(LongestStartsWith)) // best match
-            {
-                KeyValuePair<Collection<SearchableFile>, Collection<SearchResultFile>> kvp;
-                lastSearchResults.TryGetValue(LongestStartsWith, out kvp);
-                InitializeAsPreviousResult(searchTerm);
-                results = extendedSearch(searchTerm, LongestStartsWith, kvp.Key, kvp.Value);
-            }
-            else // no match
-            {
-                InitializeAsPreviousResult(searchTerm);
-                results = search(searchTerm, allFiles);
-            }
-
-            return results;
         }
 
-        private void InitializeAsPreviousResult(string searchTerm)
+        private void SetScope(IList<Document> scope)
         {
-            if (!lastSearchResults.ContainsKey(searchTerm))
-                lastSearchResults.Add(searchTerm, new KeyValuePair<Collection<SearchableFile>, Collection<SearchResultFile>>(
-                    new Collection<SearchableFile>(), new Collection<SearchResultFile>()));
+            _scope = scope;
         }
 
-        private string FindLongestStartsWith(string searchTerm)
+        private void Search(object sender, DoWorkEventArgs e)
         {
-            List<LengthString> prevTerms = new List<LengthString>();
-            foreach (string prevTerm in lastSearchResults.Keys)
-                prevTerms.Add(new LengthString(prevTerm));
-
-            // longest strings before short ones
-            prevTerms.Sort();
-
-            // first (and, since sorted, longest) string which satisfies the given condition.
-            LengthString ls = prevTerms.FirstOrDefault(s => searchTerm.StartsWith(s.Value));
-
-            if (ls == null)
-                return null;
-            else
-                return ls.Value;
-        }
-
-        private ObservableCollection<SearchResultFile> extendedSearch(string searchTerm, string oldSearchTerm, Collection<SearchableFile> searchable, Collection<SearchResultFile> preResults)
-        {
-            if (searchable.Count != preResults.Count)
-                return search(searchTerm, allFiles); // default - search everything
-
-            for (int i = 0; i < searchable.Count; i++)
+            string pattern = (string)e.Argument;
+            string lastPattern;
+            List<SearchResult> results = new List<SearchResult>();
+            List<Document> resultScope = new List<Document>();
+            
+            if (pattern.Equals(string.Empty))
             {
-                SearchableFile sf = searchable.ElementAt(i);
-                SearchResultFile sr = preResults.ElementAt(i);
-                SearchResultFile postResult = new SearchResultFile(sf);
+                e.Result = SetResultArgs(pattern, results);
+                return;
+            }
+            else if (_pastResults.ContainsKey(pattern))
+            {
+                e.Result = SetResultArgs(pattern, _pastResults[pattern].SearchResults);
+                return;
+            }
+            else if (TryGetLastPattern(pattern, out lastPattern))
+            {
+                SetScope(_pastResults[lastPattern].ResultScope);
+            }
+            
+            // Search
+            Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+            foreach (Document doc in _scope)
+            {
+                SearchResult result = new SearchResult(doc, pattern);
 
-                foreach (KeyValuePair<int, string[]> hit in sr.hits)
+                string title = doc.DisplayName;
+                MatchCollection titleMatches = rgx.Matches(title);
+                result.SetTitleMatches(title, titleMatches);
+
+                string text = WhitespaceRgx.Replace(doc.Text, " ");
+                MatchCollection textMatches = rgx.Matches(text);
+                result.SetTextMatches(text, textMatches);
+
+                if (result.HasMatches)
                 {
-                    int index = hit.Key;
-
-                    // filename hit
-                    if (index == -1 && sf.FileName.ToLower().Contains(searchTerm.ToLower()))
-                    {
-                        int index2 = sf.FileName.ToLower().IndexOf(searchTerm.ToLower());
-                        string[] surroundingText = new string[3];
-                        surroundingText[0] = sf.FileName.Substring(0, index2);
-                        surroundingText[1] = sf.FileName.Substring(index2, searchTerm.Length);
-                        surroundingText[2] = sf.FileName.Substring(index2 + searchTerm.Length);
-                        postResult.AddHit(-1, surroundingText);
-                    }
-
-                    int end = Math.Min(searchTerm.Length, sf.FileText.Length - index);
-                    if (index > -1 && sf.FileText.Substring(index, end).ToLower().Equals(searchTerm.ToLower()))
-                    {
-                        string[] surroundingText = new string[3];
-                        surroundingText[0] = hit.Value[0];
-                        surroundingText[1] = hit.Value[1] + hit.Value[2].Substring(0, searchTerm.Length - oldSearchTerm.Length);
-                        surroundingText[2] = hit.Value[2].Substring(searchTerm.Length - oldSearchTerm.Length);
-                        postResult.AddHit(index, surroundingText);
-                    }
-                }
-                if (postResult.GetNumHits() > 0)
-                {
-                    lastSearchResults[searchTerm].Key.Add(sf);
-                    lastSearchResults[searchTerm].Value.Add(postResult);
+                    results.Add(result);
+                    resultScope.Add(doc);
                 }
             }
-            return new ObservableCollection<SearchResultFile>(lastSearchResults[searchTerm].Value);
+
+            Triple t = new Triple(resultScope, results);
+            _pastResults.Add(pattern, t);
+            e.Result = SetResultArgs(pattern, results);
         }
 
-        private ObservableCollection<SearchResultFile> search(string searchTerm, Collection<SearchableFile> filesToSearch)
+        private object[] SetResultArgs(string pattern, List<SearchResult> results)
         {
-            searchTerm = searchTerm.ToLower();
-            List<SearchResultFile> searchResults = new List<SearchResultFile>();
-            foreach (SearchableFile file in filesToSearch)
+            return new object[] { pattern, results };
+        }
+
+        private bool TryGetLastPattern(string currentPattern, out string lastPattern)
+        {
+            lastPattern = string.Empty;
+            for (int i = currentPattern.Length - 1; i >= 0; i--)
             {
-                SearchResultFile result = null;
-
-                // The filename match will be the first "hit"
-                int index = file.FileName.ToLower().IndexOf(searchTerm);
-                if (index != -1)
+                string possiblePattern = currentPattern.Substring(0, i);
+                if (_pastResults.ContainsKey(possiblePattern))
                 {
-                    result = new SearchResultFile(file);
-
-                    int start = index + searchTerm.Length;
-                    string[] surroundingText = new string[3];
-                    surroundingText[0] = file.FileName.Substring(0, index);
-                    surroundingText[1] = file.FileName.Substring(index, searchTerm.Length);
-                    surroundingText[2] = file.FileName.Substring(start, file.FileName.Length - start);
-
-                    result.AddHit(-1, surroundingText); // -1 is a default value. Not meant for display.
-                }
-
-                if ((bool)IsolatedStorageSettings.ApplicationSettings["SearchFileTextSetting"])
-                {
-                    index = file.FileText.IndexOf(searchTerm);
-                    while (index != -1)
-                    {
-                        if (result == null)
-                            result = new SearchResultFile(file);
-
-                        string[] surroundingText = GetSurroundingText(result, index, file.FileText, searchTerm);
-                        result.AddHit(index, surroundingText);
-
-                        index = file.FileText.IndexOf(searchTerm, index + 1);
-                    }
-                }
-
-                if (result != null)
-                {
-                    searchResults.Add(result);
-
-                    lastSearchResults[searchTerm].Key.Add(file);
-                    lastSearchResults[searchTerm].Value.Add(result);
+                    lastPattern = possiblePattern;
+                    break;
                 }
             }
-            searchResults.Sort();
-            return new ObservableCollection<SearchResultFile>(searchResults);
+            return !lastPattern.Equals(string.Empty);
         }
 
-        private string[] GetSurroundingText(SearchResultFile result, int index, string FileText, string searchTerm)
+        private void ReturnResults(object sender, RunWorkerCompletedEventArgs e)
         {
-            int start = Math.Max(0, index - SURROUNDING_CHARS);
-            int length = Math.Min(SURROUNDING_CHARS, FileText.Length - index - searchTerm.Length);
+            string pattern = (string)((object[])e.Result)[0];
+            List<SearchResult> results = (List<SearchResult>)((object[])e.Result)[1];
+            if (_next != null)
+            {
+                _worker.RunWorkerAsync(_next);
+                _next = null;
+            }
+            SearchCompleted(pattern, results);
+        }
 
-            string[] surroundingText = new string[3];
-            surroundingText[0] = FileText.Substring(start, index - start);
-            surroundingText[1] = FileText.Substring(index, searchTerm.Length);
-            surroundingText[2] = FileText.Substring(index + searchTerm.Length, length);
-
-            return surroundingText;
+        private List<Document> Copy(IList<Document> docs)
+        {
+            List<Document> copy = new List<Document>();
+            foreach (Document d in docs)
+                copy.Add(d);
+            return copy;
         }
     }
 }

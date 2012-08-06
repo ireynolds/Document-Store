@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
 using System.IO;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using System.Windows.Navigation;
 using NotepadTheNextVersion.Exceptions;
 using NotepadTheNextVersion.Enumerations;
@@ -134,6 +134,7 @@ namespace NotepadTheNextVersion.Models
                     throw new ActionableException(this);
 
                 isf.MoveFile(Path.PathString, newLoc.PathString);
+                isf.DeleteFile(this.Path.PathString);
                 return new Document(newLoc);
             }
         }

@@ -10,13 +10,13 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Microsoft.Phone.Controls;
 using System.IO.IsolatedStorage;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Models;
 using NotepadTheNextVersion.Enumerations;
 using Microsoft.Phone.Shell;
 using NotepadTheNextVersion.Exceptions;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 { 
     // Given a list of items, moves each item to a common chosen directory. 
     //

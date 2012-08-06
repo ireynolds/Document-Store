@@ -6,10 +6,10 @@ using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
 using System.Collections.Generic;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Enumerations;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
     public partial class SendAs : PhoneApplicationPage
     {
@@ -59,8 +59,8 @@ namespace NotepadTheNextVersion.Views
         // Adds UI elements to the page
         private void UpdateView()
         {
-            _background = SettingsUtils.GetUserSetBackgroundBrush();
-            _foreground = SettingsUtils.GetUserSetForegroundBrush();
+            _background = SettingUtils.GetUserSetBackgroundBrush();
+            _foreground = SettingUtils.GetUserSetForegroundBrush();
 
             TextBlock email = new TextBlock();
             TextBlock sms = new TextBlock();

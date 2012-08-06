@@ -11,7 +11,7 @@ using System.Windows.Shapes;
 using System.IO.IsolatedStorage;
 using System.Diagnostics;
 using NotepadTheNextVersion.Enumerations;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 
 namespace NotepadTheNextVersion
 {
@@ -101,7 +101,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<bool>(Setting.DisplayNoteTitle.Key(), (bool)SettingsUtils.GetSetting(Setting.DisplayNoteTitle));
+                return GetValueOrDefault<bool>(Setting.DisplayNoteTitle.Key(), (bool)SettingUtils.GetSetting(Setting.DisplayNoteTitle));
             }
             set
             {
@@ -115,7 +115,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<bool>(Setting.OpenToFoldersList.Key(), (bool)SettingsUtils.GetSetting(Setting.OpenToFoldersList));
+                return GetValueOrDefault<bool>(Setting.OpenToFoldersList.Key(), (bool)SettingUtils.GetSetting(Setting.OpenToFoldersList));
             }
             set
             {
@@ -129,7 +129,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<bool>(Setting.SearchFileText.Key(), (bool)SettingsUtils.GetSetting(Setting.SearchFileText));
+                return GetValueOrDefault<bool>(Setting.SearchFileText.Key(), (bool)SettingUtils.GetSetting(Setting.SearchFileText));
             }
             set
             {
@@ -143,7 +143,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<ThemeColor>(Setting.NoteEditorThemeColor.Key(), (ThemeColor)SettingsUtils.GetSetting(Setting.NoteEditorThemeColor));
+                return GetValueOrDefault<ThemeColor>(Setting.NoteEditorThemeColor.Key(), (ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor));
             }
             set
             {
@@ -156,7 +156,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<string>(Setting.RootDirectoryName.Key(), (string)SettingsUtils.GetSetting(Setting.RootDirectoryName));
+                return GetValueOrDefault<string>(Setting.RootDirectoryName.Key(), (string)SettingUtils.GetSetting(Setting.RootDirectoryName));
             }
             set
             {

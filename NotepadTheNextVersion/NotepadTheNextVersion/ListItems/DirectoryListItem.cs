@@ -13,9 +13,9 @@ using System.Windows.Media.Imaging;
 using System.Windows.Data;
 using System.Collections.Generic;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
-    public class DirectoryListItem : ListingsListItem
+    public class DirectoryListItem : IListingsListItem
     {
         private static readonly Thickness this_Margin = new  Thickness(0, 0, 0, 25);
         private static readonly Thickness image_Margin = new Thickness(12, 0, 10, 10);

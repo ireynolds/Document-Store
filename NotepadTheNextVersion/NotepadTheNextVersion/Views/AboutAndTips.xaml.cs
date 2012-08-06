@@ -12,7 +12,7 @@ using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Tasks;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
     public partial class AboutAndTips : PhoneApplicationPage
     {

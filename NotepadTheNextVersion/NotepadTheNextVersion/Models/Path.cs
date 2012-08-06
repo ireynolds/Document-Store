@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using NotepadTheNextVersion.Exceptions;
 using System.IO.IsolatedStorage;
 using NotepadTheNextVersion.Enumerations;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 
 namespace NotepadTheNextVersion.Models
 {
@@ -144,7 +144,7 @@ namespace NotepadTheNextVersion.Models
         {
             if (pathBase == PathBase.Root)
             {
-                pathList.Add((string)SettingsUtils.GetSetting(Setting.RootDirectoryName));
+                pathList.Add((string)SettingUtils.GetSetting(Setting.RootDirectoryName));
                 this.isInTrash = false;
             }
             else if (pathBase == PathBase.Trash)
@@ -207,7 +207,7 @@ namespace NotepadTheNextVersion.Models
         public Path SwapRoot()
         {
             Path p = new Path(this);
-            p.pathList[0] = (string)SettingsUtils.GetSetting(Setting.RootDirectoryName);
+            p.pathList[0] = (string)SettingUtils.GetSetting(Setting.RootDirectoryName);
             return p;
         }
 
@@ -229,7 +229,7 @@ namespace NotepadTheNextVersion.Models
                 throw new InvalidStateException("path.contains(null)");
             if (pathList.Contains(string.Empty))
                 throw new InvalidStateException("path.contains(string.empty)");
-            if (!pathList[0].Equals((string)SettingsUtils.GetSetting(Setting.RootDirectoryName)) && !pathList[0].Equals("trash"))
+            if (!pathList[0].Equals((string)SettingUtils.GetSetting(Setting.RootDirectoryName)) && !pathList[0].Equals("trash"))
                 throw new InvalidStateException("root is neither root nor trash");
         }
 

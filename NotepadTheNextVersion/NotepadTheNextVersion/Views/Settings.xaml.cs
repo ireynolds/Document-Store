@@ -6,9 +6,9 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Microsoft.Phone.Controls;
 using NotepadTheNextVersion.Enumerations;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
     public partial class Settings : PhoneApplicationPage
     {
@@ -113,7 +113,7 @@ namespace NotepadTheNextVersion.Views
 
         private void HomeDirectoryNameTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            string oldName = (string)SettingsUtils.GetSetting(Setting.RootDirectoryName);
+            string oldName = (string)SettingUtils.GetSetting(Setting.RootDirectoryName);
             string newName = _homeDirectoryNameTextBox.Text;
             if (oldName.Equals(newName))
                 return;

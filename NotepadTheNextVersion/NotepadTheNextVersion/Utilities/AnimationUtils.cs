@@ -10,7 +10,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using NotepadTheNextVersion.Models;
 
-namespace NotepadTheNextVersion.StaticClasses
+namespace NotepadTheNextVersion.Utilities
 {
     public static class AnimationUtils
     {

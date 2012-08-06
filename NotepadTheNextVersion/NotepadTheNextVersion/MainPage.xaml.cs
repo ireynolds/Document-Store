@@ -1,6 +1,6 @@
 ﻿using Microsoft.Phone.Controls;
 using System;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Models;
 using NotepadTheNextVersion.Enumerations;
 using System.IO.IsolatedStorage;
@@ -17,7 +17,7 @@ namespace NotepadTheNextVersion
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
-            bool NavToDocs = (bool)SettingsUtils.GetSetting(Setting.OpenToFoldersList);
+            bool NavToDocs = (bool)SettingUtils.GetSetting(Setting.OpenToFoldersList);
             if (NavToDocs)
             {
                 (new Directory(PathBase.Root)).Open(NavigationService);

@@ -12,9 +12,9 @@ using NotepadTheNextVersion.Models;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 
-namespace NotepadTheNextVersion.Search
+namespace NotepadTheNextVersion.ListItems
 {
-    public class SearchResult2 : IComparable<SearchResult2>
+    public class SearchResult : IComparable<SearchResult>
     {
         private Document _document;
         private IList<Match> _titleMatches;
@@ -99,13 +99,13 @@ namespace NotepadTheNextVersion.Search
             }
         }
 
-        public SearchResult2(Document document, string pattern)
+        public SearchResult(Document document, string pattern)
         {
             _document = document;
             _pattern = pattern;
         }
 
-        public int CompareTo(SearchResult2 other)
+        public int CompareTo(SearchResult other)
         {
             int a = other.TitleMatches.Count - this.TitleMatches.Count;
             if (a != 0)

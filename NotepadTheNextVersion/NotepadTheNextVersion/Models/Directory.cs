@@ -1,7 +1,7 @@
 ﻿using System;
 using NotepadTheNextVersion.Enumerations;
 using System.Windows.Navigation;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using System.IO.IsolatedStorage;
 using NotepadTheNextVersion.Exceptions;
 using Microsoft.Phone.Shell;
@@ -111,6 +111,7 @@ namespace NotepadTheNextVersion.Models
                     throw new ActionableException(this);
 
                 isf.MoveDirectory(Path.PathString, newLoc.PathString);
+                isf.DeleteFile(this.Path.PathString);
                 return new Directory(newLoc);
             }
         }

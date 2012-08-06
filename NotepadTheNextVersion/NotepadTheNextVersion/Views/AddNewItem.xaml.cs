@@ -1,14 +1,14 @@
 ﻿using System;
 using System.IO.IsolatedStorage;
 using NotepadTheNextVersion.Models;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using Microsoft.Phone.Controls;
 using System.Windows.Controls;
 using System.Windows;
 using System.Windows.Media;
 using System.Collections.Generic;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
     // Creates a new document or directory in the current space. The name is determined by a GUID
     // (to minimize collisions) and prefaced by a ".". The "." prevents the item from being displayed

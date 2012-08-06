@@ -11,12 +11,12 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using Microsoft.Phone.Shell;
-using NotepadTheNextVersion.StaticClasses;
 using NotepadTheNextVersion.Models;
 using System.IO.IsolatedStorage;
 using System.IO;
+using NotepadTheNextVersion.Utilities;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
     // This page accepts a list of items to rename, and then renames each item individually.
     public partial class RenameItem : PhoneApplicationPage
@@ -38,11 +38,6 @@ namespace NotepadTheNextVersion.Views
         {
             base.OnNavigatedFrom(e);
             NavigationService.RemoveBackEntry();
-            if (_actionable.IsTemp &&
-                _actionable.Exists())
-            {
-                _actionable.Delete();
-            }
         }
 
         #region Event Handlers
@@ -79,10 +74,10 @@ namespace NotepadTheNextVersion.Views
             }
 
             // Rename the item
+            bool wasTemp = _actionable.IsTemp;
             _actionable = _actionable.Rename(newName);
-            _actionable.IsTemp = false;
 
-            if (_actionable.IsTemp)
+            if (wasTemp && _actionable.GetType() == typeof(Document))
                 _actionable.Open(NavigationService);
             else
                 NavigationService.GoBack();

@@ -15,9 +15,9 @@ using System.IO.IsolatedStorage;
 using NotepadTheNextVersion.Enumerations;
 using Microsoft.Phone.Tasks;
 using System.Text;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
     public partial class ExportAll : PhoneApplicationPage
     {
@@ -87,7 +87,7 @@ namespace NotepadTheNextVersion.Views
         private string GetDocName(string path)
         {
             string[] pathArray = path.Split(new string[] { "\\", "/" }, StringSplitOptions.RemoveEmptyEntries);
-            pathArray[0] = (string)SettingsUtils.GetSetting(Setting.RootDirectoryName);
+            pathArray[0] = (string)SettingUtils.GetSetting(Setting.RootDirectoryName);
             return NotepadTheNextVersion.Models.Path.Combine(pathArray);
         }
 

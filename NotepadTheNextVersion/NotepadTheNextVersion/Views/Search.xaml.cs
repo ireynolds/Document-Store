@@ -11,20 +11,22 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using System.Collections.ObjectModel;
-using NotepadTheNextVersion.Search;
+using NotepadTheNextVersion.ListItems;
 using System.ComponentModel;
 using NotepadTheNextVersion.Models;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Enumerations;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
     public partial class Search : PhoneApplicationPage
     {
+        private static readonly int RESULTS_TO_DISPLAY = 10;
+
         private TextBox _searchTermBox;
-        private IList<SearchResultListItem2> _items;
-        private Dictionary<string, IList<SearchResultListItem2>> _previousResults;
-        private Searcher2 _searcher;
+        private IList<SearchResultListItem> _items;
+        private Dictionary<string, List<SearchResultListItem>> _previousResults;
+        private Searcher _searcher;
         private ListBox ContentBox;
         private string _lastPattern;
         private IList<Document> _universalScope;
@@ -32,8 +34,8 @@ namespace NotepadTheNextVersion.Views
         public Search()
         {
             InitializeComponent();
-            _items = new List<SearchResultListItem2>();
-            _previousResults = new Dictionary<string, IList<SearchResultListItem2>>();
+            _items = new List<SearchResultListItem>();
+            _previousResults = new Dictionary<string, List<SearchResultListItem>>();
             this.Loaded += new RoutedEventHandler((object sender, RoutedEventArgs e) => _searchTermBox.Focus());
             _lastPattern = string.Empty;
         }
@@ -43,7 +45,7 @@ namespace NotepadTheNextVersion.Views
             base.OnNavigatedTo(e);
 
             _universalScope = Utils.GetAllDocuments(PathBase.Root);
-            _searcher = new Searcher2(_universalScope);
+            _searcher = new Searcher(_universalScope);
             _searcher.SearchCompleted += new SearchCompletedEventHandler(SearchCompleted);
 
             if (LayoutRoot.Children.Count == 0)
@@ -66,7 +68,7 @@ namespace NotepadTheNextVersion.Views
             StaticUIPanel.Children.Add(PageTitle);
 
             _searchTermBox = new TextBox();
-            _searchTermBox.KeyDown += new KeyEventHandler(_searchTermBox_KeyDown);
+            _searchTermBox.InputScope = GetSearchInputScope();
             _searchTermBox.TextChanged += new TextChangedEventHandler(_searchTermBox_TextChanged);
             StaticUIPanel.Children.Add(_searchTermBox);
 
@@ -81,32 +83,29 @@ namespace NotepadTheNextVersion.Views
             string pattern = _searchTermBox.Text;
             if (StringUtils.EqualsIgnoreCase(_lastPattern, pattern))
                 return;
+            _lastPattern = pattern;
 
-            if (pattern.StartsWithIgnoreCase(_lastPattern))
-                if (ContentBox.Items.Count != 0)
-                    _searcher.SetScope(ExtractScope(ContentBox.Items));
+            if (_previousResults.ContainsKey(pattern))
+                SetResultsPane(_previousResults[pattern]);
             else
-                _searcher.SetScope(_universalScope);
-
-            _lastPattern = _searchTermBox.Text;
-
-            _searcher.AddToAsyncSearchStack(pattern);
+                _searcher.SetNextSearchPattern(pattern);
         }
 
-        private void _searchTermBox_KeyDown(object sender, KeyEventArgs e)
+        private void SearchCompleted(string pattern, List<SearchResult> results)
         {
-            //if (e.Key == Key.Enter && !StringUtils.IsNullOrWhitespace(_searchTermBox.Text))
-            //{
-            //    _searcher.RunSearchAsync(_searchTermBox.Text);
-            //}
+            results.Sort();
+            List<SearchResultListItem> uiResults = new List<SearchResultListItem>();
+            for (int i = 0; i < Math.Min(RESULTS_TO_DISPLAY, results.Count); i++)
+                uiResults.Add(new SearchResultListItem(results[i]));
+            SetResultsPane(uiResults);
+            _previousResults.Add(pattern, uiResults);
         }
 
-        private void SearchCompleted(string pattern, List<SearchResult2> results)
+        private void SetResultsPane(List<SearchResultListItem> uiResults)
         {
             ContentBox.Items.Clear();
-            results.Sort();
-            foreach (SearchResult2 result in results)
-                ContentBox.Items.Add(new SearchResultListItem2(result));
+            foreach (SearchResultListItem li in uiResults)
+                ContentBox.Items.Add(li);
         }
 
         private InputScope GetSearchInputScope()
@@ -121,7 +120,7 @@ namespace NotepadTheNextVersion.Views
         private IList<Document> ExtractScope(ItemCollection items)
         {
             IList<Document> docs = new List<Document>();
-            foreach (SearchResultListItem2 item in items)
+            foreach (SearchResultListItem item in items)
                 docs.Add(item.Source);
             return docs;
         }

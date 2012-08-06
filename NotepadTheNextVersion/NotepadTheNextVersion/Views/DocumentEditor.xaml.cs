@@ -11,14 +11,14 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Controls;
 using NotepadTheNextVersion.Models;
-using NotepadTheNextVersion.StaticClasses;
+using NotepadTheNextVersion.Utilities;
 using Microsoft.Phone.Shell;
 using NotepadTheNextVersion.Enumerations;
 using Microsoft.Phone.Tasks;
 using System.IO.IsolatedStorage;
 using System.Windows.Navigation;
 
-namespace NotepadTheNextVersion.Views
+namespace NotepadTheNextVersion.ListItems
 {
     public partial class DocumentEditor : PhoneApplicationPage
     {
@@ -100,7 +100,7 @@ namespace NotepadTheNextVersion.Views
             StackPanel DocStackPanel = new StackPanel();
             DocScrollViewer.Content = DocStackPanel;
 
-            if ((bool)SettingsUtils.GetSetting(Setting.DisplayNoteTitle))
+            if ((bool)SettingUtils.GetSetting(Setting.DisplayNoteTitle))
             {
                 this.DocTitleBlock = new TextBlock();
                 DocTitleBlock.Text = _doc.DisplayName.ToUpper();
@@ -129,10 +129,10 @@ namespace NotepadTheNextVersion.Views
 
         private void UpdateColors()
         {
-            if ((ThemeColor)SettingsUtils.GetSetting(Setting.NoteEditorThemeColor) != ThemeColor.phone)
+            if ((ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor) != ThemeColor.phone)
             {
-                _background = SettingsUtils.GetUserSetBackgroundBrush();
-                _foreground = SettingsUtils.GetUserSetForegroundBrush();
+                _background = SettingUtils.GetUserSetBackgroundBrush();
+                _foreground = SettingUtils.GetUserSetForegroundBrush();
 
                 LayoutRoot.Background = _background;
                 DocTitleBlock.Foreground = _foreground;

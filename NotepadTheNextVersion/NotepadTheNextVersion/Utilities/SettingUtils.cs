@@ -12,13 +12,13 @@ using System.IO.IsolatedStorage;
 using NotepadTheNextVersion.Enumerations;
 using System.Collections.Generic;
 
-namespace NotepadTheNextVersion.StaticClasses
+namespace NotepadTheNextVersion.Utilities
 {
-    public static class SettingsUtils
+    public static class SettingUtils
     {
         public static SolidColorBrush GetUserSetForegroundBrush()
         {
-            ThemeColor foreground = (ThemeColor)SettingsUtils.GetSetting(Setting.NoteEditorThemeColor);
+            ThemeColor foreground = (ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor);
             switch (foreground)
             {
                 case ThemeColor.dark:
@@ -34,7 +34,7 @@ namespace NotepadTheNextVersion.StaticClasses
 
         public static SolidColorBrush GetUserSetBackgroundBrush()
         {
-            return ((ThemeColor)SettingsUtils.GetSetting(Setting.NoteEditorThemeColor)).Brush();
+            return ((ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor)).Brush();
         }
 
         public static object GetSetting(Setting setting)
