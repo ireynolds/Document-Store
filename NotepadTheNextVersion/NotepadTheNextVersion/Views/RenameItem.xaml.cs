@@ -22,6 +22,7 @@ namespace NotepadTheNextVersion.ListItems
     public partial class RenameItem : PhoneApplicationPage
     {
         public IActionable _actionable;
+        public WatermarkedTextBox NewNameBox;
 
         public RenameItem()
         {
@@ -120,16 +121,26 @@ namespace NotepadTheNextVersion.ListItems
         {
             if (ApplicationBar == null)
                 CreateAppBar();
+
+            TextBlock tb = new TextBlock();
+            tb.Text = "Specify a new name.";
+            tb.Margin = new Thickness(12, 0, 0, 0);
+            ContentPanel.Children.Add(tb);
+
+            NewNameBox = new WatermarkedTextBox("specify a new name");
+            NewNameBox.KeyDown += new KeyEventHandler(NewNameBox_KeyDown);
+            ContentPanel.Children.Add(NewNameBox);
+
             if (_actionable.IsTemp)
             {
                 ApplicationTitle.Text = "NEW";
                 PageTitle.Text = "new " + _actionable.GetType().Name.ToString().ToLower();
-                NewNameBox.Text = Utils.GetNumberedName("Untitled", new Models.Directory(_actionable.Path.Parent));
+                NewNameBox.SetText(Utils.GetNumberedName("Untitled", new Models.Directory(_actionable.Path.Parent)));
             }
             else
             {
                 ApplicationTitle.Text = _actionable.DisplayName.ToUpper();
-                NewNameBox.Text = _actionable.DisplayName;
+                NewNameBox.SetText(_actionable.DisplayName);
             }
         }
 

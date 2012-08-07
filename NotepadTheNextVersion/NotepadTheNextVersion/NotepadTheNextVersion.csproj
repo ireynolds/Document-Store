@@ -83,6 +83,7 @@
     <Compile Include="Models\Path.cs" />
     <Compile Include="Models\SortActionables.cs" />
     <Compile Include="Models\Tuple.cs" />
+    <Compile Include="Models\WatermarkedTextBox.cs" />
     <Compile Include="Search\Searcher.cs" />
     <Compile Include="Search\SearchResult.cs" />
     <Compile Include="ListItems\SearchResultListItem.cs" />

@@ -23,7 +23,7 @@ namespace NotepadTheNextVersion.ListItems
     {
         private static readonly int RESULTS_TO_DISPLAY = 10;
 
-        private TextBox _searchTermBox;
+        private WatermarkedTextBox _searchTermBox;
         private IList<SearchResultListItem> _items;
         private Dictionary<string, List<SearchResultListItem>> _previousResults;
         private Searcher _searcher;
@@ -58,7 +58,7 @@ namespace NotepadTheNextVersion.ListItems
             StaticUIPanel.Margin = new Thickness(12, 0, 12, 0);
             Grid.SetRow(StaticUIPanel, 0);
             LayoutRoot.Children.Add(StaticUIPanel);
-            
+
             TextBlock PageTitle = new TextBlock()
             {
                 Style = (Style)App.Current.Resources["PhoneTextNormalStyle"],
@@ -67,7 +67,7 @@ namespace NotepadTheNextVersion.ListItems
             };
             StaticUIPanel.Children.Add(PageTitle);
 
-            _searchTermBox = new TextBox();
+            _searchTermBox = new WatermarkedTextBox("search your documents");
             _searchTermBox.InputScope = GetSearchInputScope();
             _searchTermBox.TextChanged += new TextChangedEventHandler(_searchTermBox_TextChanged);
             StaticUIPanel.Children.Add(_searchTermBox);
@@ -80,6 +80,9 @@ namespace NotepadTheNextVersion.ListItems
 
         void _searchTermBox_TextChanged(object sender, TextChangedEventArgs e)
         {
+            if (!_searchTermBox.HasUserSetText)
+                return;
+
             string pattern = _searchTermBox.Text;
             if (StringUtils.EqualsIgnoreCase(_lastPattern, pattern))
                 return;
