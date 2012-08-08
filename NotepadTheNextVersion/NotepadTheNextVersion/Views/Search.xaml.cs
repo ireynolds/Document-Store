@@ -21,8 +21,6 @@ namespace NotepadTheNextVersion.ListItems
 {
     public partial class Search : PhoneApplicationPage
     {
-        private static readonly int RESULTS_TO_DISPLAY = 10;
-
         private WatermarkedTextBox _searchTermBox;
         private IList<SearchResultListItem> _items;
         private Dictionary<string, List<SearchResultListItem>> _previousResults;
@@ -30,14 +28,22 @@ namespace NotepadTheNextVersion.ListItems
         private ListBox ContentBox;
         private string _lastPattern;
         private IList<Document> _universalScope;
+        private TextBlock _emptyNoticeBlock;
+        private bool _isShowingEmptyNotice { get { return LayoutRoot.Children.Contains(_emptyNoticeBlock); } }
 
         public Search()
         {
             InitializeComponent();
             _items = new List<SearchResultListItem>();
             _previousResults = new Dictionary<string, List<SearchResultListItem>>();
-            this.Loaded += new RoutedEventHandler((object sender, RoutedEventArgs e) => _searchTermBox.Focus());
+            this.Loaded += new RoutedEventHandler(Search_Loaded);
             _lastPattern = string.Empty;
+        }
+
+        private void Search_Loaded(object sender, RoutedEventArgs e)
+        {
+            _searchTermBox.Focus();
+            this.Loaded -= new RoutedEventHandler(Search_Loaded);
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -50,6 +56,7 @@ namespace NotepadTheNextVersion.ListItems
 
             if (LayoutRoot.Children.Count == 0)
                 UpdateView();
+            ContentBox.SelectedIndex = -1;
         }
 
         private void UpdateView()
@@ -74,8 +81,16 @@ namespace NotepadTheNextVersion.ListItems
 
             ContentBox = new ListBox();
             ContentBox.Margin = new Thickness(12, 0, 12, 0);
+            ContentBox.SelectionChanged += new SelectionChangedEventHandler(ContentBox_SelectionChanged);
             Grid.SetRow(ContentBox, 1);
             LayoutRoot.Children.Add(ContentBox);
+        }
+
+        void ContentBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (ContentBox.SelectedIndex == -1)
+                return;
+            (ContentBox.SelectedItem as SearchResultListItem).Source.Open(NavigationService);
         }
 
         void _searchTermBox_TextChanged(object sender, TextChangedEventArgs e)
@@ -98,17 +113,51 @@ namespace NotepadTheNextVersion.ListItems
         {
             results.Sort();
             List<SearchResultListItem> uiResults = new List<SearchResultListItem>();
-            for (int i = 0; i < Math.Min(RESULTS_TO_DISPLAY, results.Count); i++)
+            for (int i = 0; i < results.Count; i++)
                 uiResults.Add(new SearchResultListItem(results[i]));
             SetResultsPane(uiResults);
             _previousResults.Add(pattern, uiResults);
         }
 
-        private void SetResultsPane(List<SearchResultListItem> uiResults)
+        private void DisplayEmptyNotice()
+        {
+            if (_emptyNoticeBlock == null)
+                _emptyNoticeBlock = CreateNoticeBlock("We couldn't find a match. Please try a different search term.");
+            if (!_isShowingEmptyNotice)
+                LayoutRoot.Children.Add(_emptyNoticeBlock);
+            _emptyNoticeBlock.Visibility = Visibility.Visible;
+        }
+
+        private void RemoveEmptyNotice()
+        {
+            if (_isShowingEmptyNotice)
+                _emptyNoticeBlock.Visibility = Visibility.Collapsed;
+        }
+
+        private TextBlock CreateNoticeBlock(string Text)
+        {
+            TextBlock tb = new TextBlock()
+            {
+                Text = Text,
+                Foreground = new SolidColorBrush(Colors.Gray),
+                TextWrapping = TextWrapping.Wrap,
+                Margin = new Thickness(12, 0, 12, 0),
+                FontSize = 24
+            };
+            Grid.SetRow(tb, 1);
+            return tb;
+        }
+
+        private void SetResultsPane(List<SearchResultListItem> results)
         {
             ContentBox.Items.Clear();
-            foreach (SearchResultListItem li in uiResults)
+            foreach (SearchResultListItem li in results)
                 ContentBox.Items.Add(li);
+
+            if (results.Count == 0)
+                DisplayEmptyNotice();
+            else
+                RemoveEmptyNotice();
         }
 
         private InputScope GetSearchInputScope()
