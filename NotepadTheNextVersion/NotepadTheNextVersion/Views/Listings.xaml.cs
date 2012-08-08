@@ -50,6 +50,7 @@ namespace NotepadTheNextVersion.ListItems
             InitializeApplicationBar();
             SetPageMode(ListingsMode.View);
             _items = new List<object>();
+            PathPanel.Margin = new Thickness(12, 0, 0, 0);
             LayoutRoot.RenderTransform = new CompositeTransform();
             ContentBox.RenderTransform = new CompositeTransform();
          
@@ -110,6 +111,15 @@ namespace NotepadTheNextVersion.ListItems
 
             if (_pageMode == ListingsMode.Edit)
             {
+                foreach (IListingsListItem item in e.AddedItems)
+                {
+                    item.IsChecked = true;
+                }
+                foreach (IListingsListItem item in e.RemovedItems)
+                {
+                    item.IsChecked = false;
+                }
+
                 if (ContentBox.SelectedItems.Count == 0)
                     SetPageMode(ListingsMode.View);
                 else if (ContentBox.SelectedItems.Count == 1)
@@ -462,8 +472,8 @@ namespace NotepadTheNextVersion.ListItems
                 InitializeViewMode();
 
                 // Change page properties
-                ContentBox.SelectionMode = SelectionMode.Single;
                 ContentBox.SelectedIndex = -1;
+                ContentBox.SelectionMode = SelectionMode.Single;
             }
             else if (type == ListingsMode.Edit)
             {
@@ -471,8 +481,8 @@ namespace NotepadTheNextVersion.ListItems
                 InitializeEditMode();
 
                 // Change page properties
-                ContentBox.SelectionMode = SelectionMode.Multiple;
                 ContentBox.SelectedIndex = -1;
+                ContentBox.SelectionMode = SelectionMode.Multiple;
             }
         }
 
@@ -491,7 +501,7 @@ namespace NotepadTheNextVersion.ListItems
                     Utils.SetArguments(_curr);
                     NavigationService.Navigate(App.AddNewItem);
                 }));
-                ViewListButtons.Add(Utils.createIconButton("edit", App.EditIcon, (object sender, EventArgs e) => { SetPageMode(ListingsMode.Edit); }));
+                ViewListButtons.Add(Utils.createIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { SetPageMode(ListingsMode.Edit); }));
 
                 ViewListItems = new List<ApplicationBarMenuItem>();
                 ViewListItems.Add(Utils.createMenuItem("search", (object sender, EventArgs e) => { NavigationService.Navigate(App.Search); }));
@@ -508,6 +518,9 @@ namespace NotepadTheNextVersion.ListItems
             ApplicationBar.MenuItems.Clear();
             foreach (ApplicationBarMenuItem i in ViewListItems)
                 ApplicationBar.MenuItems.Add(i);
+
+            foreach (IListingsListItem item in ContentBox.Items)
+                item.IsSelectable = false;
         }
 
         private IList<ApplicationBarIconButton> EditListButtons;
@@ -563,6 +576,9 @@ namespace NotepadTheNextVersion.ListItems
                 ApplicationBar.MenuItems.Add(i);
 
             DisableAllAppBarItems();
+
+            foreach (IListingsListItem item in ContentBox.Items)
+                item.IsSelectable = true;
         }
 
         private void BeginDeleteAnimations(IList<IListingsListItem> deletedItems)

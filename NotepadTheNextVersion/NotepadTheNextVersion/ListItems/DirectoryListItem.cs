@@ -37,9 +37,9 @@ namespace NotepadTheNextVersion.ListItems
             fullPathTextBlock = new TextBlock();
             image = new Image();
 
-            this.Margin = this_Margin;
-            this.Children.Add(image);
-            this.Children.Add(verticalRightPanel);
+            _contentPanel.Margin = this_Margin;
+            _contentPanel.Children.Add(image);
+            _contentPanel.Children.Add(verticalRightPanel);
 
             image.Source = new BitmapImage(getImageUri());
             image.Margin = image_Margin;
@@ -82,8 +82,14 @@ namespace NotepadTheNextVersion.ListItems
             if ((Color)Application.Current.Resources["PhoneBackgroundColor"] == Colors.Black)
                 path = App.FolderIconLargeWhite;
             else
-                path = App.FolderIconLargeWhite;
+                path = App.FolderIconLargeBlack;
             return new Uri(path, UriKind.Relative);
+        }
+
+        protected override void InitCheckBox()
+        {
+            base.InitCheckBox();
+            _checkBox.Margin = _checkBox.Margin = new Thickness(0, -36, 0, 0);
         }
     }
 }

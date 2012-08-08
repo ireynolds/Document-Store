@@ -53,7 +53,7 @@ namespace NotepadTheNextVersion.Models
         {
             this.Text = text;
             _hasUserSetText = true;
-            this.Foreground = (SolidColorBrush)App.Current.Resources["PhoneBackgroundBrush"];
+            this.Foreground = new SolidColorBrush(Colors.Black);
         }
 
         private void This_KeyUp(object sender, KeyEventArgs e)
@@ -87,7 +87,7 @@ namespace NotepadTheNextVersion.Models
         private void RemoveWatermark()
         {
             this.Text = string.Empty;
-            this.Foreground = (SolidColorBrush)App.Current.Resources["PhoneBackgroundBrush"];
+            this.Foreground = new SolidColorBrush(Colors.Black);
         }
     }
 }

@@ -26,7 +26,7 @@ namespace NotepadTheNextVersion.ListItems
             // Set up appearance
             displayNameTextBlock = new TextBlock();
 
-            this.Children.Add(displayNameTextBlock);
+            _contentPanel.Children.Add(displayNameTextBlock);
 
             displayNameTextBlock.Text = a.DisplayName;
             displayNameTextBlock.Margin = displayNameTextBox_Margin;
@@ -44,6 +44,12 @@ namespace NotepadTheNextVersion.ListItems
         {
             displayNameTextBlock.RenderTransform = new CompositeTransform();
             return displayNameTextBlock;
+        }
+
+        protected override void InitCheckBox()
+        {
+            base.InitCheckBox();
+            _checkBox.Margin = _checkBox.Margin = new Thickness(0, -18, 0, 0);
         }
     }
 }

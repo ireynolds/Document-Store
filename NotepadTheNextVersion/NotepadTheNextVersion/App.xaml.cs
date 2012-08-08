@@ -36,24 +36,25 @@ namespace NotepadTheNextVersion
         public static readonly MyUri ExportAll = new MyUri("/Views/ExportAll.xaml", UriKind.Relative);
         public static readonly MyUri SendAs = new MyUri("/Views/SendAs.xaml", UriKind.Relative);
 
-        public static readonly string AddIcon = "/Images/appbar.add.rest.png";
-        public static readonly string BackIcon = "/Images/appbar.back.rest.png";
-        public static readonly string CancelIcon = "/Images/appbar.cancel.rest.png";
-        public static readonly string CheckIcon = "/Images/appbar.check.rest.png";
-        public static readonly string DeleteIcon = "/Images/appbar.delete.rest.png";
-        public static readonly string EditIcon = "/Images/appbar.edit.rest.png";
-        public static readonly string SearchIcon = "/Images/appbar.feature.search.rest.png";
-        public static readonly string SettingsIcon = "/Images/appbar.feature.settings.rest.png";
-        public static readonly string FolderIconSmall = "/Images/appbar.folder.rest.png";
-        public static readonly string SaveIcon = "/Images/appbar.save.rest.png";
-        public static readonly string FolderIconLargeBlack = "/Images/folder.black.png";
-        public static readonly string FolderIconLargeWhite = "/Images/folder.white.png";
-        public static readonly string PinIcon = "/Images/pushpin.png";
-        public static readonly string RenameIcon = "/Images/appbar.rename.rest.png";
-        public static readonly string MoveIcon = "/Images/appbar.move.rest.png";
+        public const string AddIcon = "/Images/appbar.add.rest.png";
+        public const string BackIcon = "/Images/appbar.back.rest.png";
+        public const string CancelIcon = "/Images/appbar.cancel.rest.png";
+        public const string CheckIcon = "/Images/appbar.check.rest.png";
+        public const string DeleteIcon = "/Images/appbar.delete.rest.png";
+        public const string EditIcon = "/Images/appbar.edit.rest.png";
+        public const string SearchIcon = "/Images/appbar.feature.search.rest.png";
+        public const string SettingsIcon = "/Images/appbar.feature.settings.rest.png";
+        public const string FolderIconSmall = "/Images/appbar.folder.rest.png";
+        public const string SaveIcon = "/Images/appbar.save.rest.png";
+        public const string FolderIconLargeBlack = "/Images/folder.black.png";
+        public const string FolderIconLargeWhite = "/Images/folder.white.png";
+        public const string PinIcon = "/Images/pushpin.png";
+        public const string RenameIcon = "/Images/appbar.rename.rest.png";
+        public const string MoveIcon = "/Images/appbar.move.rest.png";
+        public const string SelectIcon = "/Images/appbar.list.check.png";
 
-        public static readonly string DocumentTile = "Application_DocumentTile.png";
-        public static readonly string DirectoryTile = "Application_DirectoryTile.png";
+        public const string DocumentTile = "Application_DocumentTile.png";
+        public const string DirectoryTile = "Application_DirectoryTile.png";
 
         /// <summary>
         /// Constructor for the Application object.
@@ -107,16 +108,16 @@ namespace NotepadTheNextVersion
             }
 
             // Add test data
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.txt");
-                s1.Close();
-                IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.txt");
-                s2.Close();
-                isf.CreateDirectory(rootName + "/Dir");
-                isf.CreateDirectory(rootName + "/Dir2");
-                WriteFiles(new string[] { "Dir1", "Dir2" });
-            }
+            //using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            //{
+            //    IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.txt");
+            //    s1.Close();
+            //    IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.txt");
+            //    s2.Close();
+            //    isf.CreateDirectory(rootName + "/Dir");
+            //    isf.CreateDirectory(rootName + "/Dir2");
+            //    WriteFiles(new string[] { "Dir1", "Dir2" });
+            //}
         }
 
         // Code to execute when the application is activated (brought to foreground)
