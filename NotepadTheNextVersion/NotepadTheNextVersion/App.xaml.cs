@@ -32,7 +32,6 @@ namespace NotepadTheNextVersion
         public static readonly MyUri Search = new MyUri("/Views/Search.xaml", UriKind.Relative);
         public static readonly MyUri Settings = new MyUri("/Views/Settings.xaml", UriKind.Relative);
         public static readonly MyUri AboutAndTips = new MyUri("/Views/AboutAndTips.xaml", UriKind.Relative);
-        public static readonly MyUri Trash = new MyUri("/Views/Trash.xaml", UriKind.Relative);
         public static readonly MyUri ExportAll = new MyUri("/Views/ExportAll.xaml", UriKind.Relative);
         public static readonly MyUri SendAs = new MyUri("/Views/SendAs.xaml", UriKind.Relative);
 
@@ -41,16 +40,14 @@ namespace NotepadTheNextVersion
         public const string CancelIcon = "/Images/appbar.cancel.rest.png";
         public const string CheckIcon = "/Images/appbar.check.rest.png";
         public const string DeleteIcon = "/Images/appbar.delete.rest.png";
-        public const string EditIcon = "/Images/appbar.edit.rest.png";
         public const string SearchIcon = "/Images/appbar.feature.search.rest.png";
         public const string SettingsIcon = "/Images/appbar.feature.settings.rest.png";
         public const string FolderIconSmall = "/Images/appbar.folder.rest.png";
         public const string SaveIcon = "/Images/appbar.save.rest.png";
         public const string FolderIconLargeBlack = "/Images/folder.black.png";
         public const string FolderIconLargeWhite = "/Images/folder.white.png";
+        public const string UndeleteIcon = "/Images/appbar.undelete.rest3.png";
         public const string PinIcon = "/Images/pushpin.png";
-        public const string RenameIcon = "/Images/appbar.rename.rest.png";
-        public const string MoveIcon = "/Images/appbar.move.rest.png";
         public const string SelectIcon = "/Images/appbar.list.check.png";
 
         public const string DocumentTile = "Application_DocumentTile.png";

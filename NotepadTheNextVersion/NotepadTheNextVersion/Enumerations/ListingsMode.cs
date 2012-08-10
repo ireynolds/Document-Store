@@ -14,6 +14,7 @@ namespace NotepadTheNextVersion.Enumerations
     public enum ListingsMode
     {
         Edit,
-        View
+        View,
+        Trash
     }
 }
