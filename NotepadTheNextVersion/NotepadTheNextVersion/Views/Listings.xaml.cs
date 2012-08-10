@@ -125,6 +125,10 @@ namespace NotepadTheNextVersion.ListItems
             if (_pageMode == ListingsMode.Trash)
             {
                 SyncSelectedItemsWithCheckboxes(e);
+                if (ContentBox.SelectedItems.Count == 0)
+                    SetAppBarButtonsEnabled(false);
+                else
+                    SetAppBarButtonsEnabled(true);
             }
             else if (_pageMode == ListingsMode.Edit)
             {
@@ -536,6 +540,16 @@ namespace NotepadTheNextVersion.ListItems
             if (TrashListItems == null)
             {
                 TrashListItems = new List<ApplicationBarMenuItem>();
+
+                TrashListItems.Add(ViewUtils.createMenuItem("empty trash", (object sender, EventArgs e) =>
+                {
+                    if (MessageBoxResult.Cancel == MessageBox.Show("This will delete all documents in trash permanently. Do you want to continue?", "Warning", MessageBoxButton.OKCancel))
+                        return;
+
+                    foreach (IListingsListItem i in ContentBox.SelectedItems)
+                        i.ActionableItem.Delete();
+                    ContentBox.Items.Clear();
+                }));
             }
 
             ContentBox.SelectedIndex = -1;
@@ -548,6 +562,8 @@ namespace NotepadTheNextVersion.ListItems
             ApplicationBar.MenuItems.Clear();
             foreach (ApplicationBarMenuItem i in TrashListItems)
                 ApplicationBar.MenuItems.Add(i);
+
+            SetAppBarButtonsEnabled(false);
 
             _currBeforeTrash = _curr;
             Directory trash = new Directory(PathBase.Trash);
@@ -657,7 +673,7 @@ namespace NotepadTheNextVersion.ListItems
             foreach (ApplicationBarMenuItem i in EditListItems)
                 ApplicationBar.MenuItems.Add(i);
 
-            DisableAllAppBarItems();
+            SetAppBarEnabled(false);
 
             foreach (IListingsListItem item in ContentBox.Items)
                 item.IsSelectable = true;
@@ -707,13 +723,22 @@ namespace NotepadTheNextVersion.ListItems
             };
         }
 
-        private void DisableAllAppBarItems()
+        private void SetAppBarItemsEnabled(bool enabled)
+        {
+            foreach (ApplicationBarMenuItem i in ApplicationBar.MenuItems)
+                i.IsEnabled = enabled;
+        }
+
+        private void SetAppBarEnabled(bool enabled)
+        {
+            SetAppBarButtonsEnabled(enabled);
+            SetAppBarItemsEnabled(enabled);
+        }
+
+        private void SetAppBarButtonsEnabled(bool enabled)
         {
             foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
-                b.IsEnabled = false;
-
-            foreach (ApplicationBarMenuItem i in ApplicationBar.MenuItems)
-                i.IsEnabled = false;
+                b.IsEnabled = enabled;
         }
 
         private void EnableSingleSelectionAppBarItems()
