@@ -117,7 +117,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 string docName = GetDocName(docs[i].Trim());
                 string docText = docs[i + 1].Trim();
-                Document newDoc = Utils.CreateFileFromString(docName);
+                Document newDoc = FileUtils.CreateFileFromString(docName);
                 newDoc.Text = docText;
                 newDoc.Save();
             }
@@ -129,7 +129,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             EmailComposeTask t = new EmailComposeTask();
             StringBuilder b = new StringBuilder();
-            IList<Document> docs = Utils.GetAllDocuments(PathBase.Root);
+            IList<Document> docs = FileUtils.GetAllDocuments(PathBase.Root);
             foreach (Document d in docs)
                 b.Append(String.Format("==== {0} ====\n\n{1}\n\n", d.Path.PathString, d.Text));
             t.Body = b.ToString();

@@ -326,7 +326,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                IList<object> args = Utils.GetArguments();
+                IList<object> args = ParamUtils.GetArguments();
                 _curr = (Directory)args[0];
             }
         }
@@ -496,19 +496,19 @@ namespace NotepadTheNextVersion.ListItems
             if (ViewListButtons == null) // && ViewListItems == null
             {
                 ViewListButtons = new List<ApplicationBarIconButton>();
-                ViewListButtons.Add(Utils.createIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
+                ViewListButtons.Add(ViewUtils.createIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
                 {
-                    Utils.SetArguments(_curr);
+                    ParamUtils.SetArguments(_curr);
                     NavigationService.Navigate(App.AddNewItem);
                 }));
-                ViewListButtons.Add(Utils.createIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { SetPageMode(ListingsMode.Edit); }));
+                ViewListButtons.Add(ViewUtils.createIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { SetPageMode(ListingsMode.Edit); }));
 
                 ViewListItems = new List<ApplicationBarMenuItem>();
-                ViewListItems.Add(Utils.createMenuItem("search", (object sender, EventArgs e) => { NavigationService.Navigate(App.Search); }));
-                ViewListItems.Add(Utils.createMenuItem("settings", (object sender, EventArgs e) => { NavigationService.Navigate(App.Settings); }));
-                ViewListItems.Add(Utils.createMenuItem("trash", (object sender, EventArgs e) => { NavigationService.Navigate(App.Trash); }));
-                ViewListItems.Add(Utils.createMenuItem("import+export", (object sender, EventArgs e) => { NavigationService.Navigate(App.ExportAll); }));
-                ViewListItems.Add(Utils.createMenuItem("about+tips", (object sender, EventArgs e) => { NavigationService.Navigate(App.AboutAndTips); }));
+                ViewListItems.Add(ViewUtils.createMenuItem("search", (object sender, EventArgs e) => { NavigationService.Navigate(App.Search); }));
+                ViewListItems.Add(ViewUtils.createMenuItem("settings", (object sender, EventArgs e) => { NavigationService.Navigate(App.Settings); }));
+                ViewListItems.Add(ViewUtils.createMenuItem("trash", (object sender, EventArgs e) => { NavigationService.Navigate(App.Trash); }));
+                ViewListItems.Add(ViewUtils.createMenuItem("import+export", (object sender, EventArgs e) => { NavigationService.Navigate(App.ExportAll); }));
+                ViewListItems.Add(ViewUtils.createMenuItem("about+tips", (object sender, EventArgs e) => { NavigationService.Navigate(App.AboutAndTips); }));
             }
 
             ApplicationBar.Buttons.Clear();
@@ -533,7 +533,7 @@ namespace NotepadTheNextVersion.ListItems
             if (EditListButtons == null) // && EditListItems == null
             {
                 EditListButtons = new List<ApplicationBarIconButton>();
-                EditListButtons.Add(Utils.createIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
+                EditListButtons.Add(ViewUtils.createIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
                 {
                     IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
                     foreach (IListingsListItem li in ContentBox.SelectedItems)
@@ -544,23 +544,23 @@ namespace NotepadTheNextVersion.ListItems
                     BeginDeleteAnimations(deletedItems);
                     SetPageMode(ListingsMode.View);
                 }));
-                EditListButtons.Add(Utils.createIconButton("pin", App.PinIcon, (object sender, EventArgs e) =>
+                EditListButtons.Add(ViewUtils.createIconButton("pin", App.PinIcon, (object sender, EventArgs e) =>
                 {
                     IActionable a = (ContentBox.SelectedItem as IListingsListItem).ActionableItem;
                     a.TogglePin();
                 }));
 
                 EditListItems = new List<ApplicationBarMenuItem>();
-                EditListItems.Add(Utils.createMenuItem("move", (object sender, EventArgs e) =>
+                EditListItems.Add(ViewUtils.createMenuItem("move", (object sender, EventArgs e) =>
                 {
                     IList<IActionable> args = new List<IActionable>();
                     foreach (IListingsListItem li in ContentBox.SelectedItems)
                         args.Add(li.ActionableItem);
 
-                    Utils.SetArguments(args);
+                    ParamUtils.SetArguments(args);
                     NavigationService.Navigate(App.MoveItem);
                 }));
-                EditListItems.Add(Utils.createMenuItem("rename", (object sender, EventArgs e) =>
+                EditListItems.Add(ViewUtils.createMenuItem("rename", (object sender, EventArgs e) =>
                 {
                     IActionable a = (ContentBox.SelectedItem as IListingsListItem).ActionableItem;
                     a.NavToRename(NavigationService);

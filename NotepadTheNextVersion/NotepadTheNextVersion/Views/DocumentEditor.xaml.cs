@@ -84,7 +84,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            IList<object> args = Utils.GetArguments();
+            IList<object> args = ParamUtils.GetArguments();
             _doc = (Document)args[0];
         }
 
@@ -158,9 +158,9 @@ namespace NotepadTheNextVersion.ListItems
             ApplicationBar = new ApplicationBar();
             ApplicationBar.Mode = ApplicationBarMode.Minimized;
 
-            ApplicationBar.Buttons.Add(Utils.createIconButton("folders", App.FolderIconSmall, new EventHandler(FoldersIconButton_Click)));
-            ApplicationBar.MenuItems.Add(Utils.createMenuItem("settings", new EventHandler(SettingsMenuItem_Click)));
-            ApplicationBar.MenuItems.Add(Utils.createMenuItem("send as...", new EventHandler(SendAsMenuItem_Click)));
+            ApplicationBar.Buttons.Add(ViewUtils.createIconButton("folders", App.FolderIconSmall, new EventHandler(FoldersIconButton_Click)));
+            ApplicationBar.MenuItems.Add(ViewUtils.createMenuItem("settings", new EventHandler(SettingsMenuItem_Click)));
+            ApplicationBar.MenuItems.Add(ViewUtils.createMenuItem("send as...", new EventHandler(SendAsMenuItem_Click)));
         }
 
         #endregion
@@ -175,7 +175,7 @@ namespace NotepadTheNextVersion.ListItems
         private void SendAsMenuItem_Click(object sender, EventArgs e)
         {
             _doc.Save();
-            Utils.SetArguments(_doc);
+            ParamUtils.SetArguments(_doc);
             NavigationService.Navigate(App.SendAs);
         }
 
@@ -187,7 +187,7 @@ namespace NotepadTheNextVersion.ListItems
         private void FoldersIconButton_Click(object sender, EventArgs e)
         {
             _shouldRemoveBackEntry = true;
-            Utils.SetArguments(new Directory(_doc.Path.Parent));
+            ParamUtils.SetArguments(new Directory(_doc.Path.Parent));
             NavigationService.Navigate(App.Listings);
         }
 

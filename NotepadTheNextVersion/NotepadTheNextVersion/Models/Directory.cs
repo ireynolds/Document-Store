@@ -72,13 +72,13 @@ namespace NotepadTheNextVersion.Models
 
         public void Open(NavigationService NavigationService)
         {
-            Utils.SetArguments(this);
+            ParamUtils.SetArguments(this);
             NavigationService.Navigate(App.Listings);
         }
 
         public void NavToMove(NavigationService NavigationService)
         {
-            Utils.SetArguments(this);
+            ParamUtils.SetArguments(this);
             NavigationService.Navigate(App.MoveItem);
         }
 
@@ -98,7 +98,7 @@ namespace NotepadTheNextVersion.Models
 
         public void NavToRename(NavigationService NavigationService)
         {
-            Utils.SetArguments(this);
+            ParamUtils.SetArguments(this);
             NavigationService.Navigate(App.RenameItem);
         }
 

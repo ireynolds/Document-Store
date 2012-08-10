@@ -13,22 +13,38 @@ namespace NotepadTheNextVersion.Utilities
 {
     public static class StringUtils
     {
+        /// <summary>
+        /// Returns true if the given string is null or whitespace characters.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <returns></returns>
         public static bool IsNullOrWhitespace(string s)
         {
             if (s == null)
                 return true;
-
             return s.Trim().Equals(string.Empty);
         }
 
-        public static bool EqualsIgnoreCase(this string s, string other)
+        /// <summary>
+        /// Returns true if the parameter string are value-equal (ignoring case).
+        /// </summary>
+        /// <param name="thisString"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static bool EqualsIgnoreCase(string thisString, string other)
         {
-            return s.ToLower().Equals(other.ToLower());
+            return thisString.ToLower().Equals(other.ToLower());
         }
 
-        public static bool StartsWithIgnoreCase(this string s, string other)
+        /// <summary>
+        /// Returns true if the first parameter starts with the second parameter.
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="other"></param>
+        /// <returns></returns>
+        public static bool StartsWithIgnoreCase(string thisString, string other)
         {
-            return s.ToLower().StartsWith(other.ToLower());
+            return thisString.ToLower().StartsWith(other.ToLower());
         }
     }
 }

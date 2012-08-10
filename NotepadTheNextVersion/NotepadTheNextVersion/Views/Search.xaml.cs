@@ -50,7 +50,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             base.OnNavigatedTo(e);
 
-            _universalScope = Utils.GetAllDocuments(PathBase.Root);
+            _universalScope = FileUtils.GetAllDocuments(PathBase.Root);
             _searcher = new Searcher(_universalScope);
             _searcher.SearchCompleted += new SearchCompletedEventHandler(SearchCompleted);
 

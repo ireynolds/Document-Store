@@ -58,7 +58,7 @@ namespace NotepadTheNextVersion.ListItems
             // Ensure the filename is unique.
             string newName = NewNameBox.Text.Trim();
             IList<string> badCharsInName = new List<string>();
-            if (!Utils.IsValidFileName(newName, out badCharsInName))
+            if (!FileUtils.IsValidFileName(newName, out badCharsInName))
             {
                 AlertUserBadChars(badCharsInName);
                 return;
@@ -74,9 +74,14 @@ namespace NotepadTheNextVersion.ListItems
                 return;
             }
 
+            if (newName.EndsWith(".txt") && _actionable.GetType() == typeof(Document))
+                newName = newName.Substring(0, newName.Length - 4);
+
             // Rename the item
             bool wasTemp = _actionable.IsTemp;
-            _actionable = _actionable.Rename(newName);
+            if (!_actionable.DisplayName.Equals(newName))
+                _actionable = _actionable.Rename(newName);
+            _actionable.IsTemp = false;
 
             if (wasTemp && _actionable.GetType() == typeof(Document))
                 _actionable.Open(NavigationService);
@@ -128,6 +133,7 @@ namespace NotepadTheNextVersion.ListItems
             ContentPanel.Children.Add(tb);
 
             NewNameBox = new WatermarkedTextBox("specify a new name");
+            NewNameBox.SetText(_actionable.DisplayName);
             NewNameBox.KeyDown += new KeyEventHandler(NewNameBox_KeyDown);
             ContentPanel.Children.Add(NewNameBox);
 
@@ -135,12 +141,10 @@ namespace NotepadTheNextVersion.ListItems
             {
                 ApplicationTitle.Text = "NEW";
                 PageTitle.Text = "new " + _actionable.GetType().Name.ToString().ToLower();
-                NewNameBox.SetText(Utils.GetNumberedName("Untitled", new Models.Directory(_actionable.Path.Parent)));
             }
             else
             {
                 ApplicationTitle.Text = _actionable.DisplayName.ToUpper();
-                NewNameBox.SetText(_actionable.DisplayName);
             }
         }
 
@@ -151,13 +155,13 @@ namespace NotepadTheNextVersion.ListItems
             ApplicationBar.IsMenuEnabled = false;
             ApplicationBar.IsVisible = true;
 
-            ApplicationBar.Buttons.Add(Utils.createIconButton("okay", App.CheckIcon, new EventHandler(IconButton_Okay_Click)));
-            ApplicationBar.Buttons.Add(Utils.createIconButton("cancel", App.CancelIcon, new EventHandler(IconButton_Cancel_Click)));
+            ApplicationBar.Buttons.Add(ViewUtils.createIconButton("okay", App.CheckIcon, new EventHandler(IconButton_Okay_Click)));
+            ApplicationBar.Buttons.Add(ViewUtils.createIconButton("cancel", App.CancelIcon, new EventHandler(IconButton_Cancel_Click)));
         }
 
         private void GetArgs()
         {
-            IList<object> args = Utils.GetArguments();
+            IList<object> args = ParamUtils.GetArguments();
 
             _actionable = (IActionable)args[0];
         }

@@ -47,7 +47,7 @@ namespace NotepadTheNextVersion.ListItems
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 // Create a temporary directory that will be renamed in the new window
-                string tempName = "." + Utils.GetUniqueName(_currentDirectory, isf);
+                string tempName = FileUtils.GetNumberedName("Untitled", new Models.Directory(_currentDirectory.Path));
                 Directory newDirectory = new Directory(_currentDirectory, tempName) { IsTemp = true };
                 isf.CreateDirectory(newDirectory.Path.PathString);
 
@@ -60,7 +60,7 @@ namespace NotepadTheNextVersion.ListItems
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 // Create a temporary document that will be renamed in the next window
-                string tempName = "." + Utils.GetUniqueName(_currentDirectory, isf);
+                string tempName = FileUtils.GetNumberedName("Untitled", new Models.Directory(_currentDirectory.Path));
                 Document newDocument = new Document(_currentDirectory, tempName + ".txt") { IsTemp = true };
                 IsolatedStorageFileStream fs = isf.CreateFile(newDocument.Path.PathString);
                 fs.Close();
@@ -104,7 +104,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            IList<object> args = Utils.GetArguments();
+            IList<object> args = ParamUtils.GetArguments();
             _currentDirectory = (Directory)args[0];
         }
 

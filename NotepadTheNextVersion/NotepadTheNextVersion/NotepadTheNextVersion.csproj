@@ -88,14 +88,16 @@
     <Compile Include="Search\SearchResult.cs" />
     <Compile Include="ListItems\SearchResultListItem.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="Utilities\ParamUtils.cs" />
     <Compile Include="Utilities\StringUtils.cs" />
-    <Compile Include="Utilities\Utils.cs" />
+    <Compile Include="Utilities\FileUtils.cs" />
     <Compile Include="MainPage.xaml.cs">
       <DependentUpon>MainPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utilities\AnimationUtils.cs" />
     <Compile Include="Utilities\SettingUtils.cs" />
+    <Compile Include="Utilities\ViewUtils.cs" />
     <Compile Include="Views\AboutAndTips.xaml.cs">
       <DependentUpon>AboutAndTips.xaml</DependentUpon>
     </Compile>

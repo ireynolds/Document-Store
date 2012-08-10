@@ -31,7 +31,7 @@ namespace NotepadTheNextVersion
         private Document CreateTempFile()
         {
             Directory root = new Directory(PathBase.Root);
-            string name = Utils.GetNumberedName("Temp", root);
+            string name = FileUtils.GetNumberedName("Temp", root);
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 Document d = new Document(root.Path.NavigateIn(name + ".txt")) { IsTemp = true };

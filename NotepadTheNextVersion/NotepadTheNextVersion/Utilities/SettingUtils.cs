@@ -16,6 +16,10 @@ namespace NotepadTheNextVersion.Utilities
 {
     public static class SettingUtils
     {
+        /// <summary>
+        /// Returns the user-set foreground brush for use in the note editor.
+        /// </summary>
+        /// <returns></returns>
         public static SolidColorBrush GetUserSetForegroundBrush()
         {
             ThemeColor foreground = (ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor);
@@ -32,11 +36,21 @@ namespace NotepadTheNextVersion.Utilities
             }
         }
 
+        /// <summary>
+        /// Returns the user-set background brush for use in the note editor.
+        /// </summary>
+        /// <returns></returns>
         public static SolidColorBrush GetUserSetBackgroundBrush()
         {
             return ((ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor)).Brush();
         }
 
+        /// <summary>
+        /// Returns the user-set value for the given setting, or the default setting if no
+        /// user-set value exists.
+        /// </summary>
+        /// <param name="setting"></param>
+        /// <returns></returns>
         public static object GetSetting(Setting setting)
         {
             if (IsolatedStorageSettings.ApplicationSettings.Contains(setting.Key()))
@@ -45,6 +59,11 @@ namespace NotepadTheNextVersion.Utilities
                 return DefaultValue(setting);
         }
 
+        /// <summary>
+        /// Returns the default value for a given setting.
+        /// </summary>
+        /// <param name="setting"></param>
+        /// <returns></returns>
         private static object DefaultValue(Setting setting)
         {
             switch (setting)

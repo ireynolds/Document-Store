@@ -51,7 +51,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArguments()
         {
-            IList<object> args = Utils.GetArguments();
+            IList<object> args = ParamUtils.GetArguments();
 
             _actionables = (IList<IActionable>)args.ElementAt(0);
         }

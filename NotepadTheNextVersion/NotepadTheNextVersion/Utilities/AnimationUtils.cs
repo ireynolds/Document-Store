@@ -14,7 +14,6 @@ namespace NotepadTheNextVersion.Utilities
 {
     public static class AnimationUtils
     {
-
         public static DoubleAnimation TranslateY(double from, double to, int millis)
         {
             return TranslateY(from, to, millis, new LinearEase());
@@ -60,16 +59,6 @@ namespace NotepadTheNextVersion.Utilities
             Storyboard.SetTargetProperty(d, new PropertyPath("(UIElement.Opacity)"));
             return d;
         }
-
-        //public static DoubleAnimation TranslateYOnNavigateIn()
-        //{
-        //    return TranslateY(250, 350, 0, new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 4 });
-        //}
-
-        //public static DoubleAnimation ChangeOpacityOnNavigateIn()
-        //{
-        //    return ChangeOpacity(0, 250, 1, new ExponentialEase() { EasingMode = EasingMode.EaseOut });
-        //}
 
         private static DoubleAnimation GetGenericAnimation(double from, double to, int millis, IEasingFunction easingFunction)
         {
