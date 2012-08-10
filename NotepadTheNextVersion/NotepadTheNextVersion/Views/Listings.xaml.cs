@@ -468,21 +468,21 @@ namespace NotepadTheNextVersion.ListItems
             _pageMode = type;
             if (type == ListingsMode.View)
             {
-                // Swap out the icon buttons
-                InitializeViewMode();
-
                 // Change page properties
                 ContentBox.SelectedIndex = -1;
                 ContentBox.SelectionMode = SelectionMode.Single;
+                
+                // Swap out the icon buttons
+                InitializeViewMode();
             }
             else if (type == ListingsMode.Edit)
             {
-                // Swap out the icon buttons
-                InitializeEditMode();
-
                 // Change page properties
                 ContentBox.SelectedIndex = -1;
                 ContentBox.SelectionMode = SelectionMode.Multiple;
+
+                // Swap out the icon buttons
+                InitializeEditMode();
             }
         }
 
