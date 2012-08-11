@@ -38,6 +38,22 @@ namespace NotepadTheNextVersion.Models
 
         #region Accessors
 
+        //public bool IsDirectory
+        //{
+        //    get
+        //    {
+
+        //    }
+        //}
+
+        //public bool IsDocument
+        //{
+        //    get
+        //    {
+
+        //    }
+        //}
+
         /*
          * Returns this Path's path string such that
          * DirectoryExists(Path)

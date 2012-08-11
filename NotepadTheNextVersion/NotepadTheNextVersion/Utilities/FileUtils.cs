@@ -151,5 +151,16 @@ namespace NotepadTheNextVersion.Utilities
                 return docs;
             }
         }
+
+        /// <summary>
+        /// Removes the favorite at the oldPath and adds a favorite at the newPath
+        /// </summary>
+        /// <param name="oldPath"></param>
+        /// <param name="newPath"></param>
+        public static void ReplaceFavorite(IActionable oldFave, IActionable newFave)
+        {
+            oldFave.IsFavorite = false;
+            newFave.IsFavorite = true;
+        }
     }
 }

@@ -32,7 +32,8 @@ namespace NotepadTheNextVersion.Models
         void NavToMove(NavigationService NavigationService);
 
         // Moves this to the specified location. Returns an 
-        // IActionable representing the new item.
+        // IActionable representing the new item. The parameter
+        // is the parent of the new location.
         IActionable Move(Directory newLocation);
 
         // Navigates to a page that renames this. 

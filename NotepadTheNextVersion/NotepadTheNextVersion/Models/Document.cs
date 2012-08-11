@@ -121,7 +121,6 @@ namespace NotepadTheNextVersion.Models
             NavigationService.Navigate(App.MoveItem);
         }
 
-        // Takes the parent of the new location.
         public IActionable Move(Directory newParent)
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
@@ -131,7 +130,10 @@ namespace NotepadTheNextVersion.Models
                     throw new ActionableException(this);
                     
                 isf.MoveFile(_path.PathString, newLoc.PathString);
-                return new Document(newLoc);
+                Document newDoc = new Document(newLoc);
+                if (this.IsFavorite)
+                    newDoc.IsFavorite = true;
+                return newDoc;
             }
         }
 
@@ -154,7 +156,10 @@ namespace NotepadTheNextVersion.Models
 
                 isf.MoveFile(Path.PathString, newLoc.PathString);
                 isf.DeleteFile(this.Path.PathString);
-                return new Document(newLoc);
+                Document newDoc = new Document(newLoc);
+                if (this.IsFavorite)
+                    newDoc.IsFavorite = true;
+                return newDoc;
             }
         }
 
@@ -176,6 +181,7 @@ namespace NotepadTheNextVersion.Models
                     newLoc.Delete();
 
                 this.Move(trash);
+                this.IsFavorite = false;
                 return newLoc;
             }
         }
@@ -214,7 +220,7 @@ namespace NotepadTheNextVersion.Models
                 s.Close();
             }
         }
-
+        
         public bool Exists()
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
@@ -225,7 +231,10 @@ namespace NotepadTheNextVersion.Models
 
         public int CompareTo(IActionable other)
         {
-            return this.DisplayName.CompareTo(other.DisplayName);
+            if (other.GetType() == typeof(Directory))
+                return 1;
+            else
+                return this.DisplayName.CompareTo(other.DisplayName);
         }
 
         #region Private Helpers

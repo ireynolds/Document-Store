@@ -75,7 +75,7 @@
     <Compile Include="Exceptions\InvalidStateException.cs" />
     <Compile Include="Exceptions\LocationNotFoundException.cs" />
     <Compile Include="Exceptions\ActionableException.cs" />
-    <Compile Include="AppBars\ApplicationBarSetup.cs" />
+    <Compile Include="Models\ApplicationBarSetup.cs" />
     <Compile Include="Models\ButtonList.cs" />
     <Compile Include="Models\ItemList.cs" />
     <Compile Include="Models\LinearEase.cs" />

@@ -69,7 +69,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void IconButton_Okay_Click(object sender, EventArgs e)
         {
-            // Ensure the filename is unique.
+            // Ensure the filename is good.
             string newName = NewNameBox.Text.Trim();
             IList<string> badCharsInName = new List<string>();
             if (!FileUtils.IsValidFileName(newName, out badCharsInName))
@@ -90,6 +90,11 @@ namespace NotepadTheNextVersion.ListItems
 
             if (newName.EndsWith(".txt") && _actionable.GetType() == typeof(Document))
                 newName = newName.Substring(0, newName.Length - 4);
+
+            //if (_actionable.GetType() == typeof(Document))
+            //    newName += "doc";
+            //else
+            //    newName += "dir";
 
             // Rename the item
             bool wasTemp = _actionable.IsTemp;
@@ -128,7 +133,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void AlertUserDuplicateName()
         {
-            MessageBox.Show("An item with the same name already exists in that location.", "Invalid name", MessageBoxButton.OK);
+            MessageBox.Show("An item with the same name already exists in that location./n/nNote that names are case-insensitive.", "Invalid name", MessageBoxButton.OK);
         }
 
         private void AlertUserDotFile()
@@ -188,25 +193,14 @@ namespace NotepadTheNextVersion.ListItems
                 {
                     if (!name.EndsWith(".txt"))
                         name += ".txt";
-                    Models.Path newPath = _actionable.Path.NavigateIn(name);
-
-                    if (isf.FileExists(newPath.PathString))
-                    {
-                        MessageBox.Show("A document with the specified name already exists.");
-                        return false;
-                    }
+                    Models.Path newPath = _actionable.Path.Parent.NavigateIn(name);
+                    return !isf.FileExists(newPath.PathString);
                 }
-                else if (_actionable.GetType() == typeof(Models.Directory))
+                else
                 {
-                    Models.Path newPath = _actionable.Path.NavigateIn(name);
-
-                    if (isf.DirectoryExists(newPath.PathString))
-                    {
-                        MessageBox.Show("A directory with the specified name already exists.");
-                        return false;
-                    }
+                    Models.Path newPath = _actionable.Path.Parent.NavigateIn(name);
+                    return !isf.DirectoryExists(newPath.PathString);
                 }
-                return true;
             }
         }
 

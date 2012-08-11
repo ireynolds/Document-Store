@@ -101,7 +101,6 @@ namespace NotepadTheNextVersion.Models
             NavigationService.Navigate(App.MoveItem);
         }
 
-        // takes the parent of the new location
         public IActionable Move(Directory newLocation) 
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
@@ -111,6 +110,8 @@ namespace NotepadTheNextVersion.Models
                     throw new ActionableException(this);
 
                 isf.MoveDirectory(Path.PathString, newLoc.Path.PathString);
+                if (this.IsFavorite)
+                    newLoc.IsFavorite = true;
                 return newLoc;
             }
         }  
@@ -131,7 +132,10 @@ namespace NotepadTheNextVersion.Models
 
                 isf.MoveDirectory(Path.PathString, newLoc.PathString);
                 isf.DeleteFile(this.Path.PathString);
-                return new Directory(newLoc);
+                Directory newDir = new Directory(newLoc);
+                if (this.IsFavorite)
+                    FileUtils.ReplaceFavorite(this, newDir);
+                return newDir;
             }
         }
 
@@ -153,6 +157,7 @@ namespace NotepadTheNextVersion.Models
                     newLoc.Delete();
 
                 this.Move(trash);
+                this.IsFavorite = false;
                 return newLoc;
             }
         }
@@ -197,7 +202,10 @@ namespace NotepadTheNextVersion.Models
 
         public int CompareTo(IActionable other)
         {
-            return this.DisplayName.CompareTo(other.DisplayName);
+            if (other.GetType() == typeof(Document))
+                return -1;
+            else
+                return this.DisplayName.CompareTo(other.DisplayName);
         }
 
         #region Private Helpers
