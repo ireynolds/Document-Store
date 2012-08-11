@@ -9,6 +9,7 @@ using Microsoft.Phone.Shell;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
+using System.Collections.ObjectModel;
 
 namespace NotepadTheNextVersion.Models
 {
@@ -22,6 +23,23 @@ namespace NotepadTheNextVersion.Models
         private string _text;
 
         private bool _isTemp;
+
+        public bool IsFavorite
+        {
+            get
+            {
+                Collection<string> favs = (Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey];
+                return favs.Contains(this.Path.PathString);
+            }
+            set
+            {
+                Collection<string> favs = (Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey];
+                if (value && !IsFavorite)
+                    favs.Add(this.Path.PathString);
+                else if (!value && IsFavorite)
+                    favs.Remove(this.Path.PathString);
+            }
+        }
 
         private bool isTrash
         {
@@ -223,7 +241,13 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable SwapRoot()
         {
-            return new Document(Path.SwapRoot());
+            Document d = new Document(Path.SwapRoot());
+            if (this.IsFavorite)
+            {
+                this.IsFavorite = false;
+                d.IsFavorite = true;
+            }
+            return d;
         }
 
         #endregion

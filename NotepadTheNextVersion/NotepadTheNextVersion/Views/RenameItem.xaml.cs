@@ -35,6 +35,13 @@ namespace NotepadTheNextVersion.ListItems
             this.Loaded += new RoutedEventHandler(RenameItem_Loaded);
         }
 
+        protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
+        {
+            Cancel();
+            e.Cancel = true;
+            base.OnBackKeyPress(e);
+        }
+
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
@@ -51,6 +58,13 @@ namespace NotepadTheNextVersion.ListItems
         void NewNameBox_GotFocus(object sender, RoutedEventArgs e)
         {
             NewNameBox.SelectAll();
+        }
+
+        private void Cancel()
+        {
+            if (_actionable.IsTemp)
+                _actionable.Delete();
+            NavigationService.GoBack();
         }
 
         private void IconButton_Okay_Click(object sender, EventArgs e)
@@ -91,7 +105,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void IconButton_Cancel_Click(object sender, EventArgs e)
         {
-            NavigationService.GoBack();
+            Cancel();
         }
 
         private void NewNameBox_KeyDown(object sender, KeyEventArgs e)

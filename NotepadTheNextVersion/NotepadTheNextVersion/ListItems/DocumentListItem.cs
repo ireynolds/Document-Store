@@ -15,6 +15,7 @@ namespace NotepadTheNextVersion.ListItems
 {
     public class DocumentListItem : IListingsListItem
     {
+        private static readonly Thickness this_Margin = new Thickness(-6, 0, 0, 0);
         private static readonly Thickness displayNameTextBox_Margin = new Thickness(10, 0, 0, 25);
         private static readonly FontFamily displayNameTextBox_FontFamily = new FontFamily("Segoe WP SemiLight");
 
@@ -24,6 +25,8 @@ namespace NotepadTheNextVersion.ListItems
             : base(a)
         {
             // Set up appearance
+            _contentPanel.Margin = this_Margin;
+
             displayNameTextBlock = new TextBlock();
 
             _contentPanel.Children.Add(displayNameTextBlock);

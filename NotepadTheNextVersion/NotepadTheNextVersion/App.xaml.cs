@@ -10,6 +10,7 @@ using System.Windows.Media.Animation;
 using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Enumerations;
 using System.IO;
+using System.Collections.ObjectModel;
 
 namespace NotepadTheNextVersion
 {
@@ -52,6 +53,8 @@ namespace NotepadTheNextVersion
 
         public const string DocumentTile = "Application_DocumentTile.png";
         public const string DirectoryTile = "Application_DirectoryTile.png";
+
+        public const string FavoritesKey = "Favorites";
 
         /// <summary>
         /// Constructor for the Application object.
@@ -103,6 +106,9 @@ namespace NotepadTheNextVersion
                 if (!isf.DirectoryExists("staging"))
                     isf.CreateDirectory("staging");
             }
+
+            if (!IsolatedStorageSettings.ApplicationSettings.Contains(App.FavoritesKey))
+                IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey] = new Collection<string>();
 
             // Add test data
             //using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())

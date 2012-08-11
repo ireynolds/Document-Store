@@ -13,6 +13,9 @@ namespace NotepadTheNextVersion.Models
         // Returns the path which locates this.
         Path Path { get; }
 
+        // Returns true iff this IActionable is in your favorites
+        bool IsFavorite { get;  set;}
+
         // Returns the name of this
         string Name { get; }
 
@@ -52,6 +55,8 @@ namespace NotepadTheNextVersion.Models
         // exists in the file system.
         bool Exists();
 
+        // Returns a IActionable that points to the same location 
+        // relative to a new root.
         IActionable SwapRoot();
     }
 }

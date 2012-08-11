@@ -17,7 +17,7 @@ namespace NotepadTheNextVersion.ListItems
 {
     public class DirectoryListItem : IListingsListItem
     {
-        private static readonly Thickness this_Margin = new  Thickness(0, 0, 0, 25);
+        private static readonly Thickness this_Margin = new  Thickness(-6, 0, 0, 25);
         private static readonly Thickness image_Margin = new Thickness(12, 0, 10, 10);
         private static readonly Thickness displayNameTextBox_Margin = new Thickness(10, 0, 0, 0);
         private static readonly Thickness fullPathTextBox_Margin = new Thickness(12, -5, 0, 0);

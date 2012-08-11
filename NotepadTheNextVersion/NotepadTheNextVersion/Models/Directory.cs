@@ -7,6 +7,7 @@ using NotepadTheNextVersion.Exceptions;
 using Microsoft.Phone.Shell;
 using System.Linq;
 using System.Windows;
+using System.Collections.ObjectModel;
 
 namespace NotepadTheNextVersion.Models
 {
@@ -16,6 +17,23 @@ namespace NotepadTheNextVersion.Models
 
 
         private bool _isTemp;
+
+        public bool IsFavorite
+        {
+            get
+            {
+                Collection<string> favs = (Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey];
+                return favs.Contains(this.Path.PathString);
+            }
+            set
+            {
+                Collection<string> favs = (Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey];
+                if (value && !IsFavorite)
+                    favs.Add(this.Path.PathString);
+                else if (!value && IsFavorite)
+                    favs.Remove(this.Path.PathString);
+            }
+        }
 
         public bool IsTemp
         {
@@ -167,7 +185,13 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable SwapRoot()
         {
-            return new Directory(Path.SwapRoot());
+            Directory d = new Directory(Path.SwapRoot());
+            if (this.IsFavorite)
+            {
+                this.IsFavorite = false;
+                d.IsFavorite = true;
+            }
+            return d;
         }
 
         #region Private Helpers

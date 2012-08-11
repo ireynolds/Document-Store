@@ -147,7 +147,6 @@ namespace NotepadTheNextVersion.ListItems
             }
             _hideCheckBoxStoryboard.Completed +=new EventHandler((object sender, EventArgs e) =>
             {
-                //this.Children.Remove(_checkBox);
                 _checkBox.Visibility = Visibility.Collapsed;
             });
             _hideCheckBoxStoryboard.Begin();
