@@ -11,10 +11,12 @@ namespace NotepadTheNextVersion.ListItems
 {
     public abstract class IListingsListItem : StackPanel
     {
-        protected const int SHOW_CHECKBOX_DURATION = 200;
-        protected const int CHECKBOX_FADEIN_DURATION = 125;
-        protected const int HIDE_CHECKBOX_DURATION = 100;
-        protected const int CHECKBOX_FADEOUT_DURATION = 125;
+        private const int SHOW_CHECKBOX_DURATION = 150;
+        private const int CHECKBOX_FADEIN_DURATION = 125;
+        private const int HIDE_CHECKBOX_DURATION = 100;
+        private const int CHECKBOX_FADEOUT_DURATION = 125;
+        private static readonly IEasingFunction SHOW_CHECKBOX_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 4 };
+        private static readonly IEasingFunction HIDE_CHECKBOX_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 3 };
 
         public readonly IActionable ActionableItem;
         protected readonly StackPanel _contentPanel;
@@ -25,7 +27,8 @@ namespace NotepadTheNextVersion.ListItems
         {
             get
             {
-                return -1 * (_checkBox.Margin.Left + _checkBox.DesiredSize.Width + _checkBox.Margin.Right);
+                // return -1 * (_checkBox.Margin.Left + _checkBox.DesiredSize.Width + _checkBox.Margin.Right);
+                return -68; // hard-code because sometimes the size is zero
             }
         }
 
@@ -111,7 +114,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 _displayCheckBoxStoryboard = new Storyboard();
 
-                DoubleAnimation slide = AnimationUtils.TranslateX(SLIDE_POSITION, 0, SHOW_CHECKBOX_DURATION, new ExponentialEase() { EasingMode = EasingMode.EaseOut });
+                DoubleAnimation slide = AnimationUtils.TranslateX(SLIDE_POSITION, 0, SHOW_CHECKBOX_DURATION, SHOW_CHECKBOX_EASE);
                 Storyboard.SetTarget(slide, this);
                 _displayCheckBoxStoryboard.Children.Add(slide);
 
@@ -134,7 +137,7 @@ namespace NotepadTheNextVersion.ListItems
                     _hideCheckBoxStoryboard.Stop();
                 };
 
-                DoubleAnimation slide = AnimationUtils.TranslateX(0, SLIDE_POSITION, HIDE_CHECKBOX_DURATION, new ExponentialEase() { EasingMode = EasingMode.EaseIn });
+                DoubleAnimation slide = AnimationUtils.TranslateX(0, SLIDE_POSITION, HIDE_CHECKBOX_DURATION, HIDE_CHECKBOX_EASE);
                 Storyboard.SetTarget(slide, this);
                 _hideCheckBoxStoryboard.Children.Add(slide);
 
@@ -142,8 +145,12 @@ namespace NotepadTheNextVersion.ListItems
                 Storyboard.SetTarget(fade, _checkBox);
                 _hideCheckBoxStoryboard.Children.Add(fade);
             }
+            _hideCheckBoxStoryboard.Completed +=new EventHandler((object sender, EventArgs e) =>
+            {
+                //this.Children.Remove(_checkBox);
+                _checkBox.Visibility = Visibility.Collapsed;
+            });
             _hideCheckBoxStoryboard.Begin();
-            //_checkBox.Visibility = Visibility.Collapsed; // remove this when you add the animation
         }
     }
 }

@@ -65,7 +65,6 @@ namespace NotepadTheNextVersion.ListItems
             base.OnNavigatedFrom(e);
             if (_shouldRemoveBackEntry && _doc.IsTemp)
             {
-                NavigationService.RemoveBackEntry();
                 IActionable a = _doc.Delete(); // -> trash
                 a.Delete(); // permanent
             }
@@ -74,6 +73,7 @@ namespace NotepadTheNextVersion.ListItems
                 _doc.Text = DocTextBox.Text;
                 _doc.Save();
             }
+            NavigationService.RemoveBackEntry();
         }
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
