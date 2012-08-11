@@ -102,10 +102,15 @@ namespace NotepadTheNextVersion.ListItems
 
             if ((bool)SettingUtils.GetSetting(Setting.DisplayNoteTitle))
             {
-                this.DocTitleBlock = new TextBlock();
-                DocTitleBlock.Text = _doc.DisplayName.ToUpper();
-                DocTitleBlock.Foreground = new SolidColorBrush(Colors.Gray);
-                DocTitleBlock.Margin = new Thickness(12, 12, 0, 10);
+                this.DocTitleBlock = new TextBlock()
+                {
+                    Text = _doc.DisplayName.ToUpper(),
+                    FontSize = (double)App.Current.Resources["PhoneFontSizeMedium"],
+                    FontFamily = new FontFamily("Segoe WP Semibold"),
+                    Foreground = new SolidColorBrush(Colors.Gray),
+                    Margin = new Thickness(12, 12, 0, 10),
+                    RenderTransform = new CompositeTransform()
+                };
                 DocStackPanel.Children.Add(DocTitleBlock);
             }
 
@@ -158,9 +163,9 @@ namespace NotepadTheNextVersion.ListItems
             ApplicationBar = new ApplicationBar();
             ApplicationBar.Mode = ApplicationBarMode.Minimized;
 
-            ApplicationBar.Buttons.Add(ViewUtils.createIconButton("folders", App.FolderIconSmall, new EventHandler(FoldersIconButton_Click)));
-            ApplicationBar.MenuItems.Add(ViewUtils.createMenuItem("settings", new EventHandler(SettingsMenuItem_Click)));
-            ApplicationBar.MenuItems.Add(ViewUtils.createMenuItem("send as...", new EventHandler(SendAsMenuItem_Click)));
+            ApplicationBar.Buttons.Add(ViewUtils.CreateIconButton("folders", App.FolderIconSmall, new EventHandler(FoldersIconButton_Click)));
+            ApplicationBar.MenuItems.Add(ViewUtils.CreateMenuItem("settings", new EventHandler(SettingsMenuItem_Click)));
+            ApplicationBar.MenuItems.Add(ViewUtils.CreateMenuItem("send as...", new EventHandler(SendAsMenuItem_Click)));
         }
 
         #endregion

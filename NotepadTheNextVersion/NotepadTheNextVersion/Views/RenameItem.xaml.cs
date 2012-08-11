@@ -169,8 +169,8 @@ namespace NotepadTheNextVersion.ListItems
             ApplicationBar.IsMenuEnabled = false;
             ApplicationBar.IsVisible = true;
 
-            ApplicationBar.Buttons.Add(ViewUtils.createIconButton("okay", App.CheckIcon, new EventHandler(IconButton_Okay_Click)));
-            ApplicationBar.Buttons.Add(ViewUtils.createIconButton("cancel", App.CancelIcon, new EventHandler(IconButton_Cancel_Click)));
+            ApplicationBar.Buttons.Add(ViewUtils.CreateIconButton("okay", App.CheckIcon, new EventHandler(IconButton_Okay_Click)));
+            ApplicationBar.Buttons.Add(ViewUtils.CreateIconButton("cancel", App.CancelIcon, new EventHandler(IconButton_Cancel_Click)));
         }
 
         private void GetArgs()

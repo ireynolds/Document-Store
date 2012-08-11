@@ -14,6 +14,7 @@ using System.Threading;
 using System.ComponentModel;
 using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Exceptions;
+using NotepadTheNextVersion.AppBars;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -167,20 +168,10 @@ namespace NotepadTheNextVersion.ListItems
             if (_pageMode == PageMode.Trash)
             {
                 SyncSelectedItemsWithCheckboxes(e);
-                if (_currentBox.SelectedItems.Count == 0)
-                    SetAppBarButtonsEnabled(false);
-                else
-                    SetAppBarButtonsEnabled(true);
             }
             else if (_pageMode == PageMode.Edit)
             {
                 SyncSelectedItemsWithCheckboxes(e);
-                if (_currentBox.SelectedItems.Count == 0)
-                    SetPageMode(PageMode.View);
-                else if (_currentBox.SelectedItems.Count == 1)
-                    EnableSingleSelectionAppBarItems();
-                else if (_currentBox.SelectedItems.Count > 1)
-                    EnableMultipleSelectionAppBarItems();
             }
             else if (_pageMode == PageMode.Favorites)
             {
@@ -251,7 +242,7 @@ namespace NotepadTheNextVersion.ListItems
             s.Children.Add(AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE));
             s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION));
 
-            TextBlock append = CreatePathPanelBlock(destinationDisplayName);
+            TextBlock append = CreatePathPanelBlock("\\" + destinationDisplayName);
             append.Opacity = 0;
             _pathPanel.Children.Add(append);
             
@@ -348,10 +339,12 @@ namespace NotepadTheNextVersion.ListItems
         private void InitPathPanelFromPath(string path)
         {
             _pathPanel.Children.Clear();
+            string prefix = string.Empty;
             foreach (string crumb in path.Split(new string[] { "\\", "/" }, StringSplitOptions.RemoveEmptyEntries))
             {
-                TextBlock element = CreatePathPanelBlock(crumb);
+                TextBlock element = CreatePathPanelBlock(prefix + crumb);
                 _pathPanel.Children.Add(element);
+                prefix = "\\";
             }
         }
 
@@ -359,7 +352,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             return new TextBlock()
             {
-                Text = "\\" + element.ToUpper(),
+                Text = element.ToUpper(),
                 FontSize = (double)App.Current.Resources["PhoneFontSizeMedium"],
                 FontFamily = new FontFamily("Segoe WP Semibold"),
                 Margin = new Thickness(0, 0, 0, 0),
@@ -628,210 +621,34 @@ namespace NotepadTheNextVersion.ListItems
             _favesGrid.Children.Add(_favesBox);
         }
 
-        private void SetPageMode(PageMode type)
+        public void SetPageMode(PageMode type)
         {
             if (type == PageMode.View && _pageMode != PageMode.View)
-                InitializeViewMode();
+            {
+                _currentBox.SelectedIndex = -1;
+                _currentBox.SelectionMode = SelectionMode.Single;
+                ApplicationBar = (new Listings.ViewAppBar(this)).AppBar;
+            }
             else if (type == PageMode.Edit && _pageMode != PageMode.Edit)
-                InitializeEditMode();
+            {
+                _currentBox.SelectedIndex = -1;
+                _currentBox.SelectionMode = SelectionMode.Multiple;
+                ApplicationBar = (new Listings.EditAppBar(this)).AppBar;
+            }
             else if (type == PageMode.Trash && _pageMode != PageMode.Trash)
-                InitializeTrashMode();
+            {
+                _currentBox.SelectedIndex = -1;
+                _currentBox.SelectionMode = SelectionMode.Multiple;
+                _currBeforeTrash = _curr;
+                ApplicationBar = (new Listings.TrashAppBar(this)).AppBar;
+            }
             else if (type == PageMode.Favorites && _pageMode != PageMode.Favorites)
-                InitializeFavoritesMode();
+            {
+                _currentBox.SelectedItem = -1;
+                _currentBox.SelectionMode = SelectionMode.Single;
+                ApplicationBar = (new Listings.FavoritesAppBar(this)).AppBar;
+            }
             _pageMode = type;
-        }
-
-        private void InitializeFavoritesMode()
-        {
-            _currentBox.SelectedIndex = -1;
-            _currentBox.SelectionMode = SelectionMode.Single;
-            ApplicationBar.MenuItems.Clear();
-            ApplicationBar.IsMenuEnabled = false;
-            ApplicationBar.Mode = ApplicationBarMode.Minimized;
-        }
-
-        private IList<ApplicationBarIconButton> TrashListButtons;
-        private IList<ApplicationBarMenuItem> TrashListItems;
-
-        private void InitializeTrashMode()
-        {
-            if (TrashListButtons == null)
-            {
-                TrashListButtons = new List<ApplicationBarIconButton>();
-                TrashListButtons.Add(ViewUtils.createIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
-                {
-                    IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
-                    foreach (IListingsListItem li in _currentBox.SelectedItems)
-                    {
-                        li.ActionableItem.Delete();
-                        deletedItems.Add(li);
-                    }
-                    BeginDeleteAnimations(deletedItems);
-                }));
-                TrashListButtons.Add(ViewUtils.createIconButton("restore", App.UndeleteIcon, (object sender, EventArgs e) =>
-                {
-                    IList<IActionable> args = new List<IActionable>();
-                    foreach (IListingsListItem li in _currentBox.SelectedItems)
-                        args.Add(li.ActionableItem);
-
-                    ParamUtils.SetArguments(args);
-                    NavigationService.Navigate(App.MoveItem);
-                }));
-            }
-
-            if (TrashListItems == null)
-            {
-                TrashListItems = new List<ApplicationBarMenuItem>();
-
-                TrashListItems.Add(ViewUtils.createMenuItem("empty trash", (object sender, EventArgs e) =>
-                {
-                    if (MessageBoxResult.Cancel == MessageBox.Show("This will delete all documents in trash permanently. Do you want to continue?", "Warning", MessageBoxButton.OKCancel))
-                        return;
-
-                    foreach (IListingsListItem i in _currentBox.SelectedItems)
-                        i.ActionableItem.Delete();
-                    _currentBox.Items.Clear();
-                }));
-            }
-
-            _currentBox.SelectedIndex = -1;
-            _currentBox.SelectionMode = SelectionMode.Multiple;
-
-            ApplicationBar.Buttons.Clear();
-            foreach (ApplicationBarIconButton b in TrashListButtons)
-                ApplicationBar.Buttons.Add(b);
-
-            ApplicationBar.MenuItems.Clear();
-            foreach (ApplicationBarMenuItem i in TrashListItems)
-                ApplicationBar.MenuItems.Add(i);
-
-            SetAppBarButtonsEnabled(false);
-            ApplicationBar.Mode = ApplicationBarMode.Default;
-            ApplicationBar.IsMenuEnabled = true;
-
-            _currBeforeTrash = _curr;
-            Directory trash = new Directory(PathBase.Trash);
-            Storyboard sb = GetNavigatedToStoryboard(trash);
-            sb.Completed += new EventHandler((object sender, EventArgs e) =>
-            {
-                foreach (IListingsListItem item in _currentBox.Items)
-                    item.IsSelectable = true;
-            });
-            ApplicationBar.Mode = ApplicationBarMode.Default;
-            Navigate(trash,
-                     GetNavigatedFromStoryboard(),
-                     sb);
-        }
-
-        private IList<ApplicationBarIconButton> ViewListButtons;
-        private IList<ApplicationBarMenuItem> ViewListItems;
-
-        // Returns a list of icon buttons for the application bar's "view" setting
-        private void InitializeViewMode()
-        {
-            // Lazy initialization
-            if (ViewListButtons == null) // && ViewListItems == null
-            {
-                ViewListButtons = new List<ApplicationBarIconButton>();
-                ViewListButtons.Add(ViewUtils.createIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
-                {
-                    ParamUtils.SetArguments(_curr);
-                    NavigationService.Navigate(App.AddNewItem);
-                }));
-                ViewListButtons.Add(ViewUtils.createIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { SetPageMode(PageMode.Edit); }));
-
-                ViewListItems = new List<ApplicationBarMenuItem>();
-                ViewListItems.Add(ViewUtils.createMenuItem("search", (object sender, EventArgs e) => { NavigationService.Navigate(App.Search); }));
-                ViewListItems.Add(ViewUtils.createMenuItem("settings", (object sender, EventArgs e) => { NavigationService.Navigate(App.Settings); }));
-                ViewListItems.Add(ViewUtils.createMenuItem("trash", (object sender, EventArgs e) => { SetPageMode(PageMode.Trash); }));
-                ViewListItems.Add(ViewUtils.createMenuItem("import+export", (object sender, EventArgs e) => { NavigationService.Navigate(App.ExportAll); }));
-                ViewListItems.Add(ViewUtils.createMenuItem("about+tips", (object sender, EventArgs e) => { NavigationService.Navigate(App.AboutAndTips); }));
-            }
-
-            _currentBox.SelectedIndex = -1;
-            _currentBox.SelectionMode = SelectionMode.Single;
-
-            ApplicationBar.Buttons.Clear();
-            foreach (ApplicationBarIconButton b in ViewListButtons)
-                ApplicationBar.Buttons.Add(b);
-
-            ApplicationBar.MenuItems.Clear();
-            foreach (ApplicationBarMenuItem i in ViewListItems)
-                ApplicationBar.MenuItems.Add(i);
-
-            foreach (IListingsListItem item in _currentBox.Items)
-                item.IsSelectable = false;
-
-            ApplicationBar.Mode = ApplicationBarMode.Default;
-            ApplicationBar.IsMenuEnabled = true;
-        }
-
-        private IList<ApplicationBarIconButton> EditListButtons;
-        private IList<ApplicationBarMenuItem> EditListItems;
-
-        // Returns a list of icon buttons for the application bar's "edit" setting
-        private void InitializeEditMode()
-        {
-            // Lazy initialization
-            if (EditListButtons == null) // && EditListItems == null
-            {
-                EditListButtons = new List<ApplicationBarIconButton>();
-                EditListButtons.Add(ViewUtils.createIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
-                {
-                    IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
-                    foreach (IListingsListItem li in _currentBox.SelectedItems)
-                    {
-                        li.ActionableItem.Delete();
-                        deletedItems.Add(li);
-                    }
-                    BeginDeleteAnimations(deletedItems);
-                    SetPageMode(PageMode.View);
-                }));
-            }
-
-            if (EditListItems == null)
-            {
-                EditListItems = new List<ApplicationBarMenuItem>();
-                EditListItems.Add(ViewUtils.createMenuItem("rename", (object sender, EventArgs e) =>
-                {
-                    IActionable a = (_currentBox.SelectedItem as IListingsListItem).ActionableItem;
-                    a.NavToRename(NavigationService);
-                }));
-                EditListItems.Add(ViewUtils.createMenuItem("move", (object sender, EventArgs e) =>
-                {
-                    IList<IActionable> args = new List<IActionable>();
-                    foreach (IListingsListItem li in _currentBox.SelectedItems)
-                        args.Add(li.ActionableItem);
-
-                    ParamUtils.SetArguments(args);
-                    NavigationService.Navigate(App.MoveItem);
-                }));
-                EditListItems.Add(ViewUtils.createMenuItem("pin", (object sender, EventArgs e) =>
-                {
-                    IActionable a = (_currentBox.SelectedItem as IListingsListItem).ActionableItem;
-                    a.TogglePin();
-                }));
-            }
-
-            _currentBox.SelectedIndex = -1;
-            _currentBox.SelectionMode = SelectionMode.Multiple;
-
-            ApplicationBar.Buttons.Clear();
-            foreach (ApplicationBarIconButton b in EditListButtons)
-                ApplicationBar.Buttons.Add(b);
-            AddAddFaveButton();
-            
-            ApplicationBar.MenuItems.Clear();
-            foreach (ApplicationBarMenuItem i in EditListItems)
-                ApplicationBar.MenuItems.Add(i);
-
-            SetAppBarEnabled(false);
-
-            foreach (IListingsListItem item in _currentBox.Items)
-                item.IsSelectable = true;
-
-            ApplicationBar.Mode = ApplicationBarMode.Default;
-            ApplicationBar.IsMenuEnabled = true;
         }
 
         private void BeginDeleteAnimations(IList<IListingsListItem> deletedItems)
@@ -878,79 +695,224 @@ namespace NotepadTheNextVersion.ListItems
             };
         }
 
-        private void SetAppBarItemsEnabled(bool enabled)
-        {
-            foreach (ApplicationBarMenuItem i in ApplicationBar.MenuItems)
-                i.IsEnabled = enabled;
-        }
-
-        private void SetAppBarEnabled(bool enabled)
-        {
-            SetAppBarButtonsEnabled(enabled);
-            SetAppBarItemsEnabled(enabled);
-        }
-
-        private void SetAppBarButtonsEnabled(bool enabled)
-        {
-            foreach (ApplicationBarIconButton b in ApplicationBar.Buttons)
-                b.IsEnabled = enabled;
-        }
-
-        private void EnableSingleSelectionAppBarItems()
-        {
-            if ((_currentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite)
-                AddRemoveFaveButton();
-            else
-                AddAddFaveButton();
-            SetAppBarEnabled(true);
-        }
-
-        private void AddRemoveFaveButton()
-        {
-            if (_removeFave == null)
-            {
-                _removeFave = (ViewUtils.createIconButton("remove favorite", App.UnfaveIcon, (object sender, EventArgs e) =>
-                {
-                    foreach (IListingsListItem li in _currentBox.SelectedItems)
-                        li.ActionableItem.IsFavorite = false;
-                    SetPageMode(PageMode.View);
-                }));
-            }
-            if (!ApplicationBar.Buttons.Contains(_removeFave))
-            {
-                ApplicationBar.Buttons.Remove(_addFave);
-                ApplicationBar.Buttons.Add(_removeFave);
-            }
-        }
-
-        private void AddAddFaveButton()
-        {
-            if (_addFave == null)
-            {
-                _addFave = (ViewUtils.createIconButton("add favorite", App.FaveIcon, (object sender, EventArgs e) =>
-                {
-                    foreach (IListingsListItem li in _currentBox.SelectedItems)
-                        li.ActionableItem.IsFavorite = true;
-                    SetPageMode(PageMode.View);
-                }));
-            }
-            if (!ApplicationBar.Buttons.Contains(_addFave))
-            {
-                ApplicationBar.Buttons.Remove(_removeFave);
-                ApplicationBar.Buttons.Add(_addFave);
-            }
-        }
-
-        private void EnableMultipleSelectionAppBarItems()
-        {
-            (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = true;
-            (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = false;
-
-            (ApplicationBar.MenuItems[0] as ApplicationBarMenuItem).IsEnabled = false;
-            (ApplicationBar.MenuItems[1] as ApplicationBarMenuItem).IsEnabled = true;
-            (ApplicationBar.MenuItems[2] as ApplicationBarMenuItem).IsEnabled = false;
-        }
-
         #endregion 
+
+        #region AppBar Classes
+
+        private class ViewAppBar : ApplicationBarSetup
+        {
+            private static ApplicationBarIconButton NewButton;
+            private static ApplicationBarIconButton SelectButton;
+            private static ApplicationBarMenuItem SearchItem;
+            private static ApplicationBarMenuItem SettingsItem;
+            private static ApplicationBarMenuItem TrashItem;
+            private static ApplicationBarMenuItem ImportExportItem;
+            private static ApplicationBarMenuItem AboutTipsItem;
+
+            public ViewAppBar(Listings Page)
+            {
+                NewButton = ViewUtils.CreateIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
+                {
+                    ParamUtils.SetArguments(Page._curr);
+                    Page.NavigationService.Navigate(App.AddNewItem);
+                });
+                SelectButton = ViewUtils.CreateIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Edit); });
+
+                SearchItem = ViewUtils.CreateMenuItem("search", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Search); });
+                SettingsItem = ViewUtils.CreateMenuItem("settings", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Settings); });
+                TrashItem = ViewUtils.CreateMenuItem("trash", (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Trash); });
+                ImportExportItem = ViewUtils.CreateMenuItem("import+export", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.ExportAll); });
+                AboutTipsItem = ViewUtils.CreateMenuItem("about+tips", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.AboutAndTips); });
+
+                foreach (IListingsListItem item in Page._currentBox.Items)
+                    item.IsSelectable = false;
+
+                _buttons = new List<ApplicationBarIconButton>() { NewButton, SelectButton };
+                _menuItems = new List<ApplicationBarMenuItem>() { SearchItem, SettingsItem, TrashItem, ImportExportItem, AboutTipsItem };
+                ApplicationBarSetup.SetElements(_appBar, _buttons, _menuItems);
+                _appBar.Mode = ApplicationBarMode.Default;
+                _appBar.IsMenuEnabled = true;
+            }
+        }
+
+        private class FavoritesAppBar : ApplicationBarSetup
+        {
+            public FavoritesAppBar(Listings Page)
+            {
+                _buttons = new List<ApplicationBarIconButton>();
+                _menuItems = new List<ApplicationBarMenuItem>();
+
+                _appBar.Mode = ApplicationBarMode.Minimized;
+                _appBar.IsMenuEnabled = false;
+            }
+        }
+
+        private class EditAppBar : ApplicationBarSetup
+        {
+            private static ApplicationBarIconButton DeleteButton;
+            private static ApplicationBarIconButton FaveButton;
+            private static ApplicationBarIconButton UnfaveButton;
+            private static ApplicationBarMenuItem RenameItem;
+            private static ApplicationBarMenuItem MoveItem;
+            private static ApplicationBarMenuItem PinItem;
+
+            private Listings Page;
+
+            private bool _isShowingFaveButton
+            {
+                get
+                {
+                    return _appBar.Buttons.Contains(FaveButton);
+                }
+            }
+
+            public EditAppBar(Listings Page)
+            {
+                this.Page = Page;
+                DeleteButton = ViewUtils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
+                {
+                    IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
+                    foreach (IListingsListItem li in Page._currentBox.SelectedItems)
+                    {
+                        li.ActionableItem.Delete();
+                        deletedItems.Add(li);
+                    }
+                    Page.BeginDeleteAnimations(deletedItems);
+                    Page.SetPageMode(PageMode.View);
+                });
+                FaveButton = ViewUtils.CreateIconButton("add favorite", App.FaveIcon, (object sender, EventArgs e) =>
+                {
+                    (Page._currentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite = true;
+                    Page.SetPageMode(PageMode.View);
+                });
+                UnfaveButton = ViewUtils.CreateIconButton("remove favorite", App.UnfaveIcon, (object sender, EventArgs e) =>
+                {
+                    (Page._currentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite = false;
+                    Page.SetPageMode(PageMode.View);
+                });
+                RenameItem = (ViewUtils.CreateMenuItem("rename", (object sender, EventArgs e) =>
+                {
+                    IActionable a = (Page._currentBox.SelectedItem as IListingsListItem).ActionableItem;
+                    a.NavToRename(Page.NavigationService);
+                }));
+                MoveItem = ViewUtils.CreateMenuItem("move", (object sender, EventArgs e) =>
+                {
+                    IList<IActionable> args = new List<IActionable>();
+                    foreach (IListingsListItem li in Page._currentBox.SelectedItems)
+                        args.Add(li.ActionableItem);
+                    ParamUtils.SetArguments(args);
+                    Page.NavigationService.Navigate(App.MoveItem);
+                });
+                PinItem = ViewUtils.CreateMenuItem("pin", (object sender, EventArgs e) =>
+                {
+                    IActionable a = (Page._currentBox.SelectedItem as IListingsListItem).ActionableItem;
+                    a.TogglePin();
+                });
+
+                _buttons = new List<ApplicationBarIconButton>() { DeleteButton, FaveButton };
+                _menuItems = new List<ApplicationBarMenuItem>() { RenameItem, MoveItem, PinItem };
+                ApplicationBarSetup.SetElements(_appBar, _buttons, _menuItems);
+                ApplicationBarSetup.SetAllEnabled(_appBar, false);
+                Page._currentBox.SelectionChanged += new SelectionChangedEventHandler(SelectedItemsChanged);
+                _appBar.Mode = ApplicationBarMode.Default;
+                _appBar.IsMenuEnabled = true;
+
+                foreach (IListingsListItem item in Page._currentBox.Items)
+                    item.IsSelectable = true;
+            }
+
+            protected override void SelectedItemsChanged(object sender, SelectionChangedEventArgs e)
+            {
+                base.SelectedItemsChanged(sender, e);
+                if (Page._currentBox.SelectedItems.Count == 0)
+                    Page.SetPageMode(PageMode.View);
+                else if (Page._currentBox.SelectedItems.Count == 1)
+                {
+                    IActionable selectedActionable = (Page._currentBox.SelectedItem as IListingsListItem).ActionableItem;
+                    _appBar.Buttons.Clear();
+                    _appBar.Buttons.Add(DeleteButton);
+                    if (selectedActionable.IsFavorite)
+                        _appBar.Buttons.Add(UnfaveButton);
+                    else if (!selectedActionable.IsFavorite)
+                        _appBar.Buttons.Add(FaveButton);
+                    SetAllEnabled(_appBar, true);
+                }
+                else // multiple selected
+                {
+                    SetEnabledElements(true, new ButtonList() { DeleteButton }, new ItemList() { MoveItem });
+                    SetEnabledElements(false, new ButtonList() { FaveButton, UnfaveButton }, new ItemList() { PinItem, RenameItem });
+                }
+            }
+        }
+
+        private class TrashAppBar : ApplicationBarSetup
+        {
+            private ApplicationBarIconButton DeleteButton;
+            private ApplicationBarIconButton RestoreButton;
+            private ApplicationBarMenuItem EmptyItem;
+
+            private Listings Page;
+
+            public TrashAppBar(Listings Page)
+            {
+                this.Page = Page;
+                DeleteButton = ViewUtils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
+                {
+                    IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
+                    foreach (IListingsListItem li in Page._currentBox.SelectedItems)
+                    {
+                        li.ActionableItem.Delete();
+                        deletedItems.Add(li);
+                    }
+                    Page.BeginDeleteAnimations(deletedItems);
+                });
+                RestoreButton = ViewUtils.CreateIconButton("restore", App.UndeleteIcon, (object sender, EventArgs e) =>
+                {
+                    IList<IActionable> args = new List<IActionable>();
+                    foreach (IListingsListItem li in Page._currentBox.SelectedItems)
+                        args.Add(li.ActionableItem);
+
+                    ParamUtils.SetArguments(args);
+                    Page.NavigationService.Navigate(App.MoveItem);
+                });
+                EmptyItem = ViewUtils.CreateMenuItem("empty trash", (object sender, EventArgs e) =>
+                {
+                    if (MessageBoxResult.Cancel == MessageBox.Show("This will delete all documents in trash permanently. Do you want to continue?", "Warning", MessageBoxButton.OKCancel))
+                        return;
+
+                    foreach (IListingsListItem i in Page._currentBox.SelectedItems)
+                        i.ActionableItem.Delete();
+                    Page._currentBox.Items.Clear();
+                });
+
+                _buttons = new List<ApplicationBarIconButton>() { DeleteButton, RestoreButton };
+                _menuItems = new List<ApplicationBarMenuItem>() { EmptyItem };
+                SetElements(_appBar, _buttons, _menuItems);
+                SetAllEnabled(_appBar, false);
+                Page._currentBox.SelectionChanged += new SelectionChangedEventHandler(SelectedItemsChanged);
+                _appBar.Mode = ApplicationBarMode.Default;
+                _appBar.IsMenuEnabled = true;
+
+                Directory trash = new Directory(PathBase.Trash);
+                Storyboard sb = Page.GetNavigatedToStoryboard(trash);
+                sb.Completed += new EventHandler((object sender, EventArgs e) =>
+                {
+                    foreach (IListingsListItem item in Page._currentBox.Items)
+                        item.IsSelectable = true;
+                });
+                Page.Navigate(trash, Page.GetNavigatedFromStoryboard(), sb);
+            }
+
+            public void SelectedItemChanged(object sender, SelectionChangedEventArgs e)
+            {
+                int ct = Page._currentBox.SelectedItems.Count;
+                if (ct == 0)
+                    SetAllEnabled(_appBar, false);
+                else
+                    SetAllEnabled(_appBar, true);
+            }
+        }
+
+        #endregion
     }
 }

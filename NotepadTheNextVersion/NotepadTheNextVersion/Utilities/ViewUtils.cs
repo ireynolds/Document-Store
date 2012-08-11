@@ -9,6 +9,10 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using Microsoft.Phone.Shell;
+using NotepadTheNextVersion.AppBars;
+using Microsoft.Phone.Controls;
+using NotepadTheNextVersion.Enumerations;
+using NotepadTheNextVersion.ListItems;
 
 namespace NotepadTheNextVersion.Utilities
 {
@@ -21,7 +25,7 @@ namespace NotepadTheNextVersion.Utilities
         /// <param name="imagePath"></param>
         /// <param name="e">The click event handler for this button.</param>
         /// <returns></returns>
-        public static ApplicationBarIconButton createIconButton(string text, string imagePath, EventHandler e)
+        public static ApplicationBarIconButton CreateIconButton(string text, string imagePath, EventHandler e)
         {
             ApplicationBarIconButton b = new ApplicationBarIconButton();
             b.IconUri = new Uri(imagePath, UriKind.Relative);
@@ -36,7 +40,7 @@ namespace NotepadTheNextVersion.Utilities
         /// <param name="text"></param>
         /// <param name="e"></param>
         /// <returns></returns>
-        public static ApplicationBarMenuItem createMenuItem(string text, EventHandler e)
+        public static ApplicationBarMenuItem CreateMenuItem(string text, EventHandler e)
         {
             ApplicationBarMenuItem b = new ApplicationBarMenuItem();
             b.Text = text;
