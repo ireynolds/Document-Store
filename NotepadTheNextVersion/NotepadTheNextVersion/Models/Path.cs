@@ -38,21 +38,21 @@ namespace NotepadTheNextVersion.Models
 
         #region Accessors
 
-        //public bool IsDirectory
-        //{
-        //    get
-        //    {
+        public bool IsDirectory
+        {
+            get
+            {
+                return this._pathString.EndsWith("dir");
+            }
+        }
 
-        //    }
-        //}
-
-        //public bool IsDocument
-        //{
-        //    get
-        //    {
-
-        //    }
-        //}
+        public bool IsDocument
+        {
+            get
+            {
+                return this._pathString.EndsWith("doc");
+            }
+        }
 
         /*
          * Returns this Path's path string such that

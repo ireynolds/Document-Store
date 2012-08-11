@@ -208,7 +208,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 Navigate((Directory)li.ActionableItem,
                     GetOutStoryboardForForwardNavigation(li),
-                    GetInStoryboardFromForwardNavigation(li.ActionableItem.DisplayName));
+                    GetInStoryboardFromForwardNavigation(li.ActionableItem.Name));
             }
         }
 

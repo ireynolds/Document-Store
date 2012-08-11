@@ -21,10 +21,6 @@ namespace NotepadTheNextVersion.Models
 
         bool IsTemp { get; set; }
 
-        // Returns the name of this, without the trailing
-        // ".txt" if applicable.
-        string DisplayName { get; }
-
         // Navigates to a page that views this.
         void Open(NavigationService NavigationService);
 

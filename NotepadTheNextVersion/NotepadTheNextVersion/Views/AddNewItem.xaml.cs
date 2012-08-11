@@ -61,7 +61,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 // Create a temporary document that will be renamed in the next window
                 string tempName = FileUtils.GetNumberedName("Untitled", new Models.Directory(_currentDirectory.Path));
-                Document newDocument = new Document(_currentDirectory, tempName + ".txt") { IsTemp = true };
+                Document newDocument = new Document(_currentDirectory, tempName) { IsTemp = true };
                 IsolatedStorageFileStream fs = isf.CreateFile(newDocument.Path.PathString);
                 fs.Close();
 

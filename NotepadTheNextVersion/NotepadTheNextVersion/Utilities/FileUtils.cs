@@ -34,21 +34,21 @@ namespace NotepadTheNextVersion.Utilities
 
         /// <summary>
         /// Returns a new filename, {n}, of the form "name ($i)" such that {n} is not an existing 
-        /// directory in parent (parameter) and {n}.txt is not a file in parent (parameter).
+        /// directory in parent (parameter) and {n} is not a file in parent (parameter).
         /// </summary>
         /// <param name="name"></param>
         /// <param name="parent"></param>
-        /// <returns>Name NOT containing trailing .txt</returns>
+        /// <returns></returns>
         public static string GetNumberedName(string name, Directory parent)
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                if (!isf.FileExists(parent.Path.NavigateIn(name + ".txt").PathString) &&
+                if (!isf.FileExists(parent.Path.NavigateIn(name).PathString) &&
                     !isf.DirectoryExists(parent.Path.NavigateIn(name).PathString))
                     return name;
                 
                 int count = 1;
-                while (isf.FileExists(parent.Path.NavigateIn(String.Format("{0} ({1}).txt", name, count)).PathString) ||
+                while (isf.FileExists(parent.Path.NavigateIn(String.Format("{0} ({1})", name, count)).PathString) ||
                        isf.DirectoryExists(parent.Path.NavigateIn(String.Format("{0} ({1})", name, count)).PathString))
                 {
                     count++;
@@ -58,8 +58,8 @@ namespace NotepadTheNextVersion.Utilities
         }
 
         /// <summary>
-        /// Given a full filepath including root, creates a file at that location relative to root. That is, 
-        /// if give root/hello.txt but the current root is home, will create home.txt.
+        /// Given a full filepath including root, creates a document at that location relative to root. That is, 
+        /// if you pass in root/hello but the current root is home, it will create home.
         /// </summary>
         /// <param name="path">Must contain the full filepath, including root.</param>
         /// <returns></returns>

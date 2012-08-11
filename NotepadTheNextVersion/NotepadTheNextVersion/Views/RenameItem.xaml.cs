@@ -88,17 +88,14 @@ namespace NotepadTheNextVersion.ListItems
                 return;
             }
 
-            if (newName.EndsWith(".txt") && _actionable.GetType() == typeof(Document))
-                newName = newName.Substring(0, newName.Length - 4);
-
-            //if (_actionable.GetType() == typeof(Document))
-            //    newName += "doc";
-            //else
-            //    newName += "dir";
+            if (_actionable.GetType() == typeof(Document))
+                newName += "doc";
+            else
+                newName += "dir";
 
             // Rename the item
             bool wasTemp = _actionable.IsTemp;
-            if (!_actionable.DisplayName.Equals(newName))
+            if (!_actionable.Name.Equals(newName))
                 _actionable = _actionable.Rename(newName);
             _actionable.IsTemp = false;
 
@@ -152,7 +149,7 @@ namespace NotepadTheNextVersion.ListItems
             ContentPanel.Children.Add(tb);
 
             NewNameBox = new WatermarkedTextBox("specify a new name");
-            NewNameBox.SetText(_actionable.DisplayName);
+            NewNameBox.SetText(_actionable.Name);
             NewNameBox.KeyDown += new KeyEventHandler(NewNameBox_KeyDown);
             ContentPanel.Children.Add(NewNameBox);
 
@@ -163,7 +160,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                ApplicationTitle.Text = _actionable.DisplayName.ToUpper();
+                ApplicationTitle.Text = _actionable.Name.ToUpper();
             }
         }
 
@@ -188,19 +185,12 @@ namespace NotepadTheNextVersion.ListItems
         private bool IsUniqueFileName(string name)
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-            {                
+            {
+                Models.Path newPath = _actionable.Path.Parent.NavigateIn(name);
                 if (_actionable.GetType() == typeof(Document))
-                {
-                    if (!name.EndsWith(".txt"))
-                        name += ".txt";
-                    Models.Path newPath = _actionable.Path.Parent.NavigateIn(name);
                     return !isf.FileExists(newPath.PathString);
-                }
                 else
-                {
-                    Models.Path newPath = _actionable.Path.Parent.NavigateIn(name);
                     return !isf.DirectoryExists(newPath.PathString);
-                }
             }
         }
 

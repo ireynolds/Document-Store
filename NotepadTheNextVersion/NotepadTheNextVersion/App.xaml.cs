@@ -115,9 +115,9 @@ namespace NotepadTheNextVersion
             // Add test data
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.txt");
+                IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1");
                 s1.Close();
-                IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.txt");
+                IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2");
                 s2.Close();
                 isf.CreateDirectory(rootName + "/Dir");
                 isf.CreateDirectory(rootName + "/Dir2");
@@ -228,7 +228,7 @@ namespace NotepadTheNextVersion
 
                     using (IsolatedStorageFile myIso = IsolatedStorageFile.GetUserStoreForApplication())
                     {
-                        string path = dir + "/Test Case " + count + ".txt";
+                        string path = dir + "/Test Case " + count;
                         bool b = myIso.FileExists(path);
                         IsolatedStorageFileStream stream = myIso.OpenFile(path, FileMode.OpenOrCreate);
                         using (StreamWriter myWriter = new StreamWriter(stream))

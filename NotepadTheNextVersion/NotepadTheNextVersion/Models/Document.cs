@@ -67,11 +67,6 @@ namespace NotepadTheNextVersion.Models
             get { return _path.Name; }
         }
 
-        public string DisplayName
-        {
-            get { return Name.Substring(0, Name.Length - 4); }
-        }
-
         public bool IsPinned
         {
             get { throw new NotImplementedException(); }
@@ -145,9 +140,6 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable Rename(string newFileName)
         {
-            if (!newFileName.EndsWith(".txt"))
-                newFileName += ".txt";
-
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 Path newLoc = Path.Parent.NavigateIn(newFileName);
@@ -194,7 +186,7 @@ namespace NotepadTheNextVersion.Models
             if (currTile == null)
             {
                 StandardTileData data = new StandardTileData();
-                data.Title = this.DisplayName;
+                data.Title = this.Name;
                 data.BackContent = Text;
                 data.BackgroundImage = new Uri(App.DirectoryTile, UriKind.Relative);
                 ShellTile.Create(App.Listings + "?param=" + Uri.EscapeUriString(Path.PathString), data);
@@ -234,7 +226,7 @@ namespace NotepadTheNextVersion.Models
             if (other.GetType() == typeof(Directory))
                 return 1;
             else
-                return this.DisplayName.CompareTo(other.DisplayName);
+                return this.Name.CompareTo(other.Name);
         }
 
         #region Private Helpers

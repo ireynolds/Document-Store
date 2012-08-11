@@ -61,11 +61,6 @@ namespace NotepadTheNextVersion.Models
             get { return _path.Name; }
         }
 
-        public string DisplayName
-        {
-            get { return Name; }
-        }
-
         public bool IsPinned
         {
             get { throw new NotImplementedException(); }
@@ -170,7 +165,7 @@ namespace NotepadTheNextVersion.Models
             if (currTile == null)
             {
                 StandardTileData data = new StandardTileData();
-                data.Title = this.DisplayName;
+                data.Title = this.Name;
                 data.BackgroundImage = new Uri(App.DirectoryTile, UriKind.Relative);
                 Uri myUri = App.Listings + "?param=" + Uri.EscapeUriString(Path.PathString); // App.Listings already has ?id= attached in order to create a unique string
                 ShellTile.Create(myUri, data);
@@ -205,7 +200,7 @@ namespace NotepadTheNextVersion.Models
             if (other.GetType() == typeof(Document))
                 return -1;
             else
-                return this.DisplayName.CompareTo(other.DisplayName);
+                return this.Name.CompareTo(other.Name);
         }
 
         #region Private Helpers
