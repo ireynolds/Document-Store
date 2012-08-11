@@ -88,6 +88,7 @@
     <Compile Include="Search\SearchResult.cs" />
     <Compile Include="ListItems\SearchResultListItem.cs" />
     <Compile Include="Settings.cs" />
+    <Compile Include="TiltEffect.cs" />
     <Compile Include="Utilities\ParamUtils.cs" />
     <Compile Include="Utilities\StringUtils.cs" />
     <Compile Include="Utilities\FileUtils.cs" />
