@@ -21,9 +21,9 @@ namespace NotepadTheNextVersion.ListItems
     {
         private Directory _currBeforeTrash;
         private Directory _curr;
-        private ListingsMode _pageMode;
+        private PageMode _pageMode;
         private IList<IListingsListItem> _items;
-        private IList<IListingsListItem> _favs;
+        private IList<IListingsListItem> _faves;
         private bool _isUpdatingItems;
         private bool _isShowingEmptyNotice { get { return _currentGrid.Children.Contains(_emptyNotice); } }
         private bool _isShowingLoadingNotice { get { return _currentGrid.Children.Contains(_loadingNotice); } }
@@ -38,6 +38,8 @@ namespace NotepadTheNextVersion.ListItems
         private TextBlock _emptyNotice;
         private Grid _allGrid;
         private Grid _favesGrid;
+        private ApplicationBarIconButton _removeFave;
+        private ApplicationBarIconButton _addFave;
 
         private Grid _currentGrid
         {
@@ -51,7 +53,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             get
             {
-                if (_masterPivot.SelectedItem == _allPivot)
+                if (_masterPivot.SelectedItem == _allPivot || _masterPivot.SelectedItem == null)
                     return _allBox;
                 else if (_masterPivot.SelectedItem == _favesPivot)
                     return _favesBox;
@@ -86,11 +88,12 @@ namespace NotepadTheNextVersion.ListItems
 
             this.Loaded += new RoutedEventHandler(Listings_Loaded);
             _items = new List<IListingsListItem>();
+            _faves = new List<IListingsListItem>();
             Root.RenderTransform = new CompositeTransform();
 
             InitializeApplicationBar();
             InitializePageUI();
-            SetPageMode(ListingsMode.View);
+            SetPageMode(PageMode.View);
 
             Root.Opacity = 0;
         }
@@ -112,20 +115,20 @@ namespace NotepadTheNextVersion.ListItems
 
         protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
         {
-            if (_pageMode == ListingsMode.Trash)
+            if (_pageMode == PageMode.Trash)
             {
-                SetPageMode(ListingsMode.View);
+                SetPageMode(PageMode.View);
                 Navigate(_currBeforeTrash,
                          GetNavigatedFromStoryboard(),
                          GetNavigatedToStoryboard(_currBeforeTrash));
                 e.Cancel = true;
             }
-            else if (_pageMode == ListingsMode.Edit)
+            else if (_pageMode == PageMode.Edit)
             {
-                SetPageMode(ListingsMode.View);
+                SetPageMode(PageMode.View);
                 e.Cancel = true;
             }
-            else if (_pageMode == ListingsMode.View)
+            else if (_pageMode == PageMode.View)
             {
                 Path parent = _curr.Path.Parent;
                 if (parent != null)
@@ -136,12 +139,17 @@ namespace NotepadTheNextVersion.ListItems
                     e.Cancel = true;
                 }
             }
+            else if (_pageMode == PageMode.Favorites) 
+            {
+                _masterPivot.SelectedItem = _allPivot;
+                e.Cancel = true;
+            }
             else if (_curr.Equals(new Directory(PathBase.Root)))
             {
                 throw new ApplicationMustExitException();
             }
             else
-                throw new Exception("Unknown page mode (should be \"edit\" or \"view\")");
+                throw new Exception("Unrecognized PageMode.");
 
             base.OnBackKeyPress(e);
         }
@@ -156,47 +164,67 @@ namespace NotepadTheNextVersion.ListItems
 
         private void ContentBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (_isShowingEmptyNotice || _isShowingLoadingNotice)
-                return;
-
-            if (_pageMode == ListingsMode.Trash)
+            if (_pageMode == PageMode.Trash)
             {
                 SyncSelectedItemsWithCheckboxes(e);
-                if (_allBox.SelectedItems.Count == 0)
+                if (_currentBox.SelectedItems.Count == 0)
                     SetAppBarButtonsEnabled(false);
                 else
                     SetAppBarButtonsEnabled(true);
             }
-            else if (_pageMode == ListingsMode.Edit)
+            else if (_pageMode == PageMode.Edit)
             {
                 SyncSelectedItemsWithCheckboxes(e);
-                if (_allBox.SelectedItems.Count == 0)
-                    SetPageMode(ListingsMode.View);
-                else if (_allBox.SelectedItems.Count == 1)
+                if (_currentBox.SelectedItems.Count == 0)
+                    SetPageMode(PageMode.View);
+                else if (_currentBox.SelectedItems.Count == 1)
                     EnableSingleSelectionAppBarItems();
-                else if (_allBox.SelectedItems.Count > 1)
+                else if (_currentBox.SelectedItems.Count > 1)
                     EnableMultipleSelectionAppBarItems();
             }
-            else if (_pageMode == ListingsMode.View)
+            else if (_pageMode == PageMode.Favorites)
             {
-                if (_allBox.SelectedIndex == -1)
+                if (_currentBox.SelectedIndex == -1)
                     return;
+                _masterPivot.SelectedItem = _allPivot;
+                Open((IListingsListItem)_favesBox.SelectedItem);
+            }
+            else if (_pageMode == PageMode.View)
+            {
+                if (_currentBox.SelectedIndex == -1)
+                    return;
+                Open((IListingsListItem)_currentBox.SelectedItem);
+            }
+        }
 
-                IListingsListItem li = (IListingsListItem)_allBox.SelectedItem;
-                _allBox.SelectedIndex = -1;
-                if (li.GetType() == typeof(DocumentListItem))
-                {
-                    Storyboard sb = GetOutStoryboardForForwardNavigation(li);
-                    sb.Completed += new EventHandler(
-                        (object a, EventArgs b) => li.ActionableItem.Open(NavigationService));
-                    sb.Begin();
-                }
-                else
-                {
-                    Navigate((Directory)li.ActionableItem,
-                        GetOutStoryboardForForwardNavigation(li),
-                        GetInStoryboardFromForwardNavigation(li.ActionableItem.DisplayName));
-                }
+        private void Open(IListingsListItem li)
+        {
+            _currentBox.SelectedIndex = -1;
+            if (li.GetType() == typeof(DocumentListItem))
+            {
+                Storyboard sb = GetOutStoryboardForForwardNavigation(li);
+                sb.Completed += new EventHandler(
+                    (object a, EventArgs b) => li.ActionableItem.Open(NavigationService));
+                sb.Begin();
+            }
+            else
+            {
+                Navigate((Directory)li.ActionableItem,
+                    GetOutStoryboardForForwardNavigation(li),
+                    GetInStoryboardFromForwardNavigation(li.ActionableItem.DisplayName));
+            }
+        }
+
+        private void _masterPivot_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (_masterPivot.SelectedItem == _allPivot)
+            {
+                SetPageMode(PageMode.View);
+            }
+            else if (_masterPivot.SelectedItem == _favesPivot)
+            {
+                UpdateFavesView();
+                SetPageMode(PageMode.Favorites);
             }
         }
 
@@ -218,7 +246,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             // Slide in from right
             Storyboard s = new Storyboard();
-            Storyboard.SetTarget(s, _allBox);
+            Storyboard.SetTarget(s, _currentBox);
 
             s.Children.Add(AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE));
             s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION));
@@ -241,7 +269,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             // Slide in from left
             Storyboard s = new Storyboard();
-            Storyboard.SetTarget(s, _allBox);
+            Storyboard.SetTarget(s, _currentBox);
 
             s.Children.Add(AnimationUtils.TranslateX(-500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE));
             s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION));
@@ -256,7 +284,7 @@ namespace NotepadTheNextVersion.ListItems
             s.Completed += new EventHandler((object sender, EventArgs e) => _pathPanel.Children.RemoveAt(_pathPanel.Children.Count - 1));
 
             DoubleAnimation slideBoxRight = AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE);
-            Storyboard.SetTarget(slideBoxRight, _allBox);
+            Storyboard.SetTarget(slideBoxRight, _currentBox);
             s.Children.Add(slideBoxRight);
 
             DoubleAnimation slidePathRight = AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE);
@@ -281,7 +309,7 @@ namespace NotepadTheNextVersion.ListItems
 
             // Fade out
             Storyboard fade = new Storyboard();
-            foreach (IListingsListItem item in _allBox.Items) // ContentBox items
+            foreach (IListingsListItem item in _currentBox.Items) // ContentBox items
                 if (item != selectedItem)
                     fade.Children.Add(ApplyFadeOutAnimation(item, FADE_OUT_DURATION));
             foreach (UIElement item in selectedItem.GetNotAnimatedItemsReference()) // Elements of selectedItem
@@ -450,7 +478,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void UpdateView(Action OnCompleted)
         {
-            _allBox.Items.Clear();
+            _currentBox.Items.Clear();
 
             if (_isUpdatingItems)
                 ShowNotice(Notice.Loading);
@@ -458,14 +486,36 @@ namespace NotepadTheNextVersion.ListItems
                 ShowNotice(Notice.Empty);
             else
                 foreach (IListingsListItem li in _items)
-                    _allBox.Items.Add(li);
+                    _currentBox.Items.Add(li);
 
             DisableOrEnableScrolling();
-            if (_pageMode == ListingsMode.Edit)
-                SetPageMode(ListingsMode.View);
+            if (_pageMode == PageMode.Edit)
+                SetPageMode(PageMode.View);
 
             if (OnCompleted != null)
                 OnCompleted();
+        }
+
+        private void UpdateFavesView()
+        {
+            List<IActionable> temp = new List<IActionable>();
+            foreach (Directory d in FileUtils.GetAllDirectories(PathBase.Root))
+                if (d.IsFavorite) { temp.Add(d); }
+            temp.Sort();
+            foreach (Directory d in temp)
+                _faves.Add(IListingsListItem.CreateListItem(d));
+            temp.Clear();
+
+            foreach (Document d in FileUtils.GetAllDocuments(PathBase.Root))
+                if (d.IsFavorite) { temp.Add(d); }
+            temp.Sort();
+            foreach (Document d in temp)
+                _faves.Add(IListingsListItem.CreateListItem(d));
+
+            _currentBox.Items.Clear();
+            foreach (IListingsListItem i in _faves)
+                _currentBox.Items.Add(i);
+            _faves.Clear();
         }
 
         private void ShowNotice(Notice notice)
@@ -520,11 +570,11 @@ namespace NotepadTheNextVersion.ListItems
 
         private void DisableOrEnableScrolling()
         {
-            _allBox.UpdateLayout();
-            if (_allBox.Items.Count < 6)
-                ScrollViewer.SetVerticalScrollBarVisibility(_allBox, ScrollBarVisibility.Disabled);
+            _currentBox.UpdateLayout();
+            if (_currentBox.Items.Count < 6)
+                ScrollViewer.SetVerticalScrollBarVisibility(_currentBox, ScrollBarVisibility.Disabled);
             else
-                ScrollViewer.SetVerticalScrollBarVisibility(_allBox, ScrollBarVisibility.Visible);
+                ScrollViewer.SetVerticalScrollBarVisibility(_currentBox, ScrollBarVisibility.Visible);
         }
 
         private void InitializeApplicationBar()
@@ -537,6 +587,7 @@ namespace NotepadTheNextVersion.ListItems
         private void InitializePageUI()
         {
             _masterPivot = new Pivot();
+            _masterPivot.SelectionChanged += new SelectionChangedEventHandler(_masterPivot_SelectionChanged);
             Grid.SetRow(_masterPivot, 1);
             Root.Children.Add(_masterPivot);
 
@@ -577,15 +628,26 @@ namespace NotepadTheNextVersion.ListItems
             _favesGrid.Children.Add(_favesBox);
         }
 
-        private void SetPageMode(ListingsMode type)
+        private void SetPageMode(PageMode type)
         {
-            _pageMode = type;
-            if (type == ListingsMode.View)
+            if (type == PageMode.View && _pageMode != PageMode.View)
                 InitializeViewMode();
-            else if (type == ListingsMode.Edit)
+            else if (type == PageMode.Edit && _pageMode != PageMode.Edit)
                 InitializeEditMode();
-            else if (type == ListingsMode.Trash)
+            else if (type == PageMode.Trash && _pageMode != PageMode.Trash)
                 InitializeTrashMode();
+            else if (type == PageMode.Favorites && _pageMode != PageMode.Favorites)
+                InitializeFavoritesMode();
+            _pageMode = type;
+        }
+
+        private void InitializeFavoritesMode()
+        {
+            _currentBox.SelectedIndex = -1;
+            _currentBox.SelectionMode = SelectionMode.Single;
+            ApplicationBar.MenuItems.Clear();
+            ApplicationBar.IsMenuEnabled = false;
+            ApplicationBar.Mode = ApplicationBarMode.Minimized;
         }
 
         private IList<ApplicationBarIconButton> TrashListButtons;
@@ -599,7 +661,7 @@ namespace NotepadTheNextVersion.ListItems
                 TrashListButtons.Add(ViewUtils.createIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
                 {
                     IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
-                    foreach (IListingsListItem li in _allBox.SelectedItems)
+                    foreach (IListingsListItem li in _currentBox.SelectedItems)
                     {
                         li.ActionableItem.Delete();
                         deletedItems.Add(li);
@@ -609,7 +671,7 @@ namespace NotepadTheNextVersion.ListItems
                 TrashListButtons.Add(ViewUtils.createIconButton("restore", App.UndeleteIcon, (object sender, EventArgs e) =>
                 {
                     IList<IActionable> args = new List<IActionable>();
-                    foreach (IListingsListItem li in _allBox.SelectedItems)
+                    foreach (IListingsListItem li in _currentBox.SelectedItems)
                         args.Add(li.ActionableItem);
 
                     ParamUtils.SetArguments(args);
@@ -626,14 +688,14 @@ namespace NotepadTheNextVersion.ListItems
                     if (MessageBoxResult.Cancel == MessageBox.Show("This will delete all documents in trash permanently. Do you want to continue?", "Warning", MessageBoxButton.OKCancel))
                         return;
 
-                    foreach (IListingsListItem i in _allBox.SelectedItems)
+                    foreach (IListingsListItem i in _currentBox.SelectedItems)
                         i.ActionableItem.Delete();
-                    _allBox.Items.Clear();
+                    _currentBox.Items.Clear();
                 }));
             }
 
-            _allBox.SelectedIndex = -1;
-            _allBox.SelectionMode = SelectionMode.Multiple;
+            _currentBox.SelectedIndex = -1;
+            _currentBox.SelectionMode = SelectionMode.Multiple;
 
             ApplicationBar.Buttons.Clear();
             foreach (ApplicationBarIconButton b in TrashListButtons)
@@ -644,15 +706,18 @@ namespace NotepadTheNextVersion.ListItems
                 ApplicationBar.MenuItems.Add(i);
 
             SetAppBarButtonsEnabled(false);
+            ApplicationBar.Mode = ApplicationBarMode.Default;
+            ApplicationBar.IsMenuEnabled = true;
 
             _currBeforeTrash = _curr;
             Directory trash = new Directory(PathBase.Trash);
             Storyboard sb = GetNavigatedToStoryboard(trash);
             sb.Completed += new EventHandler((object sender, EventArgs e) =>
             {
-                foreach (IListingsListItem item in _allBox.Items)
+                foreach (IListingsListItem item in _currentBox.Items)
                     item.IsSelectable = true;
             });
+            ApplicationBar.Mode = ApplicationBarMode.Default;
             Navigate(trash,
                      GetNavigatedFromStoryboard(),
                      sb);
@@ -673,18 +738,18 @@ namespace NotepadTheNextVersion.ListItems
                     ParamUtils.SetArguments(_curr);
                     NavigationService.Navigate(App.AddNewItem);
                 }));
-                ViewListButtons.Add(ViewUtils.createIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { SetPageMode(ListingsMode.Edit); }));
+                ViewListButtons.Add(ViewUtils.createIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { SetPageMode(PageMode.Edit); }));
 
                 ViewListItems = new List<ApplicationBarMenuItem>();
                 ViewListItems.Add(ViewUtils.createMenuItem("search", (object sender, EventArgs e) => { NavigationService.Navigate(App.Search); }));
                 ViewListItems.Add(ViewUtils.createMenuItem("settings", (object sender, EventArgs e) => { NavigationService.Navigate(App.Settings); }));
-                ViewListItems.Add(ViewUtils.createMenuItem("trash", (object sender, EventArgs e) => { SetPageMode(ListingsMode.Trash); }));
+                ViewListItems.Add(ViewUtils.createMenuItem("trash", (object sender, EventArgs e) => { SetPageMode(PageMode.Trash); }));
                 ViewListItems.Add(ViewUtils.createMenuItem("import+export", (object sender, EventArgs e) => { NavigationService.Navigate(App.ExportAll); }));
                 ViewListItems.Add(ViewUtils.createMenuItem("about+tips", (object sender, EventArgs e) => { NavigationService.Navigate(App.AboutAndTips); }));
             }
 
-            _allBox.SelectedIndex = -1;
-            _allBox.SelectionMode = SelectionMode.Single;
+            _currentBox.SelectedIndex = -1;
+            _currentBox.SelectionMode = SelectionMode.Single;
 
             ApplicationBar.Buttons.Clear();
             foreach (ApplicationBarIconButton b in ViewListButtons)
@@ -694,8 +759,11 @@ namespace NotepadTheNextVersion.ListItems
             foreach (ApplicationBarMenuItem i in ViewListItems)
                 ApplicationBar.MenuItems.Add(i);
 
-            foreach (IListingsListItem item in _allBox.Items)
+            foreach (IListingsListItem item in _currentBox.Items)
                 item.IsSelectable = false;
+
+            ApplicationBar.Mode = ApplicationBarMode.Default;
+            ApplicationBar.IsMenuEnabled = true;
         }
 
         private IList<ApplicationBarIconButton> EditListButtons;
@@ -711,43 +779,47 @@ namespace NotepadTheNextVersion.ListItems
                 EditListButtons.Add(ViewUtils.createIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
                 {
                     IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
-                    foreach (IListingsListItem li in _allBox.SelectedItems)
+                    foreach (IListingsListItem li in _currentBox.SelectedItems)
                     {
                         li.ActionableItem.Delete();
                         deletedItems.Add(li);
                     }
                     BeginDeleteAnimations(deletedItems);
-                    SetPageMode(ListingsMode.View);
+                    SetPageMode(PageMode.View);
                 }));
-                EditListButtons.Add(ViewUtils.createIconButton("pin", App.PinIcon, (object sender, EventArgs e) =>
-                {
-                    IActionable a = (_allBox.SelectedItem as IListingsListItem).ActionableItem;
-                    a.TogglePin();
-                }));
+            }
 
+            if (EditListItems == null)
+            {
                 EditListItems = new List<ApplicationBarMenuItem>();
+                EditListItems.Add(ViewUtils.createMenuItem("rename", (object sender, EventArgs e) =>
+                {
+                    IActionable a = (_currentBox.SelectedItem as IListingsListItem).ActionableItem;
+                    a.NavToRename(NavigationService);
+                }));
                 EditListItems.Add(ViewUtils.createMenuItem("move", (object sender, EventArgs e) =>
                 {
                     IList<IActionable> args = new List<IActionable>();
-                    foreach (IListingsListItem li in _allBox.SelectedItems)
+                    foreach (IListingsListItem li in _currentBox.SelectedItems)
                         args.Add(li.ActionableItem);
 
                     ParamUtils.SetArguments(args);
                     NavigationService.Navigate(App.MoveItem);
                 }));
-                EditListItems.Add(ViewUtils.createMenuItem("rename", (object sender, EventArgs e) =>
+                EditListItems.Add(ViewUtils.createMenuItem("pin", (object sender, EventArgs e) =>
                 {
-                    IActionable a = (_allBox.SelectedItem as IListingsListItem).ActionableItem;
-                    a.NavToRename(NavigationService);
+                    IActionable a = (_currentBox.SelectedItem as IListingsListItem).ActionableItem;
+                    a.TogglePin();
                 }));
             }
 
-            _allBox.SelectedIndex = -1;
-            _allBox.SelectionMode = SelectionMode.Multiple;
+            _currentBox.SelectedIndex = -1;
+            _currentBox.SelectionMode = SelectionMode.Multiple;
 
             ApplicationBar.Buttons.Clear();
             foreach (ApplicationBarIconButton b in EditListButtons)
                 ApplicationBar.Buttons.Add(b);
+            AddAddFaveButton();
             
             ApplicationBar.MenuItems.Clear();
             foreach (ApplicationBarMenuItem i in EditListItems)
@@ -755,8 +827,11 @@ namespace NotepadTheNextVersion.ListItems
 
             SetAppBarEnabled(false);
 
-            foreach (IListingsListItem item in _allBox.Items)
+            foreach (IListingsListItem item in _currentBox.Items)
                 item.IsSelectable = true;
+
+            ApplicationBar.Mode = ApplicationBarMode.Default;
+            ApplicationBar.IsMenuEnabled = true;
         }
 
         private void BeginDeleteAnimations(IList<IListingsListItem> deletedItems)
@@ -764,9 +839,9 @@ namespace NotepadTheNextVersion.ListItems
             IListingsListItem lastDeletedItem = deletedItems[deletedItems.Count - 1];
             IList<IListingsListItem> previousItems = new List<IListingsListItem>();
             int i = 0;
-            while (i < _allBox.Items.Count)
+            while (i < _currentBox.Items.Count)
             {
-                IListingsListItem item = (IListingsListItem)_allBox.Items[i];
+                IListingsListItem item = (IListingsListItem)_currentBox.Items[i];
                 i++;
                 if (item != deletedItems[0])
                     previousItems.Add(item);
@@ -783,22 +858,22 @@ namespace NotepadTheNextVersion.ListItems
             }
 
             Storyboard s = new Storyboard();
-            while (i < _allBox.Items.Count)
+            while (i < _currentBox.Items.Count)
             {
                 DoubleAnimation d = AnimationUtils.TranslateY(height, 0, 110, new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 3 });
-                Storyboard.SetTarget(d, (UIElement)_allBox.Items[i]);
+                Storyboard.SetTarget(d, (UIElement)_currentBox.Items[i]);
                 s.Children.Add(d);
-                ((UIElement)_allBox.Items[i]).RenderTransform = new CompositeTransform();
+                ((UIElement)_currentBox.Items[i]).RenderTransform = new CompositeTransform();
                 i++;
             }
 
             foreach (IListingsListItem item in deletedItems)
-                _allBox.Items.Remove(item);
+                _currentBox.Items.Remove(item);
 
             s.Begin();
             s.Completed += (object sender, EventArgs e) =>
             {
-                if (_allBox.Items.Count == 0)
+                if (_currentBox.Items.Count == 0)
                     ShowNotice(Notice.Empty);
             };
         }
@@ -823,11 +898,47 @@ namespace NotepadTheNextVersion.ListItems
 
         private void EnableSingleSelectionAppBarItems()
         {
-            (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = true;
-            (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = true;
+            if ((_currentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite)
+                AddRemoveFaveButton();
+            else
+                AddAddFaveButton();
+            SetAppBarEnabled(true);
+        }
 
-            (ApplicationBar.MenuItems[0] as ApplicationBarMenuItem).IsEnabled = true;
-            (ApplicationBar.MenuItems[1] as ApplicationBarMenuItem).IsEnabled = true;
+        private void AddRemoveFaveButton()
+        {
+            if (_removeFave == null)
+            {
+                _removeFave = (ViewUtils.createIconButton("remove favorite", App.UnfaveIcon, (object sender, EventArgs e) =>
+                {
+                    foreach (IListingsListItem li in _currentBox.SelectedItems)
+                        li.ActionableItem.IsFavorite = false;
+                    SetPageMode(PageMode.View);
+                }));
+            }
+            if (!ApplicationBar.Buttons.Contains(_removeFave))
+            {
+                ApplicationBar.Buttons.Remove(_addFave);
+                ApplicationBar.Buttons.Add(_removeFave);
+            }
+        }
+
+        private void AddAddFaveButton()
+        {
+            if (_addFave == null)
+            {
+                _addFave = (ViewUtils.createIconButton("add favorite", App.FaveIcon, (object sender, EventArgs e) =>
+                {
+                    foreach (IListingsListItem li in _currentBox.SelectedItems)
+                        li.ActionableItem.IsFavorite = true;
+                    SetPageMode(PageMode.View);
+                }));
+            }
+            if (!ApplicationBar.Buttons.Contains(_addFave))
+            {
+                ApplicationBar.Buttons.Remove(_removeFave);
+                ApplicationBar.Buttons.Add(_addFave);
+            }
         }
 
         private void EnableMultipleSelectionAppBarItems()
@@ -835,8 +946,9 @@ namespace NotepadTheNextVersion.ListItems
             (ApplicationBar.Buttons[0] as ApplicationBarIconButton).IsEnabled = true;
             (ApplicationBar.Buttons[1] as ApplicationBarIconButton).IsEnabled = false;
 
-            (ApplicationBar.MenuItems[0] as ApplicationBarMenuItem).IsEnabled = true;
-            (ApplicationBar.MenuItems[1] as ApplicationBarMenuItem).IsEnabled = false;
+            (ApplicationBar.MenuItems[0] as ApplicationBarMenuItem).IsEnabled = false;
+            (ApplicationBar.MenuItems[1] as ApplicationBarMenuItem).IsEnabled = true;
+            (ApplicationBar.MenuItems[2] as ApplicationBarMenuItem).IsEnabled = false;
         }
 
         #endregion 

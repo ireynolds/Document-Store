@@ -10,6 +10,7 @@ using System.Windows.Media.Animation;
 using System.Windows.Shapes;
 using NotepadTheNextVersion.Models;
 using System.Collections.Generic;
+using System.IO.IsolatedStorage;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -53,6 +54,12 @@ namespace NotepadTheNextVersion.ListItems
         {
             base.InitCheckBox();
             _checkBox.Margin = _checkBox.Margin = new Thickness(0, -18, 0, 0);
+        }
+
+        protected override void OverrideHighlightColor()
+        {
+            SolidColorBrush b = (SolidColorBrush)App.Current.Resources["PhoneForegroundBrush"];
+            displayNameTextBlock.Foreground = b;
         }
     }
 }

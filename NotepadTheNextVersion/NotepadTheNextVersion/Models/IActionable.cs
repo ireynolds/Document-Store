@@ -7,7 +7,7 @@ namespace NotepadTheNextVersion.Models
      * Defines an interface for interacting with elements in the
      * doc/dir listings page. 
      */
-    public interface IActionable
+    public interface IActionable : IComparable<IActionable>
     {
 
         // Returns the path which locates this.

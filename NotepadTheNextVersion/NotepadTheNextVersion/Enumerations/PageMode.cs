@@ -11,10 +11,11 @@ using System.Windows.Shapes;
 
 namespace NotepadTheNextVersion.Enumerations
 {
-    public enum ListingsMode
+    public enum PageMode
     {
         Edit,
         View,
-        Trash
+        Trash,
+        Favorites
     }
 }

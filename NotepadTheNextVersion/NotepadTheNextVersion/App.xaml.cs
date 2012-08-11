@@ -50,6 +50,8 @@ namespace NotepadTheNextVersion
         public const string UndeleteIcon = "/Images/appbar.undelete.rest3.png";
         public const string PinIcon = "/Images/pushpin.png";
         public const string SelectIcon = "/Images/appbar.list.check.png";
+        public const string FaveIcon = "/Images/appbar.favs.addto.rest.png";
+        public const string UnfaveIcon = "/Images/appbar.star.minus.png";
 
         public const string DocumentTile = "Application_DocumentTile.png";
         public const string DirectoryTile = "Application_DirectoryTile.png";
@@ -111,16 +113,18 @@ namespace NotepadTheNextVersion
                 IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey] = new Collection<string>();
 
             // Add test data
-            //using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-            //{
-            //    IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.txt");
-            //    s1.Close();
-            //    IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.txt");
-            //    s2.Close();
-            //    isf.CreateDirectory(rootName + "/Dir");
-            //    isf.CreateDirectory(rootName + "/Dir2");
-            //    WriteFiles(new string[] { "Dir1", "Dir2" });
-            //}
+            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.txt");
+                s1.Close();
+                IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.txt");
+                s2.Close();
+                isf.CreateDirectory(rootName + "/Dir");
+                isf.CreateDirectory(rootName + "/Dir2");
+                isf.CreateDirectory(rootName + "/Dir/SubDir");
+                isf.CreateDirectory(rootName + "/Dir2/SubDir2");
+                //WriteFiles(new string[] { "Dir1", "Dir2" });
+            }
         }
 
         // Code to execute when the application is activated (brought to foreground)

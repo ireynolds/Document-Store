@@ -38,6 +38,7 @@ namespace NotepadTheNextVersion.Models
                     favs.Add(this.Path.PathString);
                 else if (!value && IsFavorite)
                     favs.Remove(this.Path.PathString);
+                IsolatedStorageSettings.ApplicationSettings.Save();
             }
         }
 
@@ -220,6 +221,11 @@ namespace NotepadTheNextVersion.Models
             {
                 return isf.FileExists(Path.PathString);
             }
+        }
+
+        public int CompareTo(IActionable other)
+        {
+            return this.DisplayName.CompareTo(other.DisplayName);
         }
 
         #region Private Helpers

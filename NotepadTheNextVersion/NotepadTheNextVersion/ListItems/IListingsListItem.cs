@@ -6,6 +6,7 @@ using System.Windows.Media;
 using System.Collections.Generic;
 using NotepadTheNextVersion.Utilities;
 using System.Windows.Media.Animation;
+using System.IO.IsolatedStorage;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -41,6 +42,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             set
             {
+                OverrideHighlightColor();
                 _isSelectable = value;
 
                 if (_checkBox == null)
@@ -151,5 +153,7 @@ namespace NotepadTheNextVersion.ListItems
             });
             _hideCheckBoxStoryboard.Begin();
         }
+
+        protected abstract void OverrideHighlightColor();
     }
 }
