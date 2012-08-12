@@ -4,6 +4,7 @@ using NotepadTheNextVersion.Models;
 using System;
 using System.Text.RegularExpressions;
 using NotepadTheNextVersion.Utilities;
+using NotepadTheNextVersion.Enumerations;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -83,9 +84,12 @@ namespace NotepadTheNextVersion.ListItems
                 MatchCollection titleMatches = rgx.Matches(title);
                 result.SetTitleMatches(title, titleMatches);
 
-                string text = WhitespaceRgx.Replace(doc.Text, " ");
-                MatchCollection textMatches = rgx.Matches(text);
-                result.SetTextMatches(text, textMatches);
+                if ((bool)SettingUtils.GetSetting(Setting.SearchFileText))
+                {
+                    string text = WhitespaceRgx.Replace(doc.Text, " ");
+                    MatchCollection textMatches = rgx.Matches(text);
+                    result.SetTextMatches(text, textMatches);
+                }
 
                 if (result.HasMatches)
                 {

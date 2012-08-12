@@ -26,14 +26,14 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        private static readonly int CHARS_TO_INCLUDE = 20;
+        private static readonly int CHARS_TO_INCLUDE = 40;
 
         public SearchResultListItem(SearchResult result)
         {
             _result = result;
 
             this.Orientation = Orientation.Vertical;
-            this.Margin = new Thickness(0, 0, 0, 20);
+            this.Margin = new Thickness(12, 0, 0, 20);
 
             TextBlock TitleBlock = new TextBlock()
             {

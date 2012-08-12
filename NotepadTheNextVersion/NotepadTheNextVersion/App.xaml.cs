@@ -119,11 +119,11 @@ namespace NotepadTheNextVersion
                 s1.Close();
                 IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2");
                 s2.Close();
-                isf.CreateDirectory(rootName + "/Dir");
+                isf.CreateDirectory(rootName + "/Dir1");
                 isf.CreateDirectory(rootName + "/Dir2");
-                isf.CreateDirectory(rootName + "/Dir/SubDir");
+                isf.CreateDirectory(rootName + "/Dir1/SubDir1");
                 isf.CreateDirectory(rootName + "/Dir2/SubDir2");
-                //WriteFiles(new string[] { "Dir1", "Dir2" });
+                WriteFiles(new string[] { "FileDir1", "FileDir2" });
             }
         }
 
