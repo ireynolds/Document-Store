@@ -77,7 +77,7 @@ namespace NotepadTheNextVersion.ListItems
                 AlertUserBadChars(badCharsInName);
                 return;
             }
-            if (!IsUniqueFileName(newName))
+            if (!IsUniqueFileName(newName) && !_actionable.Name.Equals(newName))
             {
                 AlertUserDuplicateName();
                 return;
@@ -87,11 +87,6 @@ namespace NotepadTheNextVersion.ListItems
                 AlertUserDotFile();
                 return;
             }
-
-            if (_actionable.GetType() == typeof(Document))
-                newName += "doc";
-            else
-                newName += "dir";
 
             // Rename the item
             bool wasTemp = _actionable.IsTemp;
@@ -130,7 +125,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void AlertUserDuplicateName()
         {
-            MessageBox.Show("An item with the same name already exists in that location./n/nNote that names are case-insensitive.", "Invalid name", MessageBoxButton.OK);
+            MessageBox.Show("An item with the same name already exists in that location.\n\nNote that names are case-insensitive.", "Invalid name", MessageBoxButton.OK);
         }
 
         private void AlertUserDotFile()
