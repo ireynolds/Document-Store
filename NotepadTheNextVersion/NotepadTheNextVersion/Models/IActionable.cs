@@ -65,10 +65,12 @@ namespace NotepadTheNextVersion.Models
         IActionable Rename(string newFileName);
 
         /// <summary>
-        /// Deletes this. Returns an IActionable representing the item if moved to 
-        /// trash, or null if deleted from trash.
+        /// If this is not in trash, moves to trash and returns the new item. If there is a file in trash with the
+        /// same name, overwrites that file. If this is in trash, deletes from Isolated Storage and returns null. 
         /// </summary>
-        /// <returns></returns>
+        /// <returns>
+        /// If the item was moved to trash, returns the new item. If it was deleted from trash, return null.
+        /// </returns>
         IActionable Delete();
 
         /// <summary>

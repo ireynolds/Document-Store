@@ -25,7 +25,6 @@ namespace NotepadTheNextVersion.ListItems
         private PageMode _pageMode;
         private IList<IListingsListItem> _items;
         private IList<IListingsListItem> _faves;
-        private bool _isUpdatingItems;
         private bool _isShowingEmptyNotice { get { return _currentGrid.Children.Contains(_emptyNotice); } }
         private bool _isShowingLoadingNotice { get { return _currentGrid.Children.Contains(_loadingNotice); } }
 
@@ -78,7 +77,7 @@ namespace NotepadTheNextVersion.ListItems
         private const int SLIDE_X_OUT_DURATION = 150;
         private const int SLIDE_X_IN_DURATION = 150;
         private const int SLIDE_Y_OUT_DURATION = 200;
-        private const int SLIDE_Y_IN_DURATION = 200;
+        private const int SLIDE_Y_IN_DURATION = 300;
         private const int FADE_IN_DURATION = 100;
         private const int FADE_OUT_DURATION = 100;
         private const int SWOOP_DURATION = 250;
@@ -107,8 +106,7 @@ namespace NotepadTheNextVersion.ListItems
 
         void Listings_Loaded(object sender, RoutedEventArgs e)
         {
-            UpdateItems(() => GetNavigatedToStoryboard(_curr).Begin());
-            UpdateView(() => GetNavigatedToStoryboard(_curr).Begin());
+            NavigateTo(_curr);
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -125,9 +123,7 @@ namespace NotepadTheNextVersion.ListItems
             if (_pageMode == PageMode.Trash)
             {
                 SetPageMode(PageMode.View);
-                Navigate(_currBeforeTrash,
-                         GetNavigatedFromStoryboard(),
-                         GetNavigatedToStoryboard(_currBeforeTrash));
+                NavigateFrom(_currBeforeTrash);
                 e.Cancel = true;
             }
             else if (_pageMode == PageMode.Edit)
@@ -140,9 +136,7 @@ namespace NotepadTheNextVersion.ListItems
                 Path parent = _curr.Path.Parent;
                 if (parent != null)
                 {
-                    Navigate(new Directory(parent),
-                        GetOutStoryboardForBackwardNavigation(),
-                        GetInStoryboardFromBackwardNavigation());
+                    NavigateBack(new Directory(parent));
                     e.Cancel = true;
                 }
             }
@@ -159,12 +153,6 @@ namespace NotepadTheNextVersion.ListItems
                 throw new Exception("Unrecognized PageMode.");
 
             base.OnBackKeyPress(e);
-        }
-
-        protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
-        {
-            base.OnNavigatedFrom(e);
-            Root.Opacity = 0;
         }
 
         #region Event Handlers
@@ -206,9 +194,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                Navigate((Directory)li.ActionableItem,
-                    GetOutStoryboardForForwardNavigation(li),
-                    GetInStoryboardFromForwardNavigation(li.ActionableItem.Name));
+                NavigateIn(li);
             }
         }
 
@@ -239,23 +225,27 @@ namespace NotepadTheNextVersion.ListItems
 
         #region Storyboard Generators
 
-        private Storyboard GetInStoryboardFromForwardNavigation(string destinationDisplayName)
+        private Storyboard GetInStoryboardFromForwardNavigation(Directory destination)
         {
             // Slide in from right
             Storyboard s = new Storyboard();
-            Storyboard.SetTarget(s, CurrentBox);
-
-            s.Children.Add(AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE));
-            s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION));
-
-            TextBlock append = CreatePathPanelBlock("\\" + destinationDisplayName);
+            TextBlock append = CreatePathPanelBlock("\\" + destination.Name);
             append.Opacity = 0;
             _pathPanel.Children.Add(append);
+
+            DoubleAnimation boxSlide = AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE);
+            Storyboard.SetTarget(boxSlide, CurrentBox);
+            s.Children.Add(boxSlide); 
+
+            DoubleAnimation rootFade = AnimationUtils.FadeIn(FADE_IN_DURATION);
+            Storyboard.SetTarget(rootFade, Root);
+            s.Children.Add(rootFade);
             
             DoubleAnimation pathSlide = AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE);
             Storyboard.SetTarget(pathSlide, append);
             s.Children.Add(pathSlide);
-            DoubleAnimation pathFade = AnimationUtils.FadeIn(1);
+
+            DoubleAnimation pathFade = AnimationUtils.FadeIn(FADE_IN_DURATION);
             Storyboard.SetTarget(pathFade, append);
             s.Children.Add(pathFade);
 
@@ -322,7 +312,7 @@ namespace NotepadTheNextVersion.ListItems
             Storyboard s = new Storyboard();
             Storyboard.SetTarget(s, Root);
             
-            s.Children.Add(AnimationUtils.FadeIn(SLIDE_Y_IN_DURATION));
+            s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION));
             s.Children.Add(AnimationUtils.TranslateY(350, 0, SLIDE_Y_IN_DURATION, SLIDE_Y_IN_EASE));
 
             InitPathPanelFromPath(openingDirectory.Path.PathString);
@@ -375,34 +365,74 @@ namespace NotepadTheNextVersion.ListItems
 
         #endregion
 
-        private void Navigate(Directory newDirectory, Storyboard outAnimation, Storyboard inAnimation)
+        private bool isHereSecondTime;
+        public EventHandler GetNavCompleteEventHandler(Action StartAnimation)
         {
-            outAnimation.Begin();
-
-            _curr = newDirectory;
-            Action BeginInAnimation = () =>
+            return (object sender, EventArgs e) =>
             {
-                inAnimation.Begin();
-            };
-            Action WorkToDo = () =>
-            {
-                UpdateItems(BeginInAnimation);
-            };
-            outAnimation.Completed += new EventHandler((object sender, EventArgs e) =>
-            {
-                UpdateView(BeginInAnimation);
-            });
-            Action<object, RunWorkerCompletedEventArgs> RunWorkerCompletedEvent = (object sender, RunWorkerCompletedEventArgs e) =>
-            {
-                if (outAnimation.GetCurrentState() != ClockState.Active)
+                string s = (sender == null) ? "null" : sender.GetType().ToString();
+                if (!isHereSecondTime)
+                    isHereSecondTime = true;
+                else
                 {
-                    UpdateView(BeginInAnimation);
-                    outAnimation.Stop();
+                    UpdateView();
+                    StartAnimation();
                 }
             };
+        }
 
-            CreateNewBackgroundWorker(WorkToDo, RunWorkerCompletedEvent)
-                .RunWorkerAsync();
+        private void NavigateIn(IListingsListItem selectedItem)
+        {
+            isHereSecondTime = false;
+            Directory destination = (Directory)selectedItem.ActionableItem;
+            Storyboard outAnim = GetOutStoryboardForForwardNavigation(selectedItem);
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetInStoryboardFromForwardNavigation(destination).Begin(); });
+
+            _curr = destination;
+            outAnim.Completed += WorkCompleted;
+            outAnim.Begin();
+            UpdateItems(WorkCompleted);
+        }
+
+        private void NavigateBack(Directory destination)
+        {
+            isHereSecondTime = false;
+            Storyboard outAnim = GetOutStoryboardForBackwardNavigation();
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetInStoryboardFromBackwardNavigation().Begin(); });
+
+            _curr = destination;
+            outAnim.Completed += WorkCompleted;
+            outAnim.Begin();
+            UpdateItems(WorkCompleted);
+        }
+
+        private void NavigateTo(Directory curr)
+        {
+            isHereSecondTime = false;
+            EventHandler WorkCompleted = delegate
+            {
+                UpdateView();
+                GetNavigatedToStoryboard(curr).Begin();
+            };
+
+            UpdateItems(WorkCompleted);
+        }
+
+        private void NavigateFrom(Uri destination)
+        {
+            NavigationService.Navigate(destination);
+        }
+
+        private void NavigateFrom(Directory destination)
+        {
+            isHereSecondTime = false;
+            Storyboard outAnim = GetNavigatedFromStoryboard();
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetNavigatedToStoryboard(destination).Begin(); });
+
+            _curr = destination;
+            outAnim.Completed += WorkCompleted;
+            outAnim.Begin();
+            UpdateItems(WorkCompleted);
         }
 
         private BackgroundWorker CreateNewBackgroundWorker(Action workToDo, Action<object, RunWorkerCompletedEventArgs> OnCompleted)
@@ -430,9 +460,8 @@ namespace NotepadTheNextVersion.ListItems
         }
 
         // Changes the currently-viewed folder and updates the view
-        private void UpdateItems(Action OnCompleted)
+        private void UpdateItems(EventHandler Completed)
         {
-            _isUpdatingItems = true;
             _items.Clear();
 
             // Re-fill ContentBox
@@ -467,31 +496,25 @@ namespace NotepadTheNextVersion.ListItems
                 }
             }
 
-            _isUpdatingItems = false;
-            if (_isShowingLoadingNotice && OnCompleted != null)
-                UpdateView(OnCompleted);
+            if (Completed != null)
+                Completed(null, null);
 
             RemoveNotice(Notice.Empty);
             RemoveNotice(Notice.Loading);
         }
 
-        private void UpdateView(Action OnCompleted)
+        private void UpdateView()
         {
             CurrentBox.Items.Clear();
 
-            if (_isUpdatingItems)
-                ShowNotice(Notice.Loading);
-            else if (_items.Count == 0)
+            foreach (IListingsListItem li in _items)
+                CurrentBox.Items.Add(li);
+
+            if (_items.Count == 0)
                 ShowNotice(Notice.Empty);
-            else
-                foreach (IListingsListItem li in _items)
-                    CurrentBox.Items.Add(li);
 
             if (_pageMode == PageMode.Edit)
                 SetPageMode(PageMode.View);
-
-            if (OnCompleted != null)
-                OnCompleted();
         }
 
         private void UpdateFavesView()
@@ -582,6 +605,7 @@ namespace NotepadTheNextVersion.ListItems
         private void InitializePageUI()
         {
             _masterPivot = new Pivot();
+            _masterPivot.RenderTransform = new CompositeTransform();
             _masterPivot.SelectionChanged += new SelectionChangedEventHandler(_masterPivot_SelectionChanged);
             Grid.SetRow(_masterPivot, 1);
             Root.Children.Add(_masterPivot);
@@ -644,6 +668,7 @@ namespace NotepadTheNextVersion.ListItems
                 CurrentBox.SelectionMode = SelectionMode.Multiple;
                 _currBeforeTrash = _curr;
                 ApplicationBar = (new Listings.TrashAppBar(this)).AppBar;
+                NavigateFrom(new Directory(PathBase.Trash));
             }
             else if (type == PageMode.Favorites && _pageMode != PageMode.Favorites)
             {
@@ -903,7 +928,6 @@ namespace NotepadTheNextVersion.ListItems
                     foreach (IListingsListItem item in Page.CurrentBox.Items)
                         item.IsSelectable = true;
                 });
-                Page.Navigate(trash, Page.GetNavigatedFromStoryboard(), sb);
             }
 
             public void SelectedItemChanged(object sender, SelectionChangedEventArgs e)
