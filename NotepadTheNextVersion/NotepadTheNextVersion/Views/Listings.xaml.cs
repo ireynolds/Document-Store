@@ -730,8 +730,8 @@ namespace NotepadTheNextVersion.ListItems
                 foreach (IListingsListItem item in Page.CurrentBox.Items)
                     item.IsSelectable = false;
 
-                _buttons = new List<ApplicationBarIconButton>() { NewButton, SelectButton };
-                _menuItems = new List<ApplicationBarMenuItem>() { SearchItem, SettingsItem, TrashItem, ImportExportItem, AboutTipsItem };
+                _buttons = new ButtonList() { NewButton, SelectButton };
+                _menuItems = new ItemList() { SearchItem, SettingsItem, TrashItem, ImportExportItem, AboutTipsItem };
                 ApplicationBarSetup.SetElements(_appBar, _buttons, _menuItems);
                 _appBar.Mode = ApplicationBarMode.Default;
                 _appBar.IsMenuEnabled = true;
@@ -742,8 +742,8 @@ namespace NotepadTheNextVersion.ListItems
         {
             public FavoritesAppBar(Listings Page)
             {
-                _buttons = new List<ApplicationBarIconButton>();
-                _menuItems = new List<ApplicationBarMenuItem>();
+                _buttons = new ButtonList();
+                _menuItems = new ItemList();
 
                 _appBar.Mode = ApplicationBarMode.Minimized;
                 _appBar.IsMenuEnabled = false;
@@ -812,8 +812,8 @@ namespace NotepadTheNextVersion.ListItems
                     a.TogglePin();
                 });
 
-                _buttons = new List<ApplicationBarIconButton>() { DeleteButton, FaveButton };
-                _menuItems = new List<ApplicationBarMenuItem>() { RenameItem, MoveItem, PinItem };
+                _buttons = new ButtonList() { DeleteButton, FaveButton };
+                _menuItems = new ItemList() { RenameItem, MoveItem, PinItem };
                 ApplicationBarSetup.SetElements(_appBar, _buttons, _menuItems);
                 ApplicationBarSetup.SetAllEnabled(_appBar, false);
                 Page.CurrentBox.SelectionChanged += new SelectionChangedEventHandler(SelectedItemsChanged);
@@ -888,8 +888,8 @@ namespace NotepadTheNextVersion.ListItems
                     Page.CurrentBox.Items.Clear();
                 });
 
-                _buttons = new List<ApplicationBarIconButton>() { DeleteButton, RestoreButton };
-                _menuItems = new List<ApplicationBarMenuItem>() { EmptyItem };
+                _buttons = new ButtonList() { DeleteButton, RestoreButton };
+                _menuItems = new ItemList() { EmptyItem };
                 SetElements(_appBar, _buttons, _menuItems);
                 SetAllEnabled(_appBar, false);
                 Page.CurrentBox.SelectionChanged += new SelectionChangedEventHandler(SelectedItemsChanged);

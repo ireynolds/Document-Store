@@ -7,6 +7,7 @@ using NotepadTheNextVersion.Enumerations;
 using System.Windows.Controls;
 using NotepadTheNextVersion.ListItems;
 using Microsoft.Phone.Controls;
+using NotepadTheNextVersion.Models;
 
 namespace NotepadTheNextVersion.AppBars
 {
@@ -20,12 +21,12 @@ namespace NotepadTheNextVersion.AppBars
         /// <summary>
         /// A List of all buttons in the order they appear (left to right).
         /// </summary>
-        protected IList<ApplicationBarIconButton> _buttons;
+        protected ButtonList _buttons;
 
         /// <summary>
         /// A List of all menu items in the order they appear (top to bottom).
         /// </summary>
-        protected IList<ApplicationBarMenuItem> _menuItems;
+        protected ItemList _menuItems;
 
         /// <summary>
         /// Gets a reference to the ApplicationBar that this manages.
@@ -62,7 +63,7 @@ namespace NotepadTheNextVersion.AppBars
         /// <param name="AppBar"></param>
         /// <param name="Buttons"></param>
         /// <param name="MenuItems"></param>
-        public static void SetElements(ApplicationBar AppBar, IList<ApplicationBarIconButton> Buttons, IList<ApplicationBarMenuItem> MenuItems)
+        public static void SetElements(ApplicationBar AppBar, ButtonList Buttons, ItemList MenuItems)
         {
             ClearElements(AppBar);
             foreach (ApplicationBarIconButton b in Buttons)

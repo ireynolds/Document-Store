@@ -79,7 +79,7 @@ namespace NotepadTheNextVersion.ListItems
                     }
                 }
 
-                dirsL.Sort(new SortDirectories());
+                dirsL.Sort();
                 foreach (Directory d in dirsL)
                     ContentBox.Items.Add(createNewDirItem(d));
             }
