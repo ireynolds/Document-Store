@@ -35,7 +35,7 @@ namespace NotepadTheNextVersion.ListItems
         private StackPanel _pathPanel;
         private Pivot _masterPivot;
         private PivotItem _allPivot;
-        private PivotItem _favesPivot;
+        public PivotItem _favesPivot;
         private ListBox _allBox;
         private ListBox _favesBox;
         private TextBlock _loadingNotice;
@@ -714,6 +714,14 @@ namespace NotepadTheNextVersion.ListItems
             Grid.SetRow(_allBox, 0);
             _allGrid.Children.Add(_allBox);
 
+            if (((Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey]).Count > 0)
+            {
+                InitializeFavesPivotItem();
+            }
+        }
+
+        public void InitializeFavesPivotItem()
+        {
             _favesPivot = new PivotItem();
             _favesPivot.Header = "favorites";
             _masterPivot.Items.Add(_favesPivot);
@@ -895,6 +903,8 @@ namespace NotepadTheNextVersion.ListItems
                 {
                     (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite = true;
                     Page.SetPageMode(PageMode.View);
+                    if (Page._favesPivot == null)
+                        Page.InitializeFavesPivotItem();
                 });
                 UnfaveButton = ViewUtils.CreateIconButton("remove favorite", App.UnfaveIcon, (object sender, EventArgs e) =>
                 {
