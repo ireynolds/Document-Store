@@ -15,6 +15,7 @@ using System.ComponentModel;
 using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Exceptions;
 using NotepadTheNextVersion.AppBars;
+using System.Windows.Threading;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -77,10 +78,13 @@ namespace NotepadTheNextVersion.ListItems
         private const int SLIDE_X_OUT_DURATION = 150;
         private const int SLIDE_X_IN_DURATION = 150;
         private const int SLIDE_Y_OUT_DURATION = 200;
-        private const int SLIDE_Y_IN_DURATION = 300;
+        private const int SLIDE_Y_IN_DURATION = 200;
         private const int FADE_IN_DURATION = 100;
         private const int FADE_OUT_DURATION = 100;
-        private const int SWOOP_DURATION = 250;
+        private const int SWOOP_DURATION = 175;
+        private const int TIMER_DURATION = 120;
+        private static readonly ExponentialEase ITEM_SLIDE_IN_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 3 };
+        private static readonly ExponentialEase ITEM_SLIDE_OUT_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 3 };
         private static readonly ExponentialEase SLIDE_X_IN_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 3 };
         private static readonly ExponentialEase SLIDE_X_OUT_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 3 };
         private static readonly ExponentialEase SLIDE_Y_IN_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 3 };
@@ -123,7 +127,7 @@ namespace NotepadTheNextVersion.ListItems
             if (_pageMode == PageMode.Trash)
             {
                 SetPageMode(PageMode.View);
-                NavigateFrom(_currBeforeTrash);
+                NavigateOut(_currBeforeTrash);
                 e.Cancel = true;
             }
             else if (_pageMode == PageMode.Edit)
@@ -225,22 +229,24 @@ namespace NotepadTheNextVersion.ListItems
 
         #region Storyboard Generators
 
-        private Storyboard GetInStoryboardFromForwardNavigation(Directory destination)
+        private Storyboard GetInStoryboardFromForwardNavigation(IListingsListItem item)
         {
-            // Slide in from right
+            Storyboard s = new Storyboard();
+
+            DoubleAnimation itemSlide = AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE);
+            Storyboard.SetTarget(itemSlide, item);
+            s.Children.Add(itemSlide);
+
+            return s;
+        }
+
+        private Storyboard AddAndAnimatePathPanel(Directory destination)
+        {
             Storyboard s = new Storyboard();
             TextBlock append = CreatePathPanelBlock("\\" + destination.Name);
             append.Opacity = 0;
             _pathPanel.Children.Add(append);
 
-            DoubleAnimation boxSlide = AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE);
-            Storyboard.SetTarget(boxSlide, CurrentBox);
-            s.Children.Add(boxSlide); 
-
-            DoubleAnimation rootFade = AnimationUtils.FadeIn(FADE_IN_DURATION);
-            Storyboard.SetTarget(rootFade, Root);
-            s.Children.Add(rootFade);
-            
             DoubleAnimation pathSlide = AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE);
             Storyboard.SetTarget(pathSlide, append);
             s.Children.Add(pathSlide);
@@ -366,18 +372,44 @@ namespace NotepadTheNextVersion.ListItems
         #endregion
 
         private bool isHereSecondTime;
-        public EventHandler GetNavCompleteEventHandler(Action StartAnimation)
+        private int count;
+        public EventHandler GetNavCompleteEventHandler(Action StartPageAnimation, Action<IListingsListItem> StartItemAnimation)
         {
             return (object sender, EventArgs e) =>
             {
-                string s = (sender == null) ? "null" : sender.GetType().ToString();
                 if (!isHereSecondTime)
-                    isHereSecondTime = true;
-                else
                 {
-                    UpdateView();
-                    StartAnimation();
+                    isHereSecondTime = true;
+                    return;
                 }
+
+                if (StartPageAnimation != null)
+                    StartPageAnimation();
+
+                CurrentBox.Items.Clear();
+                if (StartItemAnimation == null)
+                {
+                    foreach (object o in _items) CurrentBox.Items.Add(o);
+                    return;
+                }
+                
+                count = 0;
+                DispatcherTimer t = new DispatcherTimer();
+                t.Interval = TimeSpan.FromMilliseconds(TIMER_DURATION);
+                t.Tick += delegate(object sender1, EventArgs e1)
+                {
+                    if (count < _items.Count)
+                    {
+                        CurrentBox.Items.Add(_items[count]);
+                        StartItemAnimation(_items[count]);
+                    }
+                    else
+                        t.Stop();
+                    count++;
+                    t.Interval = TimeSpan.FromMilliseconds(0.85 * t.Interval.Milliseconds);
+                };
+                t.Start();
+                
             };
         }
 
@@ -386,7 +418,15 @@ namespace NotepadTheNextVersion.ListItems
             isHereSecondTime = false;
             Directory destination = (Directory)selectedItem.ActionableItem;
             Storyboard outAnim = GetOutStoryboardForForwardNavigation(selectedItem);
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetInStoryboardFromForwardNavigation(destination).Begin(); });
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(
+                delegate
+                {
+                    AddAndAnimatePathPanel(destination).Begin();
+                },
+                delegate(IListingsListItem item)
+                {
+                    GetInStoryboardFromForwardNavigation(item).Begin();
+                });
 
             _curr = destination;
             outAnim.Completed += WorkCompleted;
@@ -398,7 +438,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             isHereSecondTime = false;
             Storyboard outAnim = GetOutStoryboardForBackwardNavigation();
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetInStoryboardFromBackwardNavigation().Begin(); });
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetInStoryboardFromBackwardNavigation().Begin(); }, null);
 
             _curr = destination;
             outAnim.Completed += WorkCompleted;
@@ -408,26 +448,23 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateTo(Directory curr)
         {
-            isHereSecondTime = false;
-            EventHandler WorkCompleted = delegate
-            {
-                UpdateView();
-                GetNavigatedToStoryboard(curr).Begin();
-            };
+            isHereSecondTime = true;
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetNavigatedToStoryboard(curr).Begin(); }, null);
 
+            _curr = curr;
             UpdateItems(WorkCompleted);
         }
 
-        private void NavigateFrom(Uri destination)
+        private void NavigateOut(Uri destination)
         {
             NavigationService.Navigate(destination);
         }
 
-        private void NavigateFrom(Directory destination)
+        private void NavigateOut(Directory destination)
         {
             isHereSecondTime = false;
             Storyboard outAnim = GetNavigatedFromStoryboard();
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetNavigatedToStoryboard(destination).Begin(); });
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetNavigatedToStoryboard(destination).Begin(); }, null);
 
             _curr = destination;
             outAnim.Completed += WorkCompleted;
@@ -496,25 +533,16 @@ namespace NotepadTheNextVersion.ListItems
                 }
             }
 
-            if (Completed != null)
-                Completed(null, null);
-
-            RemoveNotice(Notice.Empty);
-            RemoveNotice(Notice.Loading);
-        }
-
-        private void UpdateView()
-        {
-            CurrentBox.Items.Clear();
-
-            foreach (IListingsListItem li in _items)
-                CurrentBox.Items.Add(li);
-
             if (_items.Count == 0)
                 ShowNotice(Notice.Empty);
+            else
+                RemoveNotice(Notice.Empty);
 
             if (_pageMode == PageMode.Edit)
                 SetPageMode(PageMode.View);
+
+            if (Completed != null)
+                Completed(null, null);
         }
 
         private void UpdateFavesView()
@@ -668,7 +696,7 @@ namespace NotepadTheNextVersion.ListItems
                 CurrentBox.SelectionMode = SelectionMode.Multiple;
                 _currBeforeTrash = _curr;
                 ApplicationBar = (new Listings.TrashAppBar(this)).AppBar;
-                NavigateFrom(new Directory(PathBase.Trash));
+                NavigateOut(new Directory(PathBase.Trash));
             }
             else if (type == PageMode.Favorites && _pageMode != PageMode.Favorites)
             {

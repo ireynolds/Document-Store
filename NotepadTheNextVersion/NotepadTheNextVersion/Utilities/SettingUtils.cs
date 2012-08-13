@@ -64,7 +64,7 @@ namespace NotepadTheNextVersion.Utilities
         /// </summary>
         /// <param name="setting"></param>
         /// <returns></returns>
-        private static object DefaultValue(Setting setting)
+        public static object DefaultValue(Setting setting)
         {
             switch (setting)
             {
