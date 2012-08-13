@@ -104,7 +104,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 this.DocTitleBlock = new TextBlock()
                 {
-                    Text = _doc.Name.ToUpper(),
+                    Text = _doc.DisplayName.ToUpper(),
                     FontSize = (double)App.Current.Resources["PhoneFontSizeMedium"],
                     FontFamily = new FontFamily("Segoe WP Semibold"),
                     Foreground = new SolidColorBrush(Colors.Gray),

@@ -77,7 +77,7 @@ namespace NotepadTheNextVersion.ListItems
                 AlertUserBadChars(badCharsInName);
                 return;
             }
-            if (!IsUniqueFileName(newName) && !_actionable.Name.Equals(newName))
+            if (!IsUniqueFileName(newName) && !_actionable.DisplayName.Equals(newName))
             {
                 AlertUserDuplicateName();
                 return;
@@ -90,7 +90,7 @@ namespace NotepadTheNextVersion.ListItems
 
             // Rename the item
             bool wasTemp = _actionable.IsTemp;
-            if (!_actionable.Name.Equals(newName))
+            if (!_actionable.DisplayName.Equals(newName))
                 _actionable = _actionable.Rename(newName);
             _actionable.IsTemp = false;
 
@@ -144,7 +144,7 @@ namespace NotepadTheNextVersion.ListItems
             ContentPanel.Children.Add(tb);
 
             NewNameBox = new WatermarkedTextBox("specify a new name");
-            NewNameBox.SetText(_actionable.Name);
+            NewNameBox.SetText(_actionable.DisplayName);
             NewNameBox.KeyDown += new KeyEventHandler(NewNameBox_KeyDown);
             ContentPanel.Children.Add(NewNameBox);
 
@@ -155,7 +155,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                ApplicationTitle.Text = _actionable.Name.ToUpper();
+                ApplicationTitle.Text = _actionable.DisplayName.ToUpper();
             }
         }
 
@@ -181,11 +181,16 @@ namespace NotepadTheNextVersion.ListItems
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Models.Path newPath = _actionable.Path.Parent.NavigateIn(name);
                 if (_actionable.GetType() == typeof(Document))
+                {
+                    Models.Path newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Document);
                     return !isf.FileExists(newPath.PathString);
+                }
                 else
+                {
+                    Models.Path newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Directory);
                     return !isf.DirectoryExists(newPath.PathString);
+                }
             }
         }
 

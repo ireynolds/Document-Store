@@ -30,12 +30,12 @@ namespace NotepadTheNextVersion.ListItems
             this.Children.Add(name);
             this.Children.Add(path);
 
-            name.Text = DirectoryItem.Name;
+            name.Text = DirectoryItem.DisplayName;
             name.FontSize = 50;
             name.FontFamily = new FontFamily("Segoe WP SemiLight");
             name.Margin = new Thickness(0, 0, 0, -5);
-            
-            path.Text = DirectoryItem.Path.PathString;
+
+            path.Text = DirectoryItem.Path.DisplayPathString;
             path.Foreground = (Brush)Application.Current.Resources["PhoneSubtleBrush"];
         }
     }

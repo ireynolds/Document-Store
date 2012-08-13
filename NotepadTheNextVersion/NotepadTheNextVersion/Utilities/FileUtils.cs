@@ -43,13 +43,13 @@ namespace NotepadTheNextVersion.Utilities
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                if (!isf.FileExists(parent.Path.NavigateIn(name).PathString) &&
-                    !isf.DirectoryExists(parent.Path.NavigateIn(name).PathString))
+                if (!isf.FileExists(parent.Path.NavigateIn(name, ItemType.Document).PathString) &&
+                    !isf.DirectoryExists(parent.Path.NavigateIn(name, ItemType.Directory).PathString))
                     return name;
                 
                 int count = 1;
-                while (isf.FileExists(parent.Path.NavigateIn(String.Format("{0} ({1})", name, count)).PathString) ||
-                       isf.DirectoryExists(parent.Path.NavigateIn(String.Format("{0} ({1})", name, count)).PathString))
+                while (isf.FileExists(parent.Path.NavigateIn(String.Format("{0} ({1})", name, count), ItemType.Document).PathString) ||
+                       isf.DirectoryExists(parent.Path.NavigateIn(String.Format("{0} ({1})", name, count), ItemType.Directory).PathString))
                 {
                     count++;
                 }
@@ -61,7 +61,7 @@ namespace NotepadTheNextVersion.Utilities
         /// Given a full filepath including root, creates a document at that location relative to root. That is, 
         /// if you pass in root/hello but the current root is home, it will create home.
         /// </summary>
-        /// <param name="path">Must contain the full filepath, including root.</param>
+        /// <param name="path">Must contain the full filepath, including root. Must include "-doc", "-dir".</param>
         /// <returns></returns>
         public static Document CreateFileFromString(string path)
         {
@@ -73,8 +73,8 @@ namespace NotepadTheNextVersion.Utilities
                 for (int i = 0; i < pathArray.Length - 1; i++)
                 {
                     currPath = System.IO.Path.Combine(currPath, pathArray[i]);
-                    if (!isf.DirectoryExists(currPath))
-                        isf.CreateDirectory(currPath);
+                    if (!isf.DirectoryExists(currPath + ""))
+                        isf.CreateDirectory(currPath + "");
                 }
                 string fileName = pathArray[pathArray.Length - 1];
                 IsolatedStorageFileStream f = isf.CreateFile(System.IO.Path.Combine(currPath, fileName));
@@ -83,7 +83,7 @@ namespace NotepadTheNextVersion.Utilities
                 Path p = new Path(PathBase.Root);
                 // Skip the first because "root" is already in the path.
                 for (int i = 1; i < pathArray.Length; i++)
-                    p = p.NavigateIn(pathArray[i]);
+                    p = p.NavigateIn(pathArray[i], ItemType.Default);
                 return new Document(p);
             }
         }
@@ -126,7 +126,7 @@ namespace NotepadTheNextVersion.Utilities
                     Directory dir = dirsQ.Dequeue();
                     dirsL.Add(dir);
                     foreach (string subDirName in isf.GetDirectoryNames(System.IO.Path.Combine(dir.Path.PathString, "*")))
-                        dirsQ.Enqueue(new Directory(dir.Path.NavigateIn(subDirName)));
+                        dirsQ.Enqueue(new Directory(dir.Path.NavigateIn(subDirName, ItemType.Default)));
                 }
                 return dirsL;
             }
@@ -147,7 +147,7 @@ namespace NotepadTheNextVersion.Utilities
                 IList<Document> docs = new List<Document>();
                 foreach (Directory d in GetAllDirectories(bases))
                     foreach (string s in isf.GetFileNames(d.Path.PathString + "\\*"))
-                        docs.Add(new Document(d.Path.NavigateIn(s)));
+                        docs.Add(new Document(d.Path.NavigateIn(s, ItemType.Default)));
                 return docs;
             }
         }

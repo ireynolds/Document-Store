@@ -34,7 +34,7 @@ namespace NotepadTheNextVersion
             string name = FileUtils.GetNumberedName("Temp", root);
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Document d = new Document(root.Path.NavigateIn(name)) { IsTemp = true };
+                Document d = new Document(root.Path.NavigateIn(name, ItemType.Document)) { IsTemp = true };
                 IsolatedStorageFileStream f = isf.CreateFile(d.Path.PathString);
                 f.Close();
                 return d;

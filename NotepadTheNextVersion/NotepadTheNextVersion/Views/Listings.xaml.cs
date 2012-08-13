@@ -245,7 +245,7 @@ namespace NotepadTheNextVersion.ListItems
         private Storyboard GetInForwardPageSB(Directory destination)
         {
             Storyboard s = new Storyboard();
-            TextBlock append = CreatePathPanelBlock("\\" + destination.Name);
+            TextBlock append = CreatePathPanelBlock("\\" + destination.DisplayName);
             append.Opacity = 0;
             _pathPanel.Children.Add(append);
 
@@ -321,7 +321,7 @@ namespace NotepadTheNextVersion.ListItems
             s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION, Root));
             s.Children.Add(AnimationUtils.TranslateY(350, 0, SLIDE_Y_IN_DURATION, SLIDE_Y_IN_EASE, Root));
 
-            InitPathPanelFromPath(openingDirectory.Path.PathString);
+            InitPathPanelFromPath(openingDirectory.Path.DisplayPathString);
 
             return s;
         }
@@ -571,7 +571,7 @@ namespace NotepadTheNextVersion.ListItems
                 // Add directories
                 foreach (string dir in dirs)
                 {
-                    Directory d = new Directory(_curr.Path.NavigateIn(dir));
+                    Directory d = new Directory(_curr.Path.NavigateIn(dir, ItemType.Default));
                     IListingsListItem li = IListingsListItem.CreateListItem(d);
                     Items.Add(li);
                 }
@@ -585,7 +585,7 @@ namespace NotepadTheNextVersion.ListItems
                 // Add documents
                 foreach (string doc in docs)
                 {
-                    Document d = new Document(_curr.Path.NavigateIn(doc));
+                    Document d = new Document(_curr.Path.NavigateIn(doc, ItemType.Default));
                     IListingsListItem li = IListingsListItem.CreateListItem(d);
                     Items.Add(li);
                 }
@@ -957,6 +957,8 @@ namespace NotepadTheNextVersion.ListItems
                     else if (!selectedActionable.IsFavorite)
                         _appBar.Buttons.Add(FaveButton);
                     SetAllEnabled(_appBar, true);
+                    if (selectedActionable.IsPinned)
+                        SetEnabledElements(false, new ButtonList(), new ItemList() { PinItem });
                 }
                 else // multiple selected
                 {

@@ -48,8 +48,17 @@ namespace NotepadTheNextVersion.Models
             get
             {
                 if (_pathString == null)
-                    _pathString = Combine(pathList);
+                    _pathString = Combine(pathList, true);
                 return _pathString;
+            }
+        }
+
+        public string DisplayPathString
+        {
+            get
+            {
+                string s = Combine(pathList, false);
+                return s;
             }
         }
 
@@ -93,6 +102,14 @@ namespace NotepadTheNextVersion.Models
             }
         }
 
+        public string DisplayName
+        {
+            get
+            {
+                return Name.Substring(0, Name.Length - 4);
+            }
+        }
+
         public bool IsInTrash
         {
             get 
@@ -115,12 +132,12 @@ namespace NotepadTheNextVersion.Models
         {
             string[] parts = s.Split(new string[] { "/", "\\" }, StringSplitOptions.RemoveEmptyEntries);
             Path p = null;
-            if (parts[0].Equals("trash"))
+            if (parts[0].Equals("trash-dir"))
                 p = new Path(PathBase.Trash);
             else
                 p = new Path(PathBase.Root);
             for (int i = 1; i < parts.Length; i++)
-                p = p.NavigateIn(parts[i]);
+                p = p.NavigateIn(parts[i], ItemType.Default);
             return p;
         }
 
@@ -149,12 +166,7 @@ namespace NotepadTheNextVersion.Models
             }
             else if (pathBase == PathBase.Trash)
             {
-                pathList.Add("trash");
-                this.isInTrash = false;
-            }
-            else if (pathBase == PathBase.Staging)
-            {
-                pathList.Add("staging");
+                pathList.Add("trash-dir");
                 this.isInTrash = false;
             }
         }
@@ -182,14 +194,19 @@ namespace NotepadTheNextVersion.Models
          * @throws LocationNotFoundException : if the new path's location
          *                                     doesn't exist
          */
-        public Path NavigateIn(string name)
+        public Path NavigateIn(string name, ItemType type)
         {
             if (name == null || name.Equals(string.Empty))
                 throw new ArgumentException();
             //checkRep();
 
             Path p = new Path(this);
-            p.pathList.Add(name);
+            if (type == ItemType.Directory)
+                p.pathList.Add(name + "-dir");
+            else if (type == ItemType.Document)
+                p.pathList.Add(name + "-doc");
+            else
+                p.pathList.Add(name);
             p.isInTrash = PathIsInTrash(p.pathList);
 
             //checkRep();
@@ -229,7 +246,7 @@ namespace NotepadTheNextVersion.Models
                 throw new InvalidStateException("path.contains(null)");
             if (pathList.Contains(string.Empty))
                 throw new InvalidStateException("path.contains(string.empty)");
-            if (!pathList[0].Equals((string)SettingUtils.GetSetting(Setting.RootDirectoryName)) && !pathList[0].Equals("trash"))
+            if (!pathList[0].Equals((string)SettingUtils.GetSetting(Setting.RootDirectoryName)) && !pathList[0].Equals("trash-dir"))
                 throw new InvalidStateException("root is neither root nor trash");
         }
 
@@ -240,30 +257,23 @@ namespace NotepadTheNextVersion.Models
         //
         // Converts the given list of strings into a valid URI string.
         // 
-        public static string Combine(IList<string> pathToCombine)
+        public static string Combine(IList<string> pathToCombine, bool IncludeTag)
         {
             string partialPath = string.Empty;
 
             for (int i = 0; i < pathToCombine.Count; i++)
             {
-                string nextElement = pathToCombine[i];
+                string tmp = pathToCombine[i];
+                string nextElement = (IncludeTag) ? tmp : tmp.Substring(0, tmp.Length - 4);
                 partialPath = System.IO.Path.Combine(partialPath, nextElement);
             }
 
             return partialPath;
         }
 
-        //
-        // Converts the given parameters into a valid URI string.
-        // 
-        public static string Combine(params string[] wordList)
-        {
-            return Combine(new List<string>(wordList));
-        }
-
         private static bool PathIsInTrash(IList<string> path)
         {
-            return path[0].Equals("trash") &&
+            return path[0].Equals("trash-dir") &&
                    path.Count > 1;
         }
 
