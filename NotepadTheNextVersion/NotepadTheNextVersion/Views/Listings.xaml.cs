@@ -109,8 +109,6 @@ namespace NotepadTheNextVersion.ListItems
             InitializeApplicationBar();
             InitializePageUI();
             SetPageMode(PageMode.View);
-
-            Root.Opacity = 0;
         }
 
         void Listings_Loaded(object sender, RoutedEventArgs e)
@@ -121,7 +119,7 @@ namespace NotepadTheNextVersion.ListItems
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-
+            Root.Opacity = 0;
             if (_curr == null)
                 GetArgs();
             _curr = (Directory)_curr.SwapRoot();
@@ -261,10 +259,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             Storyboard s = new Storyboard();
             Storyboard.SetTarget(s, CurrentBox);
-
-            //s.Children.Add(AnimationUtils.TranslateX(-500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE));
             s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION));
-
             return s;
         }
 
@@ -279,10 +274,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             Storyboard s = new Storyboard();
             s.Completed += new EventHandler((object sender, EventArgs e) => _pathPanel.Children.RemoveAt(_pathPanel.Children.Count - 1));
-
-            //s.Children.Add(AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE, CurrentBox));
             s.Children.Add(AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE, _pathPanel.Children[_pathPanel.Children.Count - 1]));
-            
             return s;
         }
 
@@ -290,16 +282,6 @@ namespace NotepadTheNextVersion.ListItems
         {
             Storyboard s = new Storyboard();
             s.Children.Add(AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE, item));
-
-            //PlaneProjection p = new PlaneProjection();
-            //p.CenterOfRotationX = -1;
-            //item.Projection = p;
-            //s.Children.Add(AnimationUtils.RotateY(from: 0, 
-            //                                      to: -90, 
-            //                                      millis: _timer_duration * 2, 
-            //                                      easingFunction: new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 2 },
-            //                                      target: item));
-            
             return s;
         }
 
@@ -310,6 +292,10 @@ namespace NotepadTheNextVersion.ListItems
 
             // Swoop
             Storyboard swoop = new Storyboard();
+            swoop.Completed += delegate(object sender, EventArgs e)
+            {
+                selectedItem.Opacity = 0;
+            };
             Storyboard.SetTarget(swoop, selectedItem.GetAnimatedItemReference());
 
             swoop.Children.Add(AnimationUtils.TranslateY(0, 80, SWOOP_DURATION, new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 3 }));
@@ -330,7 +316,6 @@ namespace NotepadTheNextVersion.ListItems
 
         private Storyboard GetNavToSB(Directory openingDirectory)
         {
-            // Carousel/corkscrew items in (including PageTitle)
             Storyboard s = new Storyboard();
             
             s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION, Root));
@@ -343,7 +328,6 @@ namespace NotepadTheNextVersion.ListItems
 
         private Storyboard GetNavFromSB()
         {
-            // Carousel/corkscrew items in (including PageTitle)
             Storyboard s = new Storyboard();
             Storyboard.SetTarget(s, Root);
 
@@ -440,7 +424,6 @@ namespace NotepadTheNextVersion.ListItems
                 count++;
                 _timer_duration = DECAY_CONSTANT * _animationTimer.Interval.Milliseconds;
                 _animationTimer.Interval = TimeSpan.FromMilliseconds(_timer_duration);
-
             };
             return _animationTimer;
         }
@@ -450,7 +433,6 @@ namespace NotepadTheNextVersion.ListItems
             isHereSecondTime = false;
             isHereThirdTime = true;
             Directory destination = (Directory)selectedItem.ActionableItem;
-            Storyboard outAnim = GetOutForwardPageSB(selectedItem);
             EventHandler WorkCompleted = GetNavCompleteEventHandler(
                 delegate
                 {
@@ -463,6 +445,7 @@ namespace NotepadTheNextVersion.ListItems
                 });
 
             _curr = destination;
+            Storyboard outAnim = GetOutForwardPageSB(selectedItem);
             outAnim.Completed += WorkCompleted;
             outAnim.Begin();
             UpdateItems(WorkCompleted);
