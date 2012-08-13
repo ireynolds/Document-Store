@@ -66,6 +66,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Enumerations\ItemType.cs" />
     <Compile Include="Enumerations\PageMode.cs" />
     <Compile Include="Enumerations\Notice.cs" />
     <Compile Include="Enumerations\PathBase.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="Exceptions\ActionableException.cs" />
     <Compile Include="Models\ApplicationBarSetup.cs" />
     <Compile Include="Models\ButtonList.cs" />
+    <Compile Include="Models\IActionableComparer.cs" />
     <Compile Include="Models\ItemList.cs" />
     <Compile Include="Models\LinearEase.cs" />
     <Compile Include="Models\Directory.cs" />

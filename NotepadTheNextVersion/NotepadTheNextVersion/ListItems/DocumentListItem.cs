@@ -32,7 +32,7 @@ namespace NotepadTheNextVersion.ListItems
 
             _contentPanel.Children.Add(displayNameTextBlock);
 
-            displayNameTextBlock.Text = a.Name;
+            displayNameTextBlock.Text = a.DisplayName;
             displayNameTextBlock.Margin = displayNameTextBox_Margin;
             displayNameTextBlock.FontFamily = displayNameTextBox_FontFamily;
             displayNameTextBlock.TextWrapping = TextWrapping.Wrap;

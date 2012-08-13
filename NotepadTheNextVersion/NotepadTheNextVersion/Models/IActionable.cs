@@ -25,6 +25,16 @@ namespace NotepadTheNextVersion.Models
         string Name { get; }
 
         /// <summary>
+        /// Returns true iff this IActionable is currently pinned to the start screen. 
+        /// </summary>
+        bool IsPinned { get; }
+
+        /// <summary>
+        /// Returns the filename of this without the trailing identifier
+        /// </summary>
+        string DisplayName { get; }
+
+        /// <summary>
         /// Returns true iff this is a temporary file (used for (a) opening to note editor
         /// and (b) between addnewitem and renameitem).
         /// </summary>

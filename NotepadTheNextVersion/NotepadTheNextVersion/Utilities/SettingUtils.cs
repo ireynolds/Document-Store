@@ -77,7 +77,7 @@ namespace NotepadTheNextVersion.Utilities
                 case Setting.NoteEditorThemeColor:
                     return ThemeColor.light;
                 case Setting.RootDirectoryName:
-                    return "home";
+                    return "home-dir";
                 default:
                     throw new Exception("Unrecognized enum type");
             }

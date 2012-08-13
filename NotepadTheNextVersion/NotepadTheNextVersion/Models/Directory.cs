@@ -11,7 +11,7 @@ using System.Collections.ObjectModel;
 
 namespace NotepadTheNextVersion.Models
 {
-    public class Directory : IActionable
+    public class Directory : IActionable, IComparable<Directory>
     {
         private Path _path;
 
@@ -61,9 +61,14 @@ namespace NotepadTheNextVersion.Models
             get { return _path.Name; }
         }
 
+        public string DisplayName
+        {
+            get { return _path.DisplayName; }
+        }
+
         public bool IsPinned
         {
-            get { throw new NotImplementedException(); }
+            get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(Uri.EscapeUriString(Path.PathString))) != null; }
         }
 
         public Path Path
@@ -78,7 +83,7 @@ namespace NotepadTheNextVersion.Models
 
         public Directory(Directory parent, string name)
         {
-            _path = parent.Path.NavigateIn(name);
+            _path = parent.Path.NavigateIn(name, ItemType.Directory);
         }
 
         public Directory(PathBase Base)
@@ -100,7 +105,7 @@ namespace NotepadTheNextVersion.Models
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Directory newLoc = new Directory(newLocation.Path.NavigateIn(Name));
+                Directory newLoc = new Directory(newLocation.Path.NavigateIn(Name, ItemType.Default));
                 if (isf.DirectoryExists(newLoc.Path.PathString))
                     throw new ActionableException(this);
 
@@ -121,7 +126,7 @@ namespace NotepadTheNextVersion.Models
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Path newLoc = Path.Parent.NavigateIn(newDirectoryName);
+                Path newLoc = Path.Parent.NavigateIn(newDirectoryName, ItemType.Directory);
                 if (isf.DirectoryExists(newLoc.PathString))
                     throw new ActionableException(this);
 
@@ -147,7 +152,7 @@ namespace NotepadTheNextVersion.Models
             else // if (!isTrash)
             {
                 Directory trash = new Directory(new Path(PathBase.Trash));
-                Directory newLoc = new Directory(trash.Path.NavigateIn(Name));
+                Directory newLoc = new Directory(trash.Path.NavigateIn(Name, ItemType.Default));
                 if (newLoc.Exists())
                     newLoc.Delete();
 
@@ -165,7 +170,7 @@ namespace NotepadTheNextVersion.Models
             if (currTile == null)
             {
                 StandardTileData data = new StandardTileData();
-                data.Title = this.Name;
+                data.Title = this.DisplayName;
                 data.BackgroundImage = new Uri(App.DirectoryTile, UriKind.Relative);
                 Uri myUri = App.Listings + "?param=" + Uri.EscapeUriString(Path.PathString); // App.Listings already has ?id= attached in order to create a unique string
                 ShellTile.Create(myUri, data);
@@ -203,13 +208,18 @@ namespace NotepadTheNextVersion.Models
                 return this.Name.CompareTo(other.Name);
         }
 
+        public int CompareTo(Directory other)
+        {
+            return CompareTo((IActionable)other);
+        }
+
         #region Private Helpers
 
         private static void DeleteRecursive(Path dir, IsolatedStorageFile isf)
         {
             // Delete every subdirectory's contents recursively
             foreach (string subDir in isf.GetDirectoryNames(dir.PathString + "/*"))
-                DeleteRecursive(dir.NavigateIn(subDir), isf);
+                DeleteRecursive(dir.NavigateIn(subDir, ItemType.Default), isf);
             // Delete every file inside
             foreach (string file in isf.GetFileNames(dir.PathString + "/*"))
                 isf.DeleteFile(System.IO.Path.Combine(dir.PathString, file));

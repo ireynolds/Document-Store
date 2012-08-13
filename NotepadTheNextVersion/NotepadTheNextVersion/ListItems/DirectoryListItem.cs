@@ -52,13 +52,13 @@ namespace NotepadTheNextVersion.ListItems
             verticalRightPanel.Children.Add(displayNameTextBlock);
             verticalRightPanel.Children.Add(fullPathTextBlock);
 
-            displayNameTextBlock.Text = a.Name;
+            displayNameTextBlock.Text = a.DisplayName;
             displayNameTextBlock.FontSize = 45;
             displayNameTextBlock.Margin = displayNameTextBox_Margin;
             displayNameTextBlock.FontFamily = displayNameTextBox_FontFamily;
             displayNameTextBlock.TextWrapping = TextWrapping.NoWrap;
 
-            fullPathTextBlock.Text = a.Path.PathString;
+            fullPathTextBlock.Text = a.Path.DisplayPathString;
             fullPathTextBlock.Foreground = (Brush)App.Current.Resources["PhoneSubtleBrush"];
             fullPathTextBlock.Margin = fullPathTextBox_Margin;
             displayNameTextBlock.TextWrapping = TextWrapping.NoWrap;

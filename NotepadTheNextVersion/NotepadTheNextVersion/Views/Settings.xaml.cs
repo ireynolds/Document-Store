@@ -128,7 +128,7 @@ namespace NotepadTheNextVersion.ListItems
                 using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
                     oldName = System.IO.Path.Combine(oldName, "");
-                    newName = System.IO.Path.Combine(newName, "");
+                    newName = System.IO.Path.Combine(newName, "-dir");
 
                     isf.MoveDirectory(oldName, newName);
                     _appSettings.AddOrUpdateValue(Setting.RootDirectoryName.Key(), newName);

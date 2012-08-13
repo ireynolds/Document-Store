@@ -13,7 +13,7 @@ using System.Collections.ObjectModel;
 
 namespace NotepadTheNextVersion.Models
 {
-    public class Document : IActionable
+    public class Document : IActionable, IComparable<Document>
     {
 
         // The path of this
@@ -67,9 +67,14 @@ namespace NotepadTheNextVersion.Models
             get { return _path.Name; }
         }
 
+        public string DisplayName
+        {
+            get { return _path.DisplayName; }
+        }
+
         public bool IsPinned
         {
-            get { throw new NotImplementedException(); }
+            get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(Uri.EscapeUriString(Path.PathString))) != null; }
         }
 
         public Path Path
@@ -94,14 +99,12 @@ namespace NotepadTheNextVersion.Models
 
         public Document(Path p)
         {
-            String s = p.PathString;
-
             _path = p;
         }
 
         public Document(Directory parent, string name)
         {
-            _path = parent.Path.NavigateIn(name);
+            _path = parent.Path.NavigateIn(name, ItemType.Document);
         }
 
         public void Open(NavigationService NavigationService)
@@ -120,7 +123,7 @@ namespace NotepadTheNextVersion.Models
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Path newLoc = newParent.Path.NavigateIn(Name);
+                Path newLoc = newParent.Path.NavigateIn(Name, ItemType.Default);
                 if (isf.FileExists(newLoc.PathString))
                     throw new ActionableException(this);
                     
@@ -142,7 +145,7 @@ namespace NotepadTheNextVersion.Models
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Path newLoc = Path.Parent.NavigateIn(newFileName);
+                Path newLoc = Path.Parent.NavigateIn(newFileName, ItemType.Document);
                 if (isf.FileExists(newLoc.PathString))
                     throw new ActionableException(this);
 
@@ -168,7 +171,7 @@ namespace NotepadTheNextVersion.Models
             else // if (!isTrash)
             {
                 Directory trash = new Directory(new Path(PathBase.Trash));
-                Document newLoc = new Document(trash.Path.NavigateIn(Name));
+                Document newLoc = new Document(trash.Path.NavigateIn(Name, ItemType.Default));
                 if (newLoc.Exists())
                     newLoc.Delete();
 
@@ -186,7 +189,7 @@ namespace NotepadTheNextVersion.Models
             if (currTile == null)
             {
                 StandardTileData data = new StandardTileData();
-                data.Title = this.Name;
+                data.Title = this.DisplayName;
                 data.BackContent = Text;
                 data.BackgroundImage = new Uri(App.DirectoryTile, UriKind.Relative);
                 ShellTile.Create(App.Listings + "?param=" + Uri.EscapeUriString(Path.PathString), data);
@@ -227,6 +230,11 @@ namespace NotepadTheNextVersion.Models
                 return 1;
             else
                 return this.Name.CompareTo(other.Name);
+        }
+
+        public int CompareTo(Document other)
+        {
+            return CompareTo((IActionable)other);
         }
 
         #region Private Helpers

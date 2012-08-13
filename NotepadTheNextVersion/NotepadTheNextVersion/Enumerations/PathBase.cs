@@ -3,7 +3,6 @@
     public enum PathBase
     {
         Root,
-        Trash,
-        Staging
+        Trash
     }
 }

@@ -80,7 +80,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 SearchResult result = new SearchResult(doc, pattern);
 
-                string title = doc.Name;
+                string title = doc.DisplayName;
                 MatchCollection titleMatches = rgx.Matches(title);
                 result.SetTitleMatches(title, titleMatches);
 

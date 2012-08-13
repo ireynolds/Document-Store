@@ -103,10 +103,8 @@ namespace NotepadTheNextVersion
             {
                 if (!isf.DirectoryExists(rootName))
                     isf.CreateDirectory(rootName);
-                if (!isf.DirectoryExists("trash"))
-                    isf.CreateDirectory("trash");
-                if (!isf.DirectoryExists("staging"))
-                    isf.CreateDirectory("staging");
+                if (!isf.DirectoryExists("trash-dir"))
+                    isf.CreateDirectory("trash-dir");
             }
 
             if (!IsolatedStorageSettings.ApplicationSettings.Contains(App.FavoritesKey))
@@ -115,15 +113,15 @@ namespace NotepadTheNextVersion
             // Add test data
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1");
+                IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1-doc");
                 s1.Close();
-                IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2");
+                IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2-doc");
                 s2.Close();
-                isf.CreateDirectory(rootName + "/Dir1");
-                isf.CreateDirectory(rootName + "/Dir2");
-                isf.CreateDirectory(rootName + "/Dir1/SubDir1");
-                isf.CreateDirectory(rootName + "/Dir2/SubDir2");
-                WriteFiles(new string[] { "FileDir1", "FileDir2" });
+                isf.CreateDirectory(rootName + "/Dir1-dir");
+                isf.CreateDirectory(rootName + "/Dir2-dir");
+                isf.CreateDirectory(rootName + "/Dir1-dir/SubDir1-dir");
+                isf.CreateDirectory(rootName + "/Dir2-dir/SubDir2-dir");
+                WriteFiles(new string[] { "FileDir1-dir", "FileDir2-dir" });
             }
         }
 

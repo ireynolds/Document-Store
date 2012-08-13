@@ -75,11 +75,11 @@ namespace NotepadTheNextVersion.ListItems
                     dirsL.Add(dir);
                     foreach (string subDirName in isf.GetDirectoryNames(System.IO.Path.Combine(dir.Path.PathString, "*")))
                     {
-                        dirsQ.Enqueue(new Directory(dir.Path.NavigateIn(subDirName)));
+                        dirsQ.Enqueue(new Directory(dir.Path.NavigateIn(subDirName, ItemType.Default)));
                     }
                 }
 
-                dirsL.Sort();
+                dirsL.Sort(new IActionableComparer());
                 foreach (Directory d in dirsL)
                     ContentBox.Items.Add(createNewDirItem(d));
             }
@@ -114,10 +114,10 @@ namespace NotepadTheNextVersion.ListItems
             catch (ActionableException)
             {
                 MessageBoxResult r = MessageBox.Show("There is already a document or directory with the same name at this " +
-                    "location. Tap OK to overwrite this item, or Cancel to skip it.", a.Name, MessageBoxButton.OKCancel);
+                    "location. Tap OK to overwrite this item, or Cancel to skip it.", a.DisplayName, MessageBoxButton.OKCancel);
                 if (r == MessageBoxResult.OK)
                 {
-                    (new Directory(newLoc.Path.NavigateIn(a.Name))).Delete();
+                    (new Directory(newLoc.Path.NavigateIn(a.DisplayName, ItemType.Directory))).Delete();
                     TryMoveItem(a, newLoc);
                 }
             }

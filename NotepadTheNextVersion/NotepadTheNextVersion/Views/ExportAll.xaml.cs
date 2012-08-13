@@ -88,7 +88,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             string[] pathArray = path.Split(new string[] { "\\", "/" }, StringSplitOptions.RemoveEmptyEntries);
             pathArray[0] = (string)SettingUtils.GetSetting(Setting.RootDirectoryName);
-            return NotepadTheNextVersion.Models.Path.Combine(pathArray);
+            return NotepadTheNextVersion.Models.Path.Combine(pathArray, true);
         }
 
         #endregion
