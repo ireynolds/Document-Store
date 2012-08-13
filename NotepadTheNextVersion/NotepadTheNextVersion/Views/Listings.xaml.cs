@@ -16,6 +16,8 @@ using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Exceptions;
 using NotepadTheNextVersion.AppBars;
 using System.Windows.Threading;
+using System.Collections;
+using System.Linq;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -28,6 +30,7 @@ namespace NotepadTheNextVersion.ListItems
         private IList<IListingsListItem> _faves;
         private bool _isShowingEmptyNotice { get { return _currentGrid.Children.Contains(_emptyNotice); } }
         private bool _isShowingLoadingNotice { get { return _currentGrid.Children.Contains(_loadingNotice); } }
+        private DispatcherTimer _animationTimer;
 
         private StackPanel _pathPanel;
         private Pivot _masterPivot;
@@ -81,8 +84,10 @@ namespace NotepadTheNextVersion.ListItems
         private const int SLIDE_Y_IN_DURATION = 200;
         private const int FADE_IN_DURATION = 100;
         private const int FADE_OUT_DURATION = 100;
-        private const int SWOOP_DURATION = 175;
-        private const int TIMER_DURATION = 120;
+        private const int SWOOP_DURATION = 200;
+        private const int TIMER_DURATION = 60;
+        private double _timer_duration;
+        private const double DECAY_CONSTANT = 1;
         private static readonly ExponentialEase ITEM_SLIDE_IN_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 3 };
         private static readonly ExponentialEase ITEM_SLIDE_OUT_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 3 };
         private static readonly ExponentialEase SLIDE_X_IN_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 3 };
@@ -124,6 +129,8 @@ namespace NotepadTheNextVersion.ListItems
 
         protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
         {
+            if (_animationTimer != null)
+                _animationTimer.Stop();
             if (_pageMode == PageMode.Trash)
             {
                 SetPageMode(PageMode.View);
@@ -191,7 +198,7 @@ namespace NotepadTheNextVersion.ListItems
             CurrentBox.SelectedIndex = -1;
             if (li.GetType() == typeof(DocumentListItem))
             {
-                Storyboard sb = GetOutStoryboardForForwardNavigation(li);
+                Storyboard sb = GetOutForwardPageSB(li);
                 sb.Completed += new EventHandler(
                     (object a, EventArgs b) => li.ActionableItem.Open(NavigationService));
                 sb.Begin();
@@ -229,65 +236,74 @@ namespace NotepadTheNextVersion.ListItems
 
         #region Storyboard Generators
 
-        private Storyboard GetInStoryboardFromForwardNavigation(IListingsListItem item)
+        private Storyboard GetInForwardItemSB(IListingsListItem item)
         {
             Storyboard s = new Storyboard();
-
-            DoubleAnimation itemSlide = AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE);
-            Storyboard.SetTarget(itemSlide, item);
-            s.Children.Add(itemSlide);
-
+            s.Children.Add(AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE, item));
+            s.Children.Add(AnimationUtils.ChangeOpacity(0.8, 1, _timer_duration * 2.5, item));
             return s;
         }
 
-        private Storyboard AddAndAnimatePathPanel(Directory destination)
+        private Storyboard GetInForwardPageSB(Directory destination)
         {
             Storyboard s = new Storyboard();
             TextBlock append = CreatePathPanelBlock("\\" + destination.Name);
             append.Opacity = 0;
             _pathPanel.Children.Add(append);
 
-            DoubleAnimation pathSlide = AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE);
-            Storyboard.SetTarget(pathSlide, append);
-            s.Children.Add(pathSlide);
-
-            DoubleAnimation pathFade = AnimationUtils.FadeIn(FADE_IN_DURATION);
-            Storyboard.SetTarget(pathFade, append);
-            s.Children.Add(pathFade);
+            s.Children.Add(AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE, append));
+            s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION, append));
 
             return s;
         }
 
-        private Storyboard GetInStoryboardFromBackwardNavigation()
+        private Storyboard GetInBackwardPageSB()
         {
-            // Slide in from left
             Storyboard s = new Storyboard();
             Storyboard.SetTarget(s, CurrentBox);
 
-            s.Children.Add(AnimationUtils.TranslateX(-500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE));
+            //s.Children.Add(AnimationUtils.TranslateX(-500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE));
             s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION));
 
             return s;
         }
 
-        private Storyboard GetOutStoryboardForBackwardNavigation()
+        private Storyboard GetInBackwardItemSB(IListingsListItem item)
         {
-            // Slide out to right
             Storyboard s = new Storyboard();
-            s.Completed += new EventHandler((object sender, EventArgs e) => _pathPanel.Children.RemoveAt(_pathPanel.Children.Count - 1));
-
-            DoubleAnimation slideBoxRight = AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE);
-            Storyboard.SetTarget(slideBoxRight, CurrentBox);
-            s.Children.Add(slideBoxRight);
-
-            DoubleAnimation slidePathRight = AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE);
-            Storyboard.SetTarget(slidePathRight, _pathPanel.Children[_pathPanel.Children.Count - 1]);
-            s.Children.Add(slidePathRight);
-
+            s.Children.Add(AnimationUtils.TranslateX(-500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE, item));
             return s;
         }
 
-        private Storyboard GetOutStoryboardForForwardNavigation(IListingsListItem selectedItem)
+        private Storyboard GetOutBackwardPageSB()
+        {
+            Storyboard s = new Storyboard();
+            s.Completed += new EventHandler((object sender, EventArgs e) => _pathPanel.Children.RemoveAt(_pathPanel.Children.Count - 1));
+
+            //s.Children.Add(AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE, CurrentBox));
+            s.Children.Add(AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE, _pathPanel.Children[_pathPanel.Children.Count - 1]));
+            
+            return s;
+        }
+
+        private Storyboard GetOutBackwardItemSB(IListingsListItem item)
+        {
+            Storyboard s = new Storyboard();
+            s.Children.Add(AnimationUtils.TranslateX(0, 500, SLIDE_X_OUT_DURATION, SLIDE_X_OUT_EASE, item));
+
+            //PlaneProjection p = new PlaneProjection();
+            //p.CenterOfRotationX = -1;
+            //item.Projection = p;
+            //s.Children.Add(AnimationUtils.RotateY(from: 0, 
+            //                                      to: -90, 
+            //                                      millis: _timer_duration * 2, 
+            //                                      easingFunction: new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 2 },
+            //                                      target: item));
+            
+            return s;
+        }
+
+        private Storyboard GetOutForwardPageSB(IListingsListItem selectedItem)
         {
             // Swoop selectedItem, fade out
             Storyboard s = new Storyboard();
@@ -304,29 +320,28 @@ namespace NotepadTheNextVersion.ListItems
             Storyboard fade = new Storyboard();
             foreach (IListingsListItem item in CurrentBox.Items) // ContentBox items
                 if (item != selectedItem)
-                    fade.Children.Add(ApplyFadeOutAnimation(item, FADE_OUT_DURATION));
+                    fade.Children.Add(AnimationUtils.FadeOut(FADE_OUT_DURATION, item));
             foreach (UIElement item in selectedItem.GetNotAnimatedItemsReference()) // Elements of selectedItem
-                fade.Children.Add(ApplyFadeOutAnimation(item, FADE_OUT_DURATION));
+                fade.Children.Add(AnimationUtils.FadeOut(FADE_OUT_DURATION, item));
             s.Children.Add(fade);
 
             return s;
         }
 
-        private Storyboard GetNavigatedToStoryboard(Directory openingDirectory)
+        private Storyboard GetNavToSB(Directory openingDirectory)
         {
             // Carousel/corkscrew items in (including PageTitle)
             Storyboard s = new Storyboard();
-            Storyboard.SetTarget(s, Root);
             
-            s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION));
-            s.Children.Add(AnimationUtils.TranslateY(350, 0, SLIDE_Y_IN_DURATION, SLIDE_Y_IN_EASE));
+            s.Children.Add(AnimationUtils.FadeIn(FADE_IN_DURATION, Root));
+            s.Children.Add(AnimationUtils.TranslateY(350, 0, SLIDE_Y_IN_DURATION, SLIDE_Y_IN_EASE, Root));
 
             InitPathPanelFromPath(openingDirectory.Path.PathString);
 
             return s;
         }
 
-        private Storyboard GetNavigatedFromStoryboard()
+        private Storyboard GetNavFromSB()
         {
             // Carousel/corkscrew items in (including PageTitle)
             Storyboard s = new Storyboard();
@@ -362,18 +377,11 @@ namespace NotepadTheNextVersion.ListItems
             };
         }
 
-        private DoubleAnimation ApplyFadeOutAnimation(UIElement item, int millis)
-        {
-            DoubleAnimation d = AnimationUtils.FadeOut(millis);
-            Storyboard.SetTarget(d, item);
-            return d;
-        }
-
         #endregion
 
         private bool isHereSecondTime;
-        private int count;
-        public EventHandler GetNavCompleteEventHandler(Action StartPageAnimation, Action<IListingsListItem> StartItemAnimation)
+        private bool isHereThirdTime;
+        public EventHandler GetNavCompleteEventHandler(Action StartPageAnimation, Action<IListingsListItem> ForEachItem)
         {
             return (object sender, EventArgs e) =>
             {
@@ -383,49 +391,75 @@ namespace NotepadTheNextVersion.ListItems
                     return;
                 }
 
+                if (!isHereThirdTime)
+                {
+                    isHereThirdTime = true;
+                    return;
+                }
+
+                if (_items.Count == 0)
+                    ShowNotice(Notice.Empty);
+                else
+                    RemoveNotice(Notice.Empty);
+
                 if (StartPageAnimation != null)
                     StartPageAnimation();
 
                 CurrentBox.Items.Clear();
-                if (StartItemAnimation == null)
+                if (ForEachItem == null)
                 {
                     foreach (object o in _items) CurrentBox.Items.Add(o);
                     return;
                 }
-                
-                count = 0;
-                DispatcherTimer t = new DispatcherTimer();
-                t.Interval = TimeSpan.FromMilliseconds(TIMER_DURATION);
-                t.Tick += delegate(object sender1, EventArgs e1)
-                {
-                    if (count < _items.Count)
-                    {
-                        CurrentBox.Items.Add(_items[count]);
-                        StartItemAnimation(_items[count]);
-                    }
-                    else
-                        t.Stop();
-                    count++;
-                    t.Interval = TimeSpan.FromMilliseconds(0.85 * t.Interval.Milliseconds);
-                };
-                t.Start();
-                
+
+                _animationTimer = GetAnimationTimer(_items, ForEachItem, null);
+                _animationTimer.Start();
             };
+        }
+
+        private int count;
+        public DispatcherTimer GetAnimationTimer(IList<IListingsListItem> items, Action<IListingsListItem> WorkToDo, EventHandler Completed)
+        {
+            if (_animationTimer != null)
+                _animationTimer.Stop();
+            count = 0;
+            _animationTimer = new DispatcherTimer();
+            _animationTimer.Interval = TimeSpan.FromMilliseconds(TIMER_DURATION);
+            _animationTimer.Tick += delegate(object sender1, EventArgs e1)
+            {
+                if (count < items.Count)
+                {
+                    WorkToDo((IListingsListItem)items[count]);
+                }
+                else
+                {
+                    _animationTimer.Stop();
+                    if (Completed != null)
+                        Completed(null, null);
+                }
+                count++;
+                _timer_duration = DECAY_CONSTANT * _animationTimer.Interval.Milliseconds;
+                _animationTimer.Interval = TimeSpan.FromMilliseconds(_timer_duration);
+
+            };
+            return _animationTimer;
         }
 
         private void NavigateIn(IListingsListItem selectedItem)
         {
             isHereSecondTime = false;
+            isHereThirdTime = true;
             Directory destination = (Directory)selectedItem.ActionableItem;
-            Storyboard outAnim = GetOutStoryboardForForwardNavigation(selectedItem);
+            Storyboard outAnim = GetOutForwardPageSB(selectedItem);
             EventHandler WorkCompleted = GetNavCompleteEventHandler(
                 delegate
                 {
-                    AddAndAnimatePathPanel(destination).Begin();
+                    GetInForwardPageSB(destination).Begin();
                 },
                 delegate(IListingsListItem item)
                 {
-                    GetInStoryboardFromForwardNavigation(item).Begin();
+                    CurrentBox.Items.Add(item);
+                    GetInForwardItemSB(item).Begin();
                 });
 
             _curr = destination;
@@ -437,19 +471,54 @@ namespace NotepadTheNextVersion.ListItems
         private void NavigateBack(Directory destination)
         {
             isHereSecondTime = false;
-            Storyboard outAnim = GetOutStoryboardForBackwardNavigation();
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetInStoryboardFromBackwardNavigation().Begin(); }, null);
+            isHereThirdTime = false;
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(
+                delegate
+                {
+                    GetInBackwardPageSB().Begin();
+                },
+                delegate(IListingsListItem item)
+                {
+                    CurrentBox.Items.Add(item);
+                    GetInBackwardItemSB(item).Begin();
+                });
 
             _curr = destination;
+            Storyboard outAnim = GetOutBackwardPageSB();
             outAnim.Completed += WorkCompleted;
             outAnim.Begin();
-            UpdateItems(WorkCompleted);
+            CreateNewBackgroundWorker(
+                delegate
+                {
+                    UpdateItems(null);
+                },
+                delegate
+                {
+                    WorkCompleted(null, null);
+                }).RunWorkerAsync();
+            List<IListingsListItem> lst = new List<IListingsListItem>();
+            foreach (IListingsListItem item in CurrentBox.Items)
+                lst.Add(item);
+            _animationTimer = GetAnimationTimer(
+                lst,
+                delegate(IListingsListItem item)
+                {
+                    GetOutBackwardItemSB(item).Begin();
+                },
+                WorkCompleted);
+            _animationTimer.Start();
         }
 
         private void NavigateTo(Directory curr)
         {
             isHereSecondTime = true;
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetNavigatedToStoryboard(curr).Begin(); }, null);
+            isHereThirdTime = true;
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(
+                delegate 
+                { 
+                    GetNavToSB(curr).Begin(); 
+                }, 
+                null);
 
             _curr = curr;
             UpdateItems(WorkCompleted);
@@ -462,21 +531,27 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateOut(Directory destination)
         {
-            isHereSecondTime = false;
-            Storyboard outAnim = GetNavigatedFromStoryboard();
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(delegate { GetNavigatedToStoryboard(destination).Begin(); }, null);
+            isHereSecondTime = true;
+            isHereThirdTime = true;
+            Storyboard outAnim = GetNavFromSB();
+            EventHandler WorkCompleted = GetNavCompleteEventHandler(
+                delegate 
+                { 
+                    GetNavToSB(destination).Begin(); 
+                }, 
+                null);
 
             _curr = destination;
             outAnim.Completed += WorkCompleted;
             outAnim.Begin();
-            UpdateItems(WorkCompleted);
+            UpdateItems(null);
         }
 
-        private BackgroundWorker CreateNewBackgroundWorker(Action workToDo, Action<object, RunWorkerCompletedEventArgs> OnCompleted)
+        private BackgroundWorker CreateNewBackgroundWorker(Action workToDo, Action Completed)
         {
             BackgroundWorker b = new BackgroundWorker();
             b.DoWork += (object sender, DoWorkEventArgs e) => { this.Dispatcher.BeginInvoke(workToDo); };
-            b.RunWorkerCompleted += new RunWorkerCompletedEventHandler(OnCompleted);
+            b.RunWorkerCompleted += (object sender, RunWorkerCompletedEventArgs e) => { Completed(); };
             return b;
         }
 
@@ -499,7 +574,7 @@ namespace NotepadTheNextVersion.ListItems
         // Changes the currently-viewed folder and updates the view
         private void UpdateItems(EventHandler Completed)
         {
-            _items.Clear();
+            IList<IListingsListItem> Items = new List<IListingsListItem>();
 
             // Re-fill ContentBox
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
@@ -515,7 +590,7 @@ namespace NotepadTheNextVersion.ListItems
                 {
                     Directory d = new Directory(_curr.Path.NavigateIn(dir));
                     IListingsListItem li = IListingsListItem.CreateListItem(d);
-                    _items.Add(li);
+                    Items.Add(li);
                 }
 
                 List<string> docs = new List<string>();
@@ -529,17 +604,14 @@ namespace NotepadTheNextVersion.ListItems
                 {
                     Document d = new Document(_curr.Path.NavigateIn(doc));
                     IListingsListItem li = IListingsListItem.CreateListItem(d);
-                    _items.Add(li);
+                    Items.Add(li);
                 }
             }
 
-            if (_items.Count == 0)
-                ShowNotice(Notice.Empty);
-            else
-                RemoveNotice(Notice.Empty);
-
             if (_pageMode == PageMode.Edit)
                 SetPageMode(PageMode.View);
+
+            _items = Items;
 
             if (Completed != null)
                 Completed(null, null);
@@ -950,7 +1022,7 @@ namespace NotepadTheNextVersion.ListItems
                 _appBar.IsMenuEnabled = true;
 
                 Directory trash = new Directory(PathBase.Trash);
-                Storyboard sb = Page.GetNavigatedToStoryboard(trash);
+                Storyboard sb = Page.GetNavToSB(trash);
                 sb.Completed += new EventHandler((object sender, EventArgs e) =>
                 {
                     foreach (IListingsListItem item in Page.CurrentBox.Items)

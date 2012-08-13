@@ -14,60 +14,179 @@ namespace NotepadTheNextVersion.Utilities
 {
     public static class AnimationUtils
     {
-        public static DoubleAnimation TranslateY(double from, double to, int millis)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation TranslateY(double from, double to, double millis, UIElement target = null)
         {
-            return TranslateY(from, to, millis, new LinearEase());
+            return TranslateY(from, to, millis, new LinearEase(), target);
         }
 
-        public static DoubleAnimation TranslateY(double from, double to, int millis, IEasingFunction easingFunction)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation RotateY(double from, double to, double millis, UIElement target = null)
         {
-            DoubleAnimation d = GetGenericAnimation(from, to, millis, easingFunction);
-            Storyboard.SetTargetProperty(d, new PropertyPath("(UIElement.RenderTransform).(CompositeTransform.TranslateY)"));
-            return d;
+            return RotateY(from, to, millis, new LinearEase(), target);
         }
 
-        public static DoubleAnimation TranslateX(double from, double to, int millis)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="easingFunction"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation RotateY(double from, double to, double millis, IEasingFunction easingFunction, UIElement target = null)
         {
-            return TranslateX(from, to, millis, new LinearEase());
+            return GetGenericAnimation(from, to, millis, easingFunction, target).SetTargetProperty("(UIElement.Projection).(PlaneProjection.RotationY)");
         }
 
-        public static DoubleAnimation TranslateX(double from, double to, int millis, IEasingFunction easingFunction)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="easingFunction"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation TranslateY(double from, double to, double millis, IEasingFunction easingFunction, UIElement target = null)
         {
-            DoubleAnimation d = GetGenericAnimation(from, to, millis, easingFunction);
-            Storyboard.SetTargetProperty(d, new PropertyPath("(UIElement.RenderTransform).(CompositeTransform.TranslateX)"));
-            return d;
+            return GetGenericAnimation(from, to, millis, easingFunction, target).SetTargetProperty("(UIElement.RenderTransform).(CompositeTransform.TranslateY)");
         }
 
-        public static DoubleAnimation ChangeOpacity(double from, double to, int millis)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation TranslateX(double from, double to, double millis, UIElement target = null)
         {
-            return ChangeOpacity(from, to, millis, new LinearEase());
+            return TranslateX(from, to, millis, new LinearEase(), target);
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="easingFunction"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation TranslateX(double from, double to, double millis, IEasingFunction easingFunction, UIElement target = null)
+        {
+            return GetGenericAnimation(from, to, millis, easingFunction, target).SetTargetProperty("(UIElement.RenderTransform).(CompositeTransform.TranslateX)");
         }
 
-        public static DoubleAnimation FadeIn(int millis)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation ChangeOpacity(double from, double to, double millis, UIElement target = null)
         {
-            return ChangeOpacity(0, 1, millis, new LinearEase());
+            return ChangeOpacity(from, to, millis, new LinearEase(), target);
         }
 
-        public static DoubleAnimation FadeOut(int millis)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="millis"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation FadeIn(double millis, UIElement target = null)
         {
-            return ChangeOpacity(1, 0, millis, new LinearEase());
+            return ChangeOpacity(0, 1, millis, new LinearEase(), target);
         }
 
-        private static DoubleAnimation ChangeOpacity(double from, double to, int millis, IEasingFunction easingFunction)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="millis"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        public static DoubleAnimation FadeOut(double millis, UIElement target = null)
         {
-            DoubleAnimation d = GetGenericAnimation(from, to, millis, easingFunction);
-            Storyboard.SetTargetProperty(d, new PropertyPath("(UIElement.Opacity)"));
-            return d;
+            return ChangeOpacity(1, 0, millis, new LinearEase(), target);
         }
 
-        private static DoubleAnimation GetGenericAnimation(double from, double to, int millis, IEasingFunction easingFunction)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="easingFunction"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        private static DoubleAnimation ChangeOpacity(double from, double to, double millis, IEasingFunction easingFunction, UIElement target = null)
+        {
+            return GetGenericAnimation(from, to, millis, easingFunction, target).SetTargetProperty("(UIElement.Opacity)");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="from"></param>
+        /// <param name="to"></param>
+        /// <param name="millis"></param>
+        /// <param name="easingFunction"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        private static DoubleAnimation GetGenericAnimation(double from, double to, double millis, IEasingFunction easingFunction, UIElement target = null)
         {
             DoubleAnimation d = new DoubleAnimation();
             d.EasingFunction = easingFunction;
             d.Duration = TimeSpan.FromMilliseconds(millis);
             d.From = from;
             d.To = to;
+            d.SetTarget(target);
             return d;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="timeline"></param>
+        /// <param name="target"></param>
+        /// <returns></returns>
+        private static DoubleAnimation SetTarget(this DoubleAnimation timeline, UIElement target)
+        {
+            if (target != null)
+                Storyboard.SetTarget(timeline, target);
+            return timeline;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="timeline"></param>
+        /// <param name="dependencyProperty"></param>
+        /// <returns></returns>
+        private static DoubleAnimation SetTargetProperty(this DoubleAnimation timeline, string dependencyProperty)
+        {
+            Storyboard.SetTargetProperty(timeline, new PropertyPath(dependencyProperty));
+            return timeline;
         }
     }
 }
