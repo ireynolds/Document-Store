@@ -814,7 +814,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             private static ApplicationBarIconButton NewButton;
             private static ApplicationBarIconButton SelectButton;
-            private static ApplicationBarMenuItem SearchItem;
+            private static ApplicationBarIconButton SearchButton;
             private static ApplicationBarMenuItem SettingsItem;
             private static ApplicationBarMenuItem TrashItem;
             private static ApplicationBarMenuItem ImportExportItem;
@@ -828,8 +828,8 @@ namespace NotepadTheNextVersion.ListItems
                     Page.NavigationService.Navigate(App.AddNewItem);
                 });
                 SelectButton = ViewUtils.CreateIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Edit); });
+                SearchButton = ViewUtils.CreateIconButton("search", App.SearchIcon, (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Search); });
 
-                SearchItem = ViewUtils.CreateMenuItem("search", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Search); });
                 SettingsItem = ViewUtils.CreateMenuItem("settings", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Settings); });
                 TrashItem = ViewUtils.CreateMenuItem("trash", (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Trash); });
                 ImportExportItem = ViewUtils.CreateMenuItem("import+export", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.ExportAll); });
@@ -838,8 +838,8 @@ namespace NotepadTheNextVersion.ListItems
                 foreach (IListingsListItem item in Page.CurrentBox.Items)
                     item.IsSelectable = false;
 
-                _buttons = new ButtonList() { NewButton, SelectButton };
-                _menuItems = new ItemList() { SearchItem, SettingsItem, TrashItem, ImportExportItem, AboutTipsItem };
+                _buttons = new ButtonList() { NewButton, SelectButton, SearchButton };
+                _menuItems = new ItemList() { SettingsItem, TrashItem, ImportExportItem, AboutTipsItem };
                 ApplicationBarSetup.SetElements(_appBar, _buttons, _menuItems);
                 _appBar.Mode = ApplicationBarMode.Default;
                 _appBar.IsMenuEnabled = true;
