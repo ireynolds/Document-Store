@@ -67,6 +67,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Enumerations\ItemType.cs" />
+    <Compile Include="Enumerations\Operation.cs" />
     <Compile Include="Enumerations\PageMode.cs" />
     <Compile Include="Enumerations\Notice.cs" />
     <Compile Include="Enumerations\PathBase.cs" />
@@ -86,6 +87,7 @@
     <Compile Include="Models\IActionable.cs" />
     <Compile Include="Models\MyUri.cs" />
     <Compile Include="Models\Path.cs" />
+    <Compile Include="Models\TimedItemAnimator.cs" />
     <Compile Include="Search\Tuple.cs" />
     <Compile Include="Models\WatermarkedTextBox.cs" />
     <Compile Include="Search\Searcher.cs" />

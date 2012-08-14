@@ -16,5 +16,12 @@
     shell:SystemTray.IsVisible="True"
     local:TiltEffect.IsTiltEnabled="True">
 
-    <Grid x:Name="Root"></Grid>
+    <Grid x:Name="Root">
+        <Grid.Resources>
+            <ControlTemplate x:Key="ItemTemplate" TargetType="ListBox">
+                <ItemsPresenter/>
+            </ControlTemplate>
+        </Grid.Resources>
+        
+    </Grid>
 </phone:PhoneApplicationPage>

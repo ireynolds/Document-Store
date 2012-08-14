@@ -163,9 +163,9 @@ namespace NotepadTheNextVersion.ListItems
             ApplicationBar = new ApplicationBar();
             ApplicationBar.Mode = ApplicationBarMode.Minimized;
 
-            ApplicationBar.Buttons.Add(ViewUtils.CreateIconButton("folders", App.FolderIconSmall, new EventHandler(FoldersIconButton_Click)));
-            ApplicationBar.MenuItems.Add(ViewUtils.CreateMenuItem("settings", new EventHandler(SettingsMenuItem_Click)));
-            ApplicationBar.MenuItems.Add(ViewUtils.CreateMenuItem("send as...", new EventHandler(SendAsMenuItem_Click)));
+            ApplicationBar.Buttons.Add(Utils.CreateIconButton("folders", App.FolderIconSmall, new EventHandler(FoldersIconButton_Click)));
+            ApplicationBar.MenuItems.Add(Utils.CreateMenuItem("settings", new EventHandler(SettingsMenuItem_Click)));
+            ApplicationBar.MenuItems.Add(Utils.CreateMenuItem("send as...", new EventHandler(SendAsMenuItem_Click)));
         }
 
         #endregion

@@ -30,7 +30,7 @@ namespace NotepadTheNextVersion.ListItems
         private IList<IListingsListItem> _faves;
         private bool _isShowingEmptyNotice { get { return _currentGrid.Children.Contains(_emptyNotice); } }
         private bool _isShowingLoadingNotice { get { return _currentGrid.Children.Contains(_loadingNotice); } }
-        private DispatcherTimer _animationTimer;
+        private TimedItemAnimator _animationTimer;
 
         private StackPanel _pathPanel;
         private Pivot _masterPivot;
@@ -42,12 +42,22 @@ namespace NotepadTheNextVersion.ListItems
         private TextBlock _emptyNotice;
         private Grid _allGrid;
         private Grid _favesGrid;
+        private ScrollViewer _allScrollViewer;
+        private ScrollViewer _favesScrollViewer;
 
         private Grid _currentGrid
         {
             get
             {
                 return (Grid)((PivotItem)_masterPivot.SelectedItem).Content;
+            }
+        }
+
+        private ScrollViewer _currentViewer
+        {
+            get
+            {
+                return (ScrollViewer)_currentGrid.Children[0];
             }
         }
 
@@ -363,148 +373,108 @@ namespace NotepadTheNextVersion.ListItems
 
         #endregion
 
-        private bool isHereSecondTime;
-        private bool isHereThirdTime;
-        public EventHandler GetNavCompleteEventHandler(Action StartPageAnimation, Action<IListingsListItem> ForEachItem)
+        private int GetIndexFromOffset(IList<IListingsListItem> Items)
         {
-            return (object sender, EventArgs e) =>
+            double offset = _currentViewer.VerticalOffset;
+            int i = 0;
+            double height = 0;
+            while (i < Items.Count && height < offset)
             {
-                if (!isHereSecondTime)
-                {
-                    isHereSecondTime = true;
-                    return;
-                }
-
-                if (!isHereThirdTime)
-                {
-                    isHereThirdTime = true;
-                    return;
-                }
-
-                if (_items.Count == 0)
-                    ShowNotice(Notice.Empty);
-                else
-                    RemoveNotice(Notice.Empty);
-
-                if (StartPageAnimation != null)
-                    StartPageAnimation();
-
-                CurrentBox.Items.Clear();
-                if (ForEachItem == null)
-                {
-                    foreach (object o in _items) CurrentBox.Items.Add(o);
-                    return;
-                }
-
-                _animationTimer = GetAnimationTimer(_items, ForEachItem, null);
-                _animationTimer.Start();
-            };
-        }
-
-        private int count;
-        public DispatcherTimer GetAnimationTimer(IList<IListingsListItem> items, Action<IListingsListItem> WorkToDo, EventHandler Completed)
-        {
-            if (_animationTimer != null)
-                _animationTimer.Stop();
-            count = 0;
-            _animationTimer = new DispatcherTimer();
-            _animationTimer.Interval = TimeSpan.FromMilliseconds(TIMER_DURATION);
-            _animationTimer.Tick += delegate(object sender1, EventArgs e1)
-            {
-                if (count < items.Count)
-                {
-                    WorkToDo((IListingsListItem)items[count]);
-                }
-                else
-                {
-                    _animationTimer.Stop();
-                    if (Completed != null)
-                        Completed(null, null);
-                }
-                count++;
-                _timer_duration = DECAY_CONSTANT * _animationTimer.Interval.Milliseconds;
-                _animationTimer.Interval = TimeSpan.FromMilliseconds(_timer_duration);
-            };
-            return _animationTimer;
+                IListingsListItem item = Items[i] as IListingsListItem;
+                height += item.DesiredSize.Height + item.Margin.Top + item.Margin.Bottom;
+                i++;
+            }
+            return Math.Max(i - 1, 0);
         }
 
         private void NavigateIn(IListingsListItem selectedItem)
         {
-            isHereSecondTime = false;
-            isHereThirdTime = true;
-            Directory destination = (Directory)selectedItem.ActionableItem;
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(
-                delegate
-                {
-                    GetInForwardPageSB(destination).Begin();
-                },
-                delegate(IListingsListItem item)
+            Directory destination = selectedItem.ActionableItem as Directory;
+            Storyboard sb = GetOutForwardPageSB(selectedItem);
+            sb.Completed += delegate(object sender, EventArgs e)
+            {
+                CurrentBox.Items.Clear();
+                _curr = destination;
+                UpdateItems(null);
+                        
+                GetInForwardPageSB(destination).Begin();
+                if (_animationTimer != null)
+                    _animationTimer.Stop();
+                _animationTimer = new TimedItemAnimator(_items);
+                _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
                     CurrentBox.Items.Add(item);
                     GetInForwardItemSB(item).Begin();
-                });
-
-            _curr = destination;
-            Storyboard outAnim = GetOutForwardPageSB(selectedItem);
-            outAnim.Completed += WorkCompleted;
-            outAnim.Begin();
-            UpdateItems(WorkCompleted);
+                };
+                _animationTimer.Completed += delegate(IList<IListingsListItem> itemsNotAdded)
+                {
+                    foreach (var item in itemsNotAdded)
+                        CurrentBox.Items.Add(item);
+                };
+                _animationTimer.Start();
+            };
+            sb.Begin();
         }
 
         private void NavigateBack(Directory destination)
         {
-            isHereSecondTime = false;
-            isHereThirdTime = false;
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(
-                delegate
-                {
-                    GetInBackwardPageSB().Begin();
-                },
-                delegate(IListingsListItem item)
+            Storyboard sb = GetOutBackwardPageSB();
+            _animationTimer = new TimedItemAnimator(ToList<IListingsListItem>(CurrentBox.Items));
+            _animationTimer.ForEachItem += delegate(IListingsListItem item)
+            {
+                GetOutBackwardItemSB(item).Begin();
+            };
+            _animationTimer.Completed += delegate(IList<IListingsListItem> itemsNotAdded)
+            {
+                CurrentBox.Items.Clear();
+                _curr = destination;
+                UpdateItems(null);
+
+                GetInBackwardPageSB().Begin();
+                if (_animationTimer != null)
+                    _animationTimer.Stop();
+                _animationTimer = new TimedItemAnimator(_items);
+                _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
                     CurrentBox.Items.Add(item);
                     GetInBackwardItemSB(item).Begin();
-                });
-
-            _curr = destination;
-            Storyboard outAnim = GetOutBackwardPageSB();
-            outAnim.Completed += WorkCompleted;
-            outAnim.Begin();
-            CreateNewBackgroundWorker(
-                delegate
+                };
+                _animationTimer.Completed += delegate(IList<IListingsListItem> itemsNotAdded2)
                 {
-                    UpdateItems(null);
-                },
-                delegate
-                {
-                    WorkCompleted(null, null);
-                }).RunWorkerAsync();
-            List<IListingsListItem> lst = new List<IListingsListItem>();
-            foreach (IListingsListItem item in CurrentBox.Items)
-                lst.Add(item);
-            _animationTimer = GetAnimationTimer(
-                lst,
-                delegate(IListingsListItem item)
-                {
-                    GetOutBackwardItemSB(item).Begin();
-                },
-                WorkCompleted);
+                    foreach (var item in itemsNotAdded2)
+                        CurrentBox.Items.Add(item);
+                };
+                _animationTimer.Start();
+            };
+            sb.Begin();
             _animationTimer.Start();
         }
 
         private void NavigateTo(Directory curr)
         {
-            isHereSecondTime = true;
-            isHereThirdTime = true;
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(
-                delegate 
-                { 
-                    GetNavToSB(curr).Begin(); 
-                }, 
-                null);
+            Storyboard sb = GetNavToSB(curr);
+            sb.Completed += delegate(object sender, EventArgs e)
+            {
+                CurrentBox.Items.Clear();
+                _curr = curr;
+                UpdateItems(null);
 
-            _curr = curr;
-            UpdateItems(WorkCompleted);
+                if (_animationTimer != null)
+                    _animationTimer.Stop();
+                _animationTimer = new TimedItemAnimator(_items);
+                _animationTimer.ForEachItem += delegate(IListingsListItem item)
+                {
+                    CurrentBox.Items.Add(item);
+                    GetInForwardItemSB(item).Begin();
+                };
+                _animationTimer.Completed += delegate(IList<IListingsListItem> itemsNotAdded)
+                {
+                    foreach (var item in itemsNotAdded)
+                        CurrentBox.Items.Add(item);
+                };
+                _animationTimer.Start();
+            };
+            sb.Begin();
         }
 
         private void NavigateOut(Uri destination)
@@ -514,20 +484,28 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateOut(Directory destination)
         {
-            isHereSecondTime = true;
-            isHereThirdTime = true;
-            Storyboard outAnim = GetNavFromSB();
-            EventHandler WorkCompleted = GetNavCompleteEventHandler(
-                delegate 
-                { 
-                    GetNavToSB(destination).Begin(); 
-                }, 
-                null);
+            Storyboard sb = GetNavFromSB();
+            sb.Completed += delegate(object sender, EventArgs e)
+            {
+                CurrentBox.Items.Clear();
+                _curr = destination;
+                UpdateItems(null);
 
-            _curr = destination;
-            outAnim.Completed += WorkCompleted;
-            outAnim.Begin();
-            UpdateItems(null);
+                GetNavToSB(destination).Begin();
+                foreach (var item in _items)
+                {
+                    CurrentBox.Items.Add(item);
+                }
+            };
+            sb.Begin();
+        }
+
+        private static IList<T> ToList<T>(ItemCollection items)
+        {
+            IList<T> lst = new List<T>();
+            foreach (T item in items)
+                lst.Add(item);
+            return lst;
         }
 
         private BackgroundWorker CreateNewBackgroundWorker(Action workToDo, Action Completed)
@@ -596,31 +574,24 @@ namespace NotepadTheNextVersion.ListItems
 
             _items = Items;
 
+            Directory trash = new Directory(PathBase.Trash);
+            if (_curr.Path.Equals(trash.Path))
+                foreach (var item in _items)
+                    item.IsSelectable = true;
+
             if (Completed != null)
                 Completed(null, null);
         }
 
         private void UpdateFavesView()
         {
-            List<IActionable> temp = new List<IActionable>();
-            foreach (Directory d in FileUtils.GetAllDirectories(PathBase.Root))
-                if (d.IsFavorite) { temp.Add(d); }
-            temp.Sort();
-            foreach (Directory d in temp)
-                _faves.Add(IListingsListItem.CreateListItem(d));
-            temp.Clear();
-
-            foreach (Document d in FileUtils.GetAllDocuments(PathBase.Root))
-                if (d.IsFavorite) { temp.Add(d); }
-            temp.Sort();
-            foreach (Document d in temp)
-                _faves.Add(IListingsListItem.CreateListItem(d));
-
-            //List<IActionable> lst = new List<IActionable>();
-            //foreach (string p in (IEnumerable<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey])
-            //{
-            //    lst.Add(Path.CreatePathFromString(s));
-            //}
+            foreach (string s in (IEnumerable<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey])
+            {
+                var p = Path.CreatePathFromString(s);
+                IActionable a = Utils.CreateActionableFromPath(p);
+                IListingsListItem item = IListingsListItem.CreateListItem(a);
+                _faves.Add(item);
+            }
 
             CurrentBox.Items.Clear();
             foreach (IListingsListItem i in _faves)
@@ -705,15 +676,18 @@ namespace NotepadTheNextVersion.ListItems
             _allGrid = new Grid();
             _allPivot.Content = _allGrid;
 
+            _allScrollViewer = new ScrollViewer();
+            _allGrid.Children.Add(_allScrollViewer);
+
             _allBox = new ListBox();
             _allBox.Margin = new Thickness(6, 0, 12, 0);
             _allBox.MinHeight = 500;
             _allBox.VerticalAlignment = VerticalAlignment.Top;
             _allBox.SelectionChanged += new SelectionChangedEventHandler(ContentBox_SelectionChanged);
             _allBox.RenderTransform = new CompositeTransform();
-            Grid.SetRow(_allBox, 0);
-            _allGrid.Children.Add(_allBox);
-
+            _allBox.Template = (ControlTemplate)Root.Resources["ItemTemplate"];
+            _allScrollViewer.Content = _allBox;
+            
             if (((Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey]).Count > 0)
             {
                 InitializeFavesPivotItem();
@@ -830,18 +804,18 @@ namespace NotepadTheNextVersion.ListItems
 
             public ViewAppBar(Listings Page)
             {
-                NewButton = ViewUtils.CreateIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
+                NewButton = Utils.CreateIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
                 {
                     ParamUtils.SetArguments(Page._curr);
                     Page.NavigationService.Navigate(App.AddNewItem);
                 });
-                SelectButton = ViewUtils.CreateIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Edit); });
-                SearchButton = ViewUtils.CreateIconButton("search", App.SearchIcon, (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Search); });
+                SelectButton = Utils.CreateIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Edit); });
+                SearchButton = Utils.CreateIconButton("search", App.SearchIcon, (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Search); });
 
-                SettingsItem = ViewUtils.CreateMenuItem("settings", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Settings); });
-                TrashItem = ViewUtils.CreateMenuItem("trash", (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Trash); });
-                ImportExportItem = ViewUtils.CreateMenuItem("import+export", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.ExportAll); });
-                AboutTipsItem = ViewUtils.CreateMenuItem("about+tips", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.AboutAndTips); });
+                SettingsItem = Utils.CreateMenuItem("settings", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Settings); });
+                TrashItem = Utils.CreateMenuItem("trash", (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Trash); });
+                ImportExportItem = Utils.CreateMenuItem("import+export", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.ExportAll); });
+                AboutTipsItem = Utils.CreateMenuItem("about+tips", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.AboutAndTips); });
 
                 foreach (IListingsListItem item in Page.CurrentBox.Items)
                     item.IsSelectable = false;
@@ -888,7 +862,7 @@ namespace NotepadTheNextVersion.ListItems
             public EditAppBar(Listings Page)
             {
                 this.Page = Page;
-                DeleteButton = ViewUtils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
+                DeleteButton = Utils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
                 {
                     IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
                     foreach (IListingsListItem li in Page.CurrentBox.SelectedItems)
@@ -899,24 +873,24 @@ namespace NotepadTheNextVersion.ListItems
                     Page.BeginDeleteAnimations(deletedItems);
                     Page.SetPageMode(PageMode.View);
                 });
-                FaveButton = ViewUtils.CreateIconButton("add favorite", App.FaveIcon, (object sender, EventArgs e) =>
+                FaveButton = Utils.CreateIconButton("add favorite", App.FaveIcon, (object sender, EventArgs e) =>
                 {
                     (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite = true;
                     Page.SetPageMode(PageMode.View);
                     if (Page._favesPivot == null)
                         Page.InitializeFavesPivotItem();
                 });
-                UnfaveButton = ViewUtils.CreateIconButton("remove favorite", App.UnfaveIcon, (object sender, EventArgs e) =>
+                UnfaveButton = Utils.CreateIconButton("remove favorite", App.UnfaveIcon, (object sender, EventArgs e) =>
                 {
                     (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite = false;
                     Page.SetPageMode(PageMode.View);
                 });
-                RenameItem = (ViewUtils.CreateMenuItem("rename", (object sender, EventArgs e) =>
+                RenameItem = (Utils.CreateMenuItem("rename", (object sender, EventArgs e) =>
                 {
                     IActionable a = (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem;
                     a.NavToRename(Page.NavigationService);
                 }));
-                MoveItem = ViewUtils.CreateMenuItem("move", (object sender, EventArgs e) =>
+                MoveItem = Utils.CreateMenuItem("move", (object sender, EventArgs e) =>
                 {
                     IList<IActionable> args = new List<IActionable>();
                     foreach (IListingsListItem li in Page.CurrentBox.SelectedItems)
@@ -924,7 +898,7 @@ namespace NotepadTheNextVersion.ListItems
                     ParamUtils.SetArguments(args);
                     Page.NavigationService.Navigate(App.MoveItem);
                 });
-                PinItem = ViewUtils.CreateMenuItem("pin", (object sender, EventArgs e) =>
+                PinItem = Utils.CreateMenuItem("pin", (object sender, EventArgs e) =>
                 {
                     IActionable a = (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem;
                     a.TogglePin();
@@ -979,7 +953,7 @@ namespace NotepadTheNextVersion.ListItems
             public TrashAppBar(Listings Page)
             {
                 this.Page = Page;
-                DeleteButton = ViewUtils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
+                DeleteButton = Utils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
                 {
                     IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
                     foreach (IListingsListItem li in Page.CurrentBox.SelectedItems)
@@ -989,7 +963,7 @@ namespace NotepadTheNextVersion.ListItems
                     }
                     Page.BeginDeleteAnimations(deletedItems);
                 });
-                RestoreButton = ViewUtils.CreateIconButton("restore", App.UndeleteIcon, (object sender, EventArgs e) =>
+                RestoreButton = Utils.CreateIconButton("restore", App.UndeleteIcon, (object sender, EventArgs e) =>
                 {
                     IList<IActionable> args = new List<IActionable>();
                     foreach (IListingsListItem li in Page.CurrentBox.SelectedItems)
@@ -998,7 +972,7 @@ namespace NotepadTheNextVersion.ListItems
                     ParamUtils.SetArguments(args);
                     Page.NavigationService.Navigate(App.MoveItem);
                 });
-                EmptyItem = ViewUtils.CreateMenuItem("empty trash", (object sender, EventArgs e) =>
+                EmptyItem = Utils.CreateMenuItem("empty trash", (object sender, EventArgs e) =>
                 {
                     if (MessageBoxResult.Cancel == MessageBox.Show("This will delete all documents in trash permanently. Do you want to continue?", "Warning", MessageBoxButton.OKCancel))
                         return;

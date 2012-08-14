@@ -13,10 +13,11 @@ using NotepadTheNextVersion.AppBars;
 using Microsoft.Phone.Controls;
 using NotepadTheNextVersion.Enumerations;
 using NotepadTheNextVersion.ListItems;
+using NotepadTheNextVersion.Models;
 
 namespace NotepadTheNextVersion.Utilities
 {
-    public static class ViewUtils
+    public static class Utils
     {
         /// <summary>
         /// Creates a new icon button with the given parameters
@@ -46,6 +47,19 @@ namespace NotepadTheNextVersion.Utilities
             b.Text = text;
             b.Click += e;
             return b;
+        }
+
+        /// <summary>
+        /// Given a Path, uses the "-doc" and "-dir" tags to return the correct IActionable type.
+        /// </summary>
+        /// <param name="p"></param>
+        /// <returns></returns>
+        public static IActionable CreateActionableFromPath(Models.Path p)
+        {
+            if (p.Name.EndsWith("-doc"))
+                return new Document(p);
+            else
+                return new Directory(p);
         }
     }
 }
