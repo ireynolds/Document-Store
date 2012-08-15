@@ -111,28 +111,29 @@ namespace NotepadTheNextVersion.ListItems
         {
             InitializeComponent();
 
-            this.Loaded += new RoutedEventHandler(Listings_Loaded);
             _items = new List<IListingsListItem>();
             _faves = new List<IListingsListItem>();
             Root.RenderTransform = new CompositeTransform();
+            Root.Opacity = 0;
 
             InitializeApplicationBar();
             InitializePageUI();
             SetPageMode(PageMode.View);
         }
-
-        void Listings_Loaded(object sender, RoutedEventArgs e)
-        {
-            NavigateTo(_curr);
-        }
-
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            Root.Opacity = 0;
             if (_curr == null)
                 GetArgs();
             _curr = (Directory)_curr.SwapRoot();
+
+            NavigateTo(_curr);
+        }
+
+        protected override void OnNavigatingFrom(System.Windows.Navigation.NavigatingCancelEventArgs e)
+        {
+            base.OnNavigatingFrom(e);
+            Root.Opacity = 0;
         }
 
         protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)

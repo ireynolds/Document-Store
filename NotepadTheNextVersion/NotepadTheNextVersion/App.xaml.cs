@@ -121,7 +121,7 @@ namespace NotepadTheNextVersion
             //    isf.CreateDirectory(rootName + "/Dir2-dir");
             //    isf.CreateDirectory(rootName + "/Dir1-dir/SubDir1-dir");
             //    isf.CreateDirectory(rootName + "/Dir2-dir/SubDir2-dir");
-                WriteFiles(new string[] { "FileDir1-dir", "FileDir2-dir" });
+            //    WriteFiles(new string[] { "FileDir1-dir", "FileDir2-dir" });
             }
         }
 
