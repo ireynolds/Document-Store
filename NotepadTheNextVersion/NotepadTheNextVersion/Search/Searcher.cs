@@ -84,7 +84,7 @@ namespace NotepadTheNextVersion.ListItems
                 MatchCollection titleMatches = rgx.Matches(title);
                 result.SetTitleMatches(title, titleMatches);
 
-                if ((bool)SettingUtils.GetSetting(Setting.SearchFileText))
+                if (SettingUtils.GetSetting<bool>(Setting.SearchFileText))
                 {
                     string text = WhitespaceRgx.Replace(doc.Text, " ");
                     MatchCollection textMatches = rgx.Matches(text);

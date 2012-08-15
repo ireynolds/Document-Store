@@ -19,6 +19,11 @@ namespace NotepadTheNextVersion.AppBars
         protected ApplicationBar _appBar;
 
         /// <summary>
+        /// Contains a reference to the page on which this appbar sits.
+        /// </summary>
+        protected Listings _page;
+
+        /// <summary>
         /// A List of all buttons in the order they appear (left to right).
         /// </summary>
         protected ButtonList _buttons;
@@ -42,9 +47,15 @@ namespace NotepadTheNextVersion.AppBars
         /// <summary>
         /// Creates a new ApplicationBarSetup and initializes _appBar.
         /// </summary>
-        protected ApplicationBarSetup()
+        protected ApplicationBarSetup(Listings Page)
         {
             _appBar = new ApplicationBar();
+            _page = Page;
+        }
+
+        protected void Invoke(Action a)
+        {
+            _page.Dispatcher.BeginInvoke(a);
         }
 
         /// <summary>

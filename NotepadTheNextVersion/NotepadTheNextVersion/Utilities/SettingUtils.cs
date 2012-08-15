@@ -11,6 +11,7 @@ using System.Windows.Shapes;
 using System.IO.IsolatedStorage;
 using NotepadTheNextVersion.Enumerations;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace NotepadTheNextVersion.Utilities
 {
@@ -22,7 +23,7 @@ namespace NotepadTheNextVersion.Utilities
         /// <returns></returns>
         public static SolidColorBrush GetUserSetForegroundBrush()
         {
-            ThemeColor foreground = (ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor);
+            var foreground = SettingUtils.GetSetting<ThemeColor>(Setting.NoteEditorThemeColor);
             switch (foreground)
             {
                 case ThemeColor.dark:
@@ -30,7 +31,7 @@ namespace NotepadTheNextVersion.Utilities
                 case ThemeColor.light:
                     return new SolidColorBrush(Colors.Black);
                 case ThemeColor.phone:
-                    return (SolidColorBrush)IsolatedStorageSettings.ApplicationSettings["PhoneBackgroundBrush"];
+                    return (SolidColorBrush)App.AppSettings["PhoneBackgroundBrush"];
                 default:
                     throw new Exception("Unrecognized enum type");
             }
@@ -42,7 +43,7 @@ namespace NotepadTheNextVersion.Utilities
         /// <returns></returns>
         public static SolidColorBrush GetUserSetBackgroundBrush()
         {
-            return ((ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor)).Brush();
+            return SettingUtils.GetSetting<ThemeColor>(Setting.NoteEditorThemeColor).Brush();
         }
 
         /// <summary>
@@ -51,12 +52,12 @@ namespace NotepadTheNextVersion.Utilities
         /// </summary>
         /// <param name="setting"></param>
         /// <returns></returns>
-        public static object GetSetting(Setting setting)
+        public static T GetSetting<T>(Setting setting)
         {
-            if (IsolatedStorageSettings.ApplicationSettings.Contains(setting.Key()))
-                return IsolatedStorageSettings.ApplicationSettings[setting.Key()];
+            if (App.AppSettings.Contains(setting.Key()))
+                return (T)App.AppSettings[setting.Key()];
             else
-                return DefaultValue(setting);
+                return (T)DefaultValue(setting);
         }
 
         /// <summary>
@@ -78,6 +79,10 @@ namespace NotepadTheNextVersion.Utilities
                     return ThemeColor.light;
                 case Setting.RootDirectoryName:
                     return "home-dir";
+                case Setting.FavoritesList:
+                    if (!App.AppSettings.Contains(setting.Key()))
+                        App.AppSettings.Add(setting.Key(), new Collection<string>());
+                    return App.AppSettings[setting.Key()];
                 default:
                     throw new Exception("Unrecognized enum type");
             }

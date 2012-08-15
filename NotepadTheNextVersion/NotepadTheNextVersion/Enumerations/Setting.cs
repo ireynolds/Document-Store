@@ -18,7 +18,8 @@ namespace NotepadTheNextVersion.Enumerations
         OpenToFoldersList,
         SearchFileText,
         NoteEditorThemeColor,
-        RootDirectoryName
+        RootDirectoryName,
+        FavoritesList
     }
 
     public static class Extensions2
@@ -37,6 +38,8 @@ namespace NotepadTheNextVersion.Enumerations
                     return "NoteEditorThemeColorSetting";
                 case Setting.RootDirectoryName:
                     return "RootDirectoryNameSetting";
+                case Setting.FavoritesList:
+                    return "FavoritesList";
                 default:
                     throw new Exception("Unrecognized enum type");
             }

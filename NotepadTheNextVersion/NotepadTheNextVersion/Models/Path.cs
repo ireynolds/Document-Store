@@ -161,7 +161,7 @@ namespace NotepadTheNextVersion.Models
         {
             if (pathBase == PathBase.Root)
             {
-                pathList.Add((string)SettingUtils.GetSetting(Setting.RootDirectoryName));
+                pathList.Add(SettingUtils.GetSetting<string>(Setting.RootDirectoryName));
                 this.isInTrash = false;
             }
             else if (pathBase == PathBase.Trash)
@@ -224,7 +224,7 @@ namespace NotepadTheNextVersion.Models
         public Path SwapRoot()
         {
             Path p = new Path(this);
-            p.pathList[0] = (string)SettingUtils.GetSetting(Setting.RootDirectoryName);
+            p.pathList[0] = SettingUtils.GetSetting<string>(Setting.RootDirectoryName);
             return p;
         }
 
@@ -246,7 +246,7 @@ namespace NotepadTheNextVersion.Models
                 throw new InvalidStateException("path.contains(null)");
             if (pathList.Contains(string.Empty))
                 throw new InvalidStateException("path.contains(string.empty)");
-            if (!pathList[0].Equals((string)SettingUtils.GetSetting(Setting.RootDirectoryName)) && !pathList[0].Equals("trash-dir"))
+            if (!pathList[0].Equals(SettingUtils.GetSetting<string>(Setting.RootDirectoryName)) && !pathList[0].Equals("trash-dir"))
                 throw new InvalidStateException("root is neither root nor trash");
         }
 

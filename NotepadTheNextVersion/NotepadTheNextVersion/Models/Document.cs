@@ -28,17 +28,17 @@ namespace NotepadTheNextVersion.Models
         {
             get
             {
-                Collection<string> favs = (Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey];
+                var favs = SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList);
                 return favs.Contains(this.Path.PathString);
             }
             set
             {
-                Collection<string> favs = (Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey];
+                var favs = SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList);
                 if (value && !IsFavorite)
                     favs.Add(this.Path.PathString);
                 else if (!value && IsFavorite)
                     favs.Remove(this.Path.PathString);
-                IsolatedStorageSettings.ApplicationSettings.Save();
+                App.AppSettings.Save();
             }
         }
 

@@ -100,7 +100,7 @@ namespace NotepadTheNextVersion.ListItems
             StackPanel DocStackPanel = new StackPanel();
             DocScrollViewer.Content = DocStackPanel;
 
-            if ((bool)SettingUtils.GetSetting(Setting.DisplayNoteTitle))
+            if (SettingUtils.GetSetting<bool>(Setting.DisplayNoteTitle))
             {
                 this.DocTitleBlock = new TextBlock()
                 {
@@ -134,7 +134,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void UpdateColors()
         {
-            if ((ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor) != ThemeColor.phone)
+            if (SettingUtils.GetSetting<ThemeColor>(Setting.NoteEditorThemeColor) != ThemeColor.phone)
             {
                 _background = SettingUtils.GetUserSetBackgroundBrush();
                 _foreground = SettingUtils.GetUserSetForegroundBrush();

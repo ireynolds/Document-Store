@@ -22,19 +22,86 @@ namespace NotepadTheNextVersion
         /// <returns>The root frame of the Phone Application.</returns>
         public PhoneApplicationFrame RootFrame { get; private set; }
 
-        // Holds parameters during navigations.
+        /// <summary>
+        /// Holds parameters during navigations.
+        /// </summary>
         public IList<object> Arguments;
 
-        public static readonly MyUri Listings = new MyUri("/Views/Listings.xaml", UriKind.Relative);
-        public static readonly MyUri RenameItem = new MyUri("/Views/RenameItem.xaml", UriKind.Relative);
-        public static readonly MyUri MoveItem = new MyUri("/Views/MoveItem.xaml", UriKind.Relative);
-        public static readonly MyUri DocumentEditor = new MyUri("/Views/DocumentEditor.xaml", UriKind.Relative);
-        public static readonly MyUri AddNewItem = new MyUri("/Views/AddNewItem.xaml", UriKind.Relative);
-        public static readonly MyUri Search = new MyUri("/Views/Search.xaml", UriKind.Relative);
-        public static readonly MyUri Settings = new MyUri("/Views/Settings.xaml", UriKind.Relative);
-        public static readonly MyUri AboutAndTips = new MyUri("/Views/AboutAndTips.xaml", UriKind.Relative);
-        public static readonly MyUri ExportAll = new MyUri("/Views/ExportAll.xaml", UriKind.Relative);
-        public static readonly MyUri SendAs = new MyUri("/Views/SendAs.xaml", UriKind.Relative);
+        /// <summary>
+        /// Stores the settings for the application.
+        /// </summary>
+        public static readonly IsolatedStorageSettings AppSettings = IsolatedStorageSettings.ApplicationSettings;
+
+        public static MyUri Listings
+        {
+            get
+            {
+                return new MyUri("/Views/Listings.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri RenameItem
+        {
+            get
+            {
+                return new MyUri("/Views/RenameItem.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri MoveItem
+        {
+            get
+            {
+                return new MyUri("/Views/MoveItem.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri DocumentEditor
+        {
+            get
+            {
+                return new MyUri("/Views/DocumentEditor.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri AddNewItem
+        {
+            get
+            {
+                return new MyUri("/Views/AddNewItem.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri Search
+        {
+            get
+            {
+                return new MyUri("/Views/Search.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri Settings
+        {
+            get
+            {
+                return new MyUri("/Views/Settings.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri AboutAndTips
+        {
+            get
+            {
+                return new MyUri("/Views/AboutAndTips.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri ExportAll
+        {
+            get
+            {
+                return new MyUri("/Views/ExportAll.xaml", UriKind.Relative);
+            }
+        }
+        public static MyUri SendAs
+        {
+            get
+            {
+                return new MyUri("/Views/SendAs.xaml", UriKind.Relative);
+            }
+        }
 
         public const string AddIcon = "/Images/appbar.add.rest.png";
         public const string BackIcon = "/Images/appbar.back.rest.png";
@@ -45,8 +112,8 @@ namespace NotepadTheNextVersion
         public const string SettingsIcon = "/Images/appbar.feature.settings.rest.png";
         public const string FolderIconSmall = "/Images/appbar.folder.rest.png";
         public const string SaveIcon = "/Images/appbar.save.rest.png";
-        public const string FolderIconLargeBlack = "/Images/folder.black.png";
-        public const string FolderIconLargeWhite = "/Images/folder.white.png";
+        public const string FolderIconLargeBlack = "/Images/folder.black.jpg";
+        public const string FolderIconLargeWhite = "/Images/folder.white.jpg";
         public const string UndeleteIcon = "/Images/appbar.undelete.rest3.png";
         public const string PinIcon = "/Images/pushpin.png";
         public const string SelectIcon = "/Images/appbar.list.check.png";
@@ -55,8 +122,6 @@ namespace NotepadTheNextVersion
 
         public const string DocumentTile = "Application_DocumentTile.png";
         public const string DirectoryTile = "Application_DirectoryTile.png";
-
-        public const string FavoritesKey = "Favorites";
 
         /// <summary>
         /// Constructor for the Application object.
@@ -98,7 +163,7 @@ namespace NotepadTheNextVersion
         // This code will not execute when the application is reactivated
         private void Application_Launching(object sender, LaunchingEventArgs e)
         {
-            string rootName = (string)SettingUtils.GetSetting(Setting.RootDirectoryName);
+            var rootName = SettingUtils.GetSetting<string>(Setting.RootDirectoryName);
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 if (!isf.DirectoryExists(rootName))
@@ -106,9 +171,6 @@ namespace NotepadTheNextVersion
                 if (!isf.DirectoryExists("trash-dir"))
                     isf.CreateDirectory("trash-dir");
             }
-
-            if (!IsolatedStorageSettings.ApplicationSettings.Contains(App.FavoritesKey))
-                IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey] = new Collection<string>();
 
             //// Add test data
             //using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
@@ -212,7 +274,7 @@ namespace NotepadTheNextVersion
             int length = testText.Length / directories.Length;
             for (int i = 0; i < directories.Length; i++)
             {
-                string dir = (string)SettingUtils.GetSetting(Setting.RootDirectoryName) + "\\" + directories[i];
+                var dir = SettingUtils.GetSetting<string>(Setting.RootDirectoryName) + "\\" + directories[i];
                 IsolatedStorageFile.GetUserStoreForApplication().CreateDirectory(dir);
 
                 int outStart = (outCount - 1) * length;

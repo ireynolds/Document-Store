@@ -110,8 +110,6 @@ namespace NotepadTheNextVersion.ListItems
         public Listings()
         {
             InitializeComponent();
-
-            this.Loaded += new RoutedEventHandler(Listings_Loaded);
             _items = new List<IListingsListItem>();
             _faves = new List<IListingsListItem>();
             Root.RenderTransform = new CompositeTransform();
@@ -119,18 +117,13 @@ namespace NotepadTheNextVersion.ListItems
             InitializePageUI();
         }
 
-        void Listings_Loaded(object sender, RoutedEventArgs e)
-        {
-            InitializeApplicationBar();
-            SetPageMode(PageMode.View);
-        }
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
             if (_curr == null)
                 GetArgs();
             _curr = (Directory)_curr.SwapRoot();
-
+            
             NavigateTo(_curr);
         }
 
@@ -260,7 +253,8 @@ namespace NotepadTheNextVersion.ListItems
         private Storyboard GetInForwardPageSB(Directory destination)
         {
             Storyboard s = new Storyboard();
-            TextBlock append = CreatePathPanelBlock("\\" + destination.DisplayName);
+            TextBlock append = InitPathPanelFromPath(destination.Path.DisplayPathString);
+            _pathPanel.Children.Remove(append);
             append.Opacity = 0;
             _pathPanel.Children.Add(append);
 
@@ -352,16 +346,18 @@ namespace NotepadTheNextVersion.ListItems
             return s;
         }
 
-        private void InitPathPanelFromPath(string path)
+        private TextBlock InitPathPanelFromPath(string path)
         {
             _pathPanel.Children.Clear();
             string prefix = string.Empty;
+            TextBlock last = null;
             foreach (string crumb in path.Split(new string[] { "\\", "/" }, StringSplitOptions.RemoveEmptyEntries))
             {
-                TextBlock element = CreatePathPanelBlock(prefix + crumb);
-                _pathPanel.Children.Add(element);
+                last = CreatePathPanelBlock(prefix + crumb);
+                _pathPanel.Children.Add(last);
                 prefix = "\\";
             }
+            return last;
         }
 
         private TextBlock CreatePathPanelBlock(string element)
@@ -590,7 +586,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void UpdateFavesView()
         {
-            foreach (string s in (IEnumerable<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey])
+            foreach (string s in SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList))
             {
                 var p = Path.CreatePathFromString(s);
                 IActionable a = Utils.CreateActionableFromPath(p);
@@ -663,6 +659,8 @@ namespace NotepadTheNextVersion.ListItems
 
         private void InitializePageUI()
         {
+            InitializeApplicationBar();
+
             _masterPivot = new Pivot();
             _masterPivot.RenderTransform = new CompositeTransform();
             _masterPivot.SelectionChanged += new SelectionChangedEventHandler(_masterPivot_SelectionChanged);
@@ -692,8 +690,10 @@ namespace NotepadTheNextVersion.ListItems
             _allBox.RenderTransform = new CompositeTransform();
             _allBox.Template = (ControlTemplate)Root.Resources["ItemTemplate"];
             _allScrollViewer.Content = _allBox;
-            
-            if (((Collection<string>)IsolatedStorageSettings.ApplicationSettings[App.FavoritesKey]).Count > 0)
+
+            SetPageMode(PageMode.View);
+
+            if (SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList).Count > 0)
             {
                 InitializeFavesPivotItem();
             }
@@ -724,19 +724,22 @@ namespace NotepadTheNextVersion.ListItems
 
         public void SetPageMode(PageMode type)
         {
-            if (type == PageMode.View && _pageMode != PageMode.View)
+            if (type == _pageMode)
+                return;
+
+            if (type == PageMode.View)
             {
                 CurrentBox.SelectedIndex = -1;
                 CurrentBox.SelectionMode = SelectionMode.Single;
                 ApplicationBar = (new Listings.ViewAppBar(this)).AppBar;
             }
-            else if (type == PageMode.Edit && _pageMode != PageMode.Edit)
+            else if (type == PageMode.Edit)
             {
                 CurrentBox.SelectedIndex = -1;
                 CurrentBox.SelectionMode = SelectionMode.Multiple;
                 ApplicationBar = (new Listings.EditAppBar(this)).AppBar;
             }
-            else if (type == PageMode.Trash && _pageMode != PageMode.Trash)
+            else if (type == PageMode.Trash)
             {
                 CurrentBox.SelectedIndex = -1;
                 CurrentBox.SelectionMode = SelectionMode.Multiple;
@@ -744,7 +747,7 @@ namespace NotepadTheNextVersion.ListItems
                 ApplicationBar = (new Listings.TrashAppBar(this)).AppBar;
                 NavigateOut(new Directory(PathBase.Trash));
             }
-            else if (type == PageMode.Favorites && _pageMode != PageMode.Favorites)
+            else if (type == PageMode.Favorites)
             {
                 CurrentBox.SelectedItem = -1;
                 CurrentBox.SelectionMode = SelectionMode.Single;
@@ -824,13 +827,14 @@ namespace NotepadTheNextVersion.ListItems
             private static ApplicationBarMenuItem AboutTipsItem;
 
             public ViewAppBar(Listings Page)
+                : base(Page)
             {
                 NewButton = Utils.CreateIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
                 {
                     ParamUtils.SetArguments(Page._curr);
                     Page.NavigationService.Navigate(App.AddNewItem);
                 });
-                SelectButton = Utils.CreateIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { Page.SetPageMode(PageMode.Edit); });
+                SelectButton = Utils.CreateIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { Invoke(delegate { Page.SetPageMode(PageMode.Edit); }); });
                 SearchButton = Utils.CreateIconButton("search", App.SearchIcon, (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Search); });
 
                 SettingsItem = Utils.CreateMenuItem("settings", (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Settings); });
@@ -852,6 +856,7 @@ namespace NotepadTheNextVersion.ListItems
         private class FavoritesAppBar : ApplicationBarSetup
         {
             public FavoritesAppBar(Listings Page)
+                :base(Page)
             {
                 _buttons = new ButtonList();
                 _menuItems = new ItemList();
@@ -881,6 +886,7 @@ namespace NotepadTheNextVersion.ListItems
             }
 
             public EditAppBar(Listings Page)
+                :base(Page)
             {
                 this.Page = Page;
                 DeleteButton = Utils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
@@ -900,11 +906,15 @@ namespace NotepadTheNextVersion.ListItems
                     Page.SetPageMode(PageMode.View);
                     if (Page._favesPivot == null)
                         Page.InitializeFavesPivotItem();
+                    else if (!Page._masterPivot.Items.Contains(Page._favesPivot))
+                        Page._masterPivot.Items.Add(Page._favesPivot);
                 });
                 UnfaveButton = Utils.CreateIconButton("remove favorite", App.UnfaveIcon, (object sender, EventArgs e) =>
                 {
                     (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite = false;
                     Page.SetPageMode(PageMode.View);
+                    if (SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList).Count == 0)
+                        Page._masterPivot.Items.Remove(Page._favesPivot);
                 });
                 RenameItem = (Utils.CreateMenuItem("rename", (object sender, EventArgs e) =>
                 {
@@ -972,6 +982,7 @@ namespace NotepadTheNextVersion.ListItems
             private Listings Page;
 
             public TrashAppBar(Listings Page)
+                :base(Page)
             {
                 this.Page = Page;
                 DeleteButton = Utils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>

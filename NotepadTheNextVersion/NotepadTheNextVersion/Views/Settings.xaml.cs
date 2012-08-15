@@ -113,7 +113,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void HomeDirectoryNameTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            string oldName = (string)SettingUtils.GetSetting(Setting.RootDirectoryName);
+            var oldName = SettingUtils.GetSetting<string>(Setting.RootDirectoryName);
             string newName = _homeDirectoryNameTextBox.Text;
             if (oldName.Equals(newName))
                 return;

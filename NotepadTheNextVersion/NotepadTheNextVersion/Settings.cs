@@ -12,6 +12,7 @@ using System.IO.IsolatedStorage;
 using System.Diagnostics;
 using NotepadTheNextVersion.Enumerations;
 using NotepadTheNextVersion.Utilities;
+using System.Collections.ObjectModel;
 
 namespace NotepadTheNextVersion
 {
@@ -28,7 +29,7 @@ namespace NotepadTheNextVersion
             try
             {
                 // Get the settings for this application.
-                isolatedStore = IsolatedStorageSettings.ApplicationSettings;
+                isolatedStore = App.AppSettings;
 
             }
             catch (Exception e)
@@ -101,7 +102,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<bool>(Setting.DisplayNoteTitle.Key(), (bool)SettingUtils.GetSetting(Setting.DisplayNoteTitle));
+                return GetValueOrDefault<bool>(Setting.DisplayNoteTitle.Key(), SettingUtils.GetSetting<bool>(Setting.DisplayNoteTitle));
             }
             set
             {
@@ -115,7 +116,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<bool>(Setting.OpenToFoldersList.Key(), (bool)SettingUtils.GetSetting(Setting.OpenToFoldersList));
+                return GetValueOrDefault<bool>(Setting.OpenToFoldersList.Key(), SettingUtils.GetSetting<bool>(Setting.OpenToFoldersList));
             }
             set
             {
@@ -129,7 +130,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<bool>(Setting.SearchFileText.Key(), (bool)SettingUtils.GetSetting(Setting.SearchFileText));
+                return GetValueOrDefault<bool>(Setting.SearchFileText.Key(), SettingUtils.GetSetting<bool>(Setting.SearchFileText));
             }
             set
             {
@@ -143,7 +144,7 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<ThemeColor>(Setting.NoteEditorThemeColor.Key(), (ThemeColor)SettingUtils.GetSetting(Setting.NoteEditorThemeColor));
+                return GetValueOrDefault<ThemeColor>(Setting.NoteEditorThemeColor.Key(), SettingUtils.GetSetting<ThemeColor>(Setting.NoteEditorThemeColor));
             }
             set
             {
@@ -156,11 +157,24 @@ namespace NotepadTheNextVersion
         {
             get
             {
-                return GetValueOrDefault<string>(Setting.RootDirectoryName.Key(), (string)SettingUtils.GetSetting(Setting.RootDirectoryName));
+                return GetValueOrDefault<string>(Setting.RootDirectoryName.Key(), SettingUtils.GetSetting<string>(Setting.RootDirectoryName));
             }
             set
             {
                 AddOrUpdateValue(Setting.RootDirectoryName.Key(), value);
+                Save();
+            }
+        }
+
+        public Collection<string> FavoritesList
+        {
+            get
+            {
+                return GetValueOrDefault<Collection<string>>(Setting.FavoritesList.Key(), SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList));
+            }
+            set
+            {
+                AddOrUpdateValue(Setting.FavoritesList.Key(), value);
                 Save();
             }
         }

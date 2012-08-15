@@ -17,7 +17,7 @@ namespace NotepadTheNextVersion
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
-            bool NavToDocs = (bool)SettingUtils.GetSetting(Setting.OpenToFoldersList);
+            var NavToDocs = SettingUtils.GetSetting<bool>(Setting.OpenToFoldersList);
             if (NavToDocs)
             {
                 (new Directory(PathBase.Root)).Open(NavigationService);
