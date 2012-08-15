@@ -404,8 +404,8 @@ namespace NotepadTheNextVersion.ListItems
                 _animationTimer = new TimedItemAnimator(_items);
                 _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
-                    CurrentBox.Items.Add(item);
                     GetInForwardItemSB(item).Begin();
+                    CurrentBox.Items.Add(item);
                 };
                 _animationTimer.Completed += delegate(IList<IListingsListItem> itemsNotAdded)
                 {
@@ -437,8 +437,8 @@ namespace NotepadTheNextVersion.ListItems
                 _animationTimer = new TimedItemAnimator(_items);
                 _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
-                    CurrentBox.Items.Add(item);
                     GetInBackwardItemSB(item).Begin();
+                    CurrentBox.Items.Add(item);
                 };
                 _animationTimer.Completed += delegate(IList<IListingsListItem> itemsNotAdded2)
                 {
@@ -453,10 +453,10 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateTo(Directory curr)
         {
+            CurrentBox.Items.Clear();
             Storyboard sb = GetNavToSB(curr);
             sb.Completed += delegate(object sender, EventArgs e)
             {
-                CurrentBox.Items.Clear();
                 _curr = curr;
                 UpdateItems(null);
 
@@ -465,8 +465,8 @@ namespace NotepadTheNextVersion.ListItems
                 _animationTimer = new TimedItemAnimator(_items);
                 _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
-                    CurrentBox.Items.Add(item);
                     GetInForwardItemSB(item).Begin();
+                    CurrentBox.Items.Add(item);
                 };
                 _animationTimer.Completed += delegate(IList<IListingsListItem> itemsNotAdded)
                 {
