@@ -191,6 +191,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <None Include="NotepadTheNextVersion_2012_08_14_22_23_45.sap" />
     <None Include="Properties\AppManifest.xml" />
     <None Include="Properties\WMAppManifest.xml" />
   </ItemGroup>

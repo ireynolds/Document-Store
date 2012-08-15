@@ -111,13 +111,17 @@ namespace NotepadTheNextVersion.ListItems
         {
             InitializeComponent();
 
+            this.Loaded += new RoutedEventHandler(Listings_Loaded);
             _items = new List<IListingsListItem>();
             _faves = new List<IListingsListItem>();
             Root.RenderTransform = new CompositeTransform();
             Root.Opacity = 0;
-
-            InitializeApplicationBar();
             InitializePageUI();
+        }
+
+        void Listings_Loaded(object sender, RoutedEventArgs e)
+        {
+            InitializeApplicationBar();
             SetPageMode(PageMode.View);
         }
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -704,12 +708,16 @@ namespace NotepadTheNextVersion.ListItems
             _favesGrid = new Grid();
             _favesPivot.Content = _favesGrid;
 
+            _favesScrollViewer = new ScrollViewer();
+            _favesGrid.Children.Add(_favesScrollViewer);
+
             _favesBox = new ListBox();
             _favesBox.Margin = new Thickness(6, 0, 12, 0);
             _favesBox.MinHeight = 500;
             _favesBox.VerticalAlignment = VerticalAlignment.Top;
             _favesBox.SelectionChanged += new SelectionChangedEventHandler(ContentBox_SelectionChanged);
             _favesBox.RenderTransform = new CompositeTransform();
+            _favesBox.Template = (ControlTemplate)Root.Resources["ItemTemplate"];
             Grid.SetRow(_favesBox, 0);
             _favesGrid.Children.Add(_favesBox);
         }
@@ -747,12 +755,26 @@ namespace NotepadTheNextVersion.ListItems
 
         private void BeginDeleteAnimations(IList<IListingsListItem> deletedItems)
         {
-            IListingsListItem lastDeletedItem = deletedItems[deletedItems.Count - 1];
-            IList<IListingsListItem> previousItems = new List<IListingsListItem>();
+            if (deletedItems.Count == CurrentBox.Items.Count)
+            {
+                Storyboard s2 = new Storyboard();
+                foreach (IListingsListItem item in CurrentBox.Items)
+                    s2.Children.Add(AnimationUtils.FadeOut(200, item));
+                s2.Begin();
+                s2.Completed += delegate(object sender, EventArgs e)
+                {
+                    foreach (var item in deletedItems)
+                        CurrentBox.Items.Remove(item);
+                };
+                return;
+            }
+
+            var lastDeletedItem = deletedItems[deletedItems.Count - 1];
+            var previousItems = new List<IListingsListItem>();
             int i = 0;
             while (i < CurrentBox.Items.Count)
             {
-                IListingsListItem item = (IListingsListItem)CurrentBox.Items[i];
+                var item = (IListingsListItem)CurrentBox.Items[i];
                 i++;
                 if (item != deletedItems[0])
                     previousItems.Add(item);
@@ -763,15 +785,13 @@ namespace NotepadTheNextVersion.ListItems
             double height = 0;
             foreach (IListingsListItem item in deletedItems)
             {
-                // 25 is the bottom margin on a ListingsListItem. Not sure why, but
-                // item.Margin.Bottom returns 0.0
                 height += item.DesiredSize.Height;
             }
 
-            Storyboard s = new Storyboard();
+            var s = new Storyboard();
             while (i < CurrentBox.Items.Count)
             {
-                DoubleAnimation d = AnimationUtils.TranslateY(height, 0, 110, new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 3 });
+                var d = AnimationUtils.TranslateY(height, 0, 110, new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 3 });
                 Storyboard.SetTarget(d, (UIElement)CurrentBox.Items[i]);
                 s.Children.Add(d);
                 ((UIElement)CurrentBox.Items[i]).RenderTransform = new CompositeTransform();
