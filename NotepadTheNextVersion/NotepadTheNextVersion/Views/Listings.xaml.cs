@@ -150,8 +150,8 @@ namespace NotepadTheNextVersion.ListItems
             }
             else if (_pageMode == PageMode.View)
             {
-                Path parent = _curr.Path.Parent;
-                if (parent != null)
+                PathStr parent = _curr.Path.Parent;
+                if (!parent.PathString.Equals(string.Empty))
                 {
                     NavigateBack(new Directory(parent));
                     e.Cancel = true;
@@ -523,7 +523,7 @@ namespace NotepadTheNextVersion.ListItems
             string s;
             if (NavigationContext.QueryString.TryGetValue("param", out s))
             {
-                Path p = Path.CreatePathFromString(s);
+                PathStr p = new PathStr(s);
                 _curr = new Directory(p);
             }
             else
@@ -588,7 +588,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             foreach (string s in SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList))
             {
-                var p = Path.CreatePathFromString(s);
+                var p = new PathStr(s);
                 IActionable a = Utils.CreateActionableFromPath(p);
                 IListingsListItem item = IListingsListItem.CreateListItem(a);
                 _faves.Add(item);

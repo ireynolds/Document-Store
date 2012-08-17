@@ -62,8 +62,8 @@ namespace NotepadTheNextVersion.ListItems
             {
                 Queue<Directory> dirsQ = new Queue<Directory>();
                 List<Directory> dirsL = new List<Directory>();
-                dirsQ.Enqueue(new Directory(new Path(PathBase.Root)));
-                dirsQ.Enqueue(new Directory(new Path(PathBase.Trash)));
+                dirsQ.Enqueue(new Directory(new PathStr(PathBase.Root)));
+                dirsQ.Enqueue(new Directory(new PathStr(PathBase.Trash)));
 
                 while (dirsQ.Count != 0)
                 {

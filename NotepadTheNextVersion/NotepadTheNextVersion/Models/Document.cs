@@ -17,7 +17,7 @@ namespace NotepadTheNextVersion.Models
     {
 
         // The path of this
-        private readonly Path _path;
+        private readonly PathStr _path;
 
         // Caches the text of this
         private string _text;
@@ -77,9 +77,9 @@ namespace NotepadTheNextVersion.Models
             get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(Uri.EscapeUriString(Path.PathString))) != null; }
         }
 
-        public Path Path
+        public PathStr Path
         {
-            get { return new Path(_path); }
+            get { return new PathStr(_path); }
         }
 
         public string Text
@@ -97,7 +97,7 @@ namespace NotepadTheNextVersion.Models
             }
         }
 
-        public Document(Path p)
+        public Document(PathStr p)
         {
             _path = p;
         }
@@ -123,7 +123,7 @@ namespace NotepadTheNextVersion.Models
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Path newLoc = newParent.Path.NavigateIn(Name, ItemType.Default);
+                PathStr newLoc = newParent.Path.NavigateIn(Name, ItemType.Default);
                 if (isf.FileExists(newLoc.PathString))
                     throw new ActionableException(this);
                     
@@ -145,7 +145,7 @@ namespace NotepadTheNextVersion.Models
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Path newLoc = Path.Parent.NavigateIn(newFileName, ItemType.Document);
+                PathStr newLoc = Path.Parent.NavigateIn(newFileName, ItemType.Document);
                 if (isf.FileExists(newLoc.PathString))
                     throw new ActionableException(this);
 
@@ -170,7 +170,7 @@ namespace NotepadTheNextVersion.Models
             }
             else // if (!isTrash)
             {
-                Directory trash = new Directory(new Path(PathBase.Trash));
+                Directory trash = new Directory(new PathStr(PathBase.Trash));
                 Document newLoc = new Document(trash.Path.NavigateIn(Name, ItemType.Default));
                 if (newLoc.Exists())
                     newLoc.Delete();
@@ -256,7 +256,7 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable SwapRoot()
         {
-            Document d = new Document(Path.SwapRoot());
+            Document d = new Document(Path.UpdateRoot());
             if (this.IsFavorite)
             {
                 this.IsFavorite = false;

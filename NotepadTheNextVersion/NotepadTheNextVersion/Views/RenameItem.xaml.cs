@@ -183,12 +183,12 @@ namespace NotepadTheNextVersion.ListItems
             {
                 if (_actionable.GetType() == typeof(Document))
                 {
-                    Models.Path newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Document);
+                    Models.PathStr newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Document);
                     return !isf.FileExists(newPath.PathString);
                 }
                 else
                 {
-                    Models.Path newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Directory);
+                    Models.PathStr newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Directory);
                     return !isf.DirectoryExists(newPath.PathString);
                 }
             }

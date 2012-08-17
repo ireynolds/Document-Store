@@ -61,7 +61,7 @@ namespace NotepadTheNextVersion.Utilities
         /// Given a full filepath including root, creates a document at that location relative to root. That is, 
         /// if you pass in root/hello but the current root is home, it will create home.
         /// </summary>
-        /// <param name="path">Must contain the full filepath, including root. Must include "-doc", "-dir".</param>
+        /// <param name="path">Must contain the full filepath, including root. Must include ".doc", ".dir".</param>
         /// <returns></returns>
         public static Document CreateFileFromString(string path)
         {
@@ -80,7 +80,7 @@ namespace NotepadTheNextVersion.Utilities
                 IsolatedStorageFileStream f = isf.CreateFile(System.IO.Path.Combine(currPath, fileName));
                 f.Close();
 
-                Path p = new Path(PathBase.Root);
+                PathStr p = new PathStr(PathBase.Root);
                 // Skip the first because "root" is already in the path.
                 for (int i = 1; i < pathArray.Length; i++)
                     p = p.NavigateIn(pathArray[i], ItemType.Default);
@@ -153,9 +153,9 @@ namespace NotepadTheNextVersion.Utilities
         }
 
         /// <summary>
-        /// Removes the favorite at the oldPath and adds a favorite at the newPath
+        /// Removes the favorite at the Path2 and adds a favorite at the newPath
         /// </summary>
-        /// <param name="oldPath"></param>
+        /// <param name="Path2"></param>
         /// <param name="newPath"></param>
         public static void ReplaceFavorite(IActionable oldFave, IActionable newFave)
         {

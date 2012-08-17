@@ -78,7 +78,7 @@ namespace NotepadTheNextVersion.Utilities
                 case Setting.NoteEditorThemeColor:
                     return ThemeColor.light;
                 case Setting.RootDirectoryName:
-                    return "home-dir";
+                    return "home.dir";
                 case Setting.FavoritesList:
                     if (!App.AppSettings.Contains(setting.Key()))
                         App.AppSettings.Add(setting.Key(), new Collection<string>());

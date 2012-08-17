@@ -168,22 +168,22 @@ namespace NotepadTheNextVersion
             {
                 if (!isf.DirectoryExists(rootName))
                     isf.CreateDirectory(rootName);
-                if (!isf.DirectoryExists("trash-dir"))
-                    isf.CreateDirectory("trash-dir");
+                if (!isf.DirectoryExists("trash.dir"))
+                    isf.CreateDirectory("trash.dir");
             }
 
             //// Add test data
             //using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             //{
-            //    IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1-doc");
+            //    IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.doc");
             //    s1.Close();
-            //    IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2-doc");
+            //    IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.doc");
             //    s2.Close();
-            //    isf.CreateDirectory(rootName + "/Dir1-dir");
-            //    isf.CreateDirectory(rootName + "/Dir2-dir");
-            //    isf.CreateDirectory(rootName + "/Dir1-dir/SubDir1-dir");
-            //    isf.CreateDirectory(rootName + "/Dir2-dir/SubDir2-dir");
-            //    WriteFiles(new string[] { "FileDir1-dir", "FileDir2-dir" });
+            //    isf.CreateDirectory(rootName + "/Dir1.dir");
+            //    isf.CreateDirectory(rootName + "/Dir2.dir");
+            //    isf.CreateDirectory(rootName + "/Dir1.dir/SubDir1.dir");
+            //    isf.CreateDirectory(rootName + "/Dir2.dir/SubDir2.dir");
+            //    WriteFiles(new string[] { "FileDir1.dir", "FileDir2.dir" });
             //}
         }
 
@@ -288,7 +288,7 @@ namespace NotepadTheNextVersion
 
                     using (IsolatedStorageFile myIso = IsolatedStorageFile.GetUserStoreForApplication())
                     {
-                        string path = dir + "/Test Case " + count  + "-doc";
+                        string path = dir + "/Test Case " + count  + ".doc";
                         bool b = myIso.FileExists(path);
                         IsolatedStorageFileStream stream = myIso.OpenFile(path, FileMode.OpenOrCreate);
                         using (StreamWriter myWriter = new StreamWriter(stream))

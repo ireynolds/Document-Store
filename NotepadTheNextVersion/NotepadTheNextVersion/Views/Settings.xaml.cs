@@ -128,8 +128,8 @@ namespace NotepadTheNextVersion.ListItems
             {
                 using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    oldName = System.IO.Path.Combine(oldName + "-dir", "");
-                    newName = System.IO.Path.Combine(newName + "-dir", "");
+                    oldName = System.IO.Path.Combine(oldName + ".dir", "");
+                    newName = System.IO.Path.Combine(newName + ".dir", "");
 
                     if (isf.DirectoryExists(newName))
                         isf.DeleteDirectory(newName);

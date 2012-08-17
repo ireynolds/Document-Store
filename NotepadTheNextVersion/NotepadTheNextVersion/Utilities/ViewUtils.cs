@@ -50,13 +50,13 @@ namespace NotepadTheNextVersion.Utilities
         }
 
         /// <summary>
-        /// Given a Path, uses the "-doc" and "-dir" tags to return the correct IActionable type.
+        /// Given a Path, uses the ".doc" and ".dir" tags to return the correct IActionable type.
         /// </summary>
         /// <param name="p"></param>
         /// <returns></returns>
-        public static IActionable CreateActionableFromPath(Models.Path p)
+        public static IActionable CreateActionableFromPath(Models.PathStr p)
         {
-            if (p.Name.EndsWith("-doc"))
+            if (p.Name.EndsWith(".doc"))
                 return new Document(p);
             else
                 return new Directory(p);

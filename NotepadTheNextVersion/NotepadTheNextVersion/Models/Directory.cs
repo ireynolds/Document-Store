@@ -13,7 +13,7 @@ namespace NotepadTheNextVersion.Models
 {
     public class Directory : IActionable, IComparable<Directory>
     {
-        private Path _path;
+        private PathStr _path;
 
 
         private bool _isTemp;
@@ -71,12 +71,12 @@ namespace NotepadTheNextVersion.Models
             get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(Uri.EscapeUriString(Path.PathString))) != null; }
         }
 
-        public Path Path
+        public PathStr Path
         {
-            get { return new Path(_path); }
+            get { return new PathStr(_path); }
         }
 
-        public Directory(Path p)
+        public Directory(PathStr p)
         {
             _path = p;
         }
@@ -87,7 +87,7 @@ namespace NotepadTheNextVersion.Models
         }
 
         public Directory(PathBase Base)
-            : this(new Path(Base)) { }
+            : this(new PathStr(Base)) { }
 
         public void Open(NavigationService NavigationService)
         {
@@ -126,7 +126,7 @@ namespace NotepadTheNextVersion.Models
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Path newLoc = Path.Parent.NavigateIn(newDirectoryName, ItemType.Directory);
+                PathStr newLoc = Path.Parent.NavigateIn(newDirectoryName, ItemType.Directory);
                 if (isf.DirectoryExists(newLoc.PathString))
                     throw new ActionableException(this);
 
@@ -151,7 +151,7 @@ namespace NotepadTheNextVersion.Models
             }
             else // if (!isTrash)
             {
-                Directory trash = new Directory(new Path(PathBase.Trash));
+                Directory trash = new Directory(new PathStr(PathBase.Trash));
                 Directory newLoc = new Directory(trash.Path.NavigateIn(Name, ItemType.Default));
                 if (newLoc.Exists())
                     newLoc.Delete();
@@ -191,7 +191,7 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable SwapRoot()
         {
-            Directory d = new Directory(Path.SwapRoot());
+            Directory d = new Directory(Path.UpdateRoot());
             if (this.IsFavorite)
             {
                 this.IsFavorite = false;
@@ -215,7 +215,7 @@ namespace NotepadTheNextVersion.Models
 
         #region Private Helpers
 
-        private static void DeleteRecursive(Path dir, IsolatedStorageFile isf)
+        private static void DeleteRecursive(PathStr dir, IsolatedStorageFile isf)
         {
             // Delete every subdirectory's contents recursively
             foreach (string subDir in isf.GetDirectoryNames(dir.PathString + "/*"))

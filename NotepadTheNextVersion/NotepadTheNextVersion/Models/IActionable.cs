@@ -12,7 +12,7 @@ namespace NotepadTheNextVersion.Models
         /// <summary>
         /// Returns the path which locates this in IsolatedStorage
         /// </summary>
-        Path Path { get; }
+        PathStr Path { get; }
 
         /// <summary>
         /// Returns true iff this IActionable is in your favorites
