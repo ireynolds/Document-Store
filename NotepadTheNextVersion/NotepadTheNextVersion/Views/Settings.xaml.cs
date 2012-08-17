@@ -61,9 +61,7 @@ namespace NotepadTheNextVersion.ListItems
             _homeDirectoryNameTextBox = new TextBox();
             _homeDirectoryNameTextBox.Margin = new Thickness(0, 0, 0, 35);
             _homeDirectoryNameTextBox.LostFocus += new RoutedEventHandler(HomeDirectoryNameTextBox_LostFocus);
-            Binding b = GetBinding("RootDirectoryName");
-            b.Mode = BindingMode.OneTime;
-            _homeDirectoryNameTextBox.SetBinding(TextBox.TextProperty, b);
+            _homeDirectoryNameTextBox.Text = _appSettings.RootDirectoryDisplayName;
             return _homeDirectoryNameTextBox;
         }
 
@@ -113,7 +111,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void HomeDirectoryNameTextBox_LostFocus(object sender, RoutedEventArgs e)
         {
-            var oldName = SettingUtils.GetSetting<string>(Setting.RootDirectoryName);
+            var oldName = _appSettings.RootDirectoryDisplayName;
             string newName = _homeDirectoryNameTextBox.Text;
             if (oldName.Equals(newName))
                 return;
@@ -121,15 +119,20 @@ namespace NotepadTheNextVersion.ListItems
             MessageBoxResult r = MessageBox.Show("If this operation fails, it may delete all of your data. You should export all your documents first.\r\rPress OK to continue, or Cancel to quit.",
                 "Warning", MessageBoxButton.OKCancel);
             if (r == MessageBoxResult.Cancel)
+            {
+                _homeDirectoryNameTextBox.Text = oldName;
                 return;
+            }
 
             try
             {
                 using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    oldName = System.IO.Path.Combine(oldName, "");
-                    newName = System.IO.Path.Combine(newName, "-dir");
+                    oldName = System.IO.Path.Combine(oldName + "-dir", "");
+                    newName = System.IO.Path.Combine(newName + "-dir", "");
 
+                    if (isf.DirectoryExists(newName))
+                        isf.DeleteDirectory(newName);
                     isf.MoveDirectory(oldName, newName);
                     _appSettings.AddOrUpdateValue(Setting.RootDirectoryName.Key(), newName);
                 }

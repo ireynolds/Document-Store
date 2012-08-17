@@ -178,5 +178,20 @@ namespace NotepadTheNextVersion
                 Save();
             }
         }
+
+        public string RootDirectoryDisplayName
+        {
+            get
+            {
+                var val = GetValueOrDefault<string>(Setting.RootDirectoryName.Key(), SettingUtils.GetSetting<string>(Setting.RootDirectoryName));
+                val = val.Substring(0, val.Length - 4);
+                return val;
+            }
+            set
+            {
+                AddOrUpdateValue(Setting.RootDirectoryName.Key(), value + "-dir");
+                Save();
+            }
+        }
     }
 }
