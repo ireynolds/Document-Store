@@ -12,23 +12,41 @@ using NotepadTheNextVersion.Models;
 
 namespace NotepadTheNextVersion.ListItems
 {
-    public class MoveListItem : StackPanel
+    public class MoveListItem : ContentControl
     {
         public Directory DirectoryItem;
+        private StackPanel _panel;
+        private TextBlock name;
+
+        public new bool IsEnabled
+        {
+            get
+            {
+                return base.IsEnabled;
+            }
+            set
+            {
+                base.IsEnabled = value;
+                if (!base.IsEnabled)
+                    name.Foreground = new SolidColorBrush(Colors.Gray);
+            }
+        }
 
         public MoveListItem(Directory d)
         {
             DirectoryItem = d;
 
             // Set up appearance
-            this.Orientation = Orientation.Vertical;
-            this.Margin = new Thickness(12 + 15 * DirectoryItem.Path.Depth, 0, 0, 15);
+            _panel = new StackPanel();
+            _panel.Orientation = Orientation.Vertical;
+            _panel.Margin = new Thickness(12 + 15 * DirectoryItem.Path.Depth, 0, 0, 15);
+            this.Content = _panel;
 
-            TextBlock name = new TextBlock();
+            name = new TextBlock();
             TextBlock path = new TextBlock();
 
-            this.Children.Add(name);
-            this.Children.Add(path);
+            _panel.Children.Add(name);
+            _panel.Children.Add(path);
 
             name.Text = DirectoryItem.DisplayName;
             name.FontSize = 50;

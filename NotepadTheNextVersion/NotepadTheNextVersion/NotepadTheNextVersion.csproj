@@ -86,7 +86,7 @@
     <Compile Include="Models\Document.cs" />
     <Compile Include="Models\IActionable.cs" />
     <Compile Include="Models\MyUri.cs" />
-    <Compile Include="Models\Path2.cs" />
+    <Compile Include="Models\PathStr.cs" />
     <Compile Include="Models\TimedItemAnimator.cs" />
     <Compile Include="Search\Tuple.cs" />
     <Compile Include="Models\WatermarkedTextBox.cs" />

@@ -104,7 +104,7 @@ namespace NotepadTheNextVersion.Models
             }
         }
 
-        public PathStr NavigateIn(string name, ItemType type)
+        public PathStr NavigateIn(string name, ItemType type = ItemType.Default)
         {
             if (!Path.HasExtension(name))
                 switch (type)
@@ -142,7 +142,10 @@ namespace NotepadTheNextVersion.Models
             if (index == -1)
                 return new PathStr(newRoot);
             else
-                return new PathStr(Path.Combine(newRoot, _path.Substring(index)));
+            {
+                var a = _path.Substring(index + 1);
+                return new PathStr(Path.Combine(newRoot, a));
+            }
         }
 
         public static string Combine(IEnumerable<string> Crumbs, bool IncludeExtension)

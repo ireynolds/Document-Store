@@ -101,18 +101,18 @@ namespace NotepadTheNextVersion.Models
             NavigationService.Navigate(App.MoveItem);
         }
 
-        public IActionable Move(Directory newLocation) 
+        public IActionable Move(Directory newParent) 
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Directory newLoc = new Directory(newLocation.Path.NavigateIn(Name, ItemType.Default));
-                if (isf.DirectoryExists(newLoc.Path.PathString))
+                Directory newLocation = new Directory(newParent.Path.NavigateIn(Name, ItemType.Default));
+                if (isf.DirectoryExists(newLocation.Path.PathString))
                     throw new ActionableException(this);
 
-                isf.MoveDirectory(Path.PathString, newLoc.Path.PathString);
+                isf.MoveDirectory(Path.PathString, newLocation.Path.PathString);
                 if (this.IsFavorite)
-                    newLoc.IsFavorite = true;
-                return newLoc;
+                    newLocation.IsFavorite = true;
+                return newLocation;
             }
         }  
 

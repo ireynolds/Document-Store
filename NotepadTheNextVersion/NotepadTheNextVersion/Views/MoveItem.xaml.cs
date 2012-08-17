@@ -81,17 +81,28 @@ namespace NotepadTheNextVersion.ListItems
 
                 dirsL.Sort(new IActionableComparer());
                 foreach (Directory d in dirsL)
-                    ContentBox.Items.Add(createNewDirItem(d));
+                {
+                    var item = createNewDirItem(d);
+                    item.IsEnabled = !IsParent(d);
+                    ContentBox.Items.Add(item);
+                }
             }
-
-            if (ContentBox.Items.Count < 6)
-                ScrollViewer.SetVerticalScrollBarVisibility(ContentBox, ScrollBarVisibility.Disabled);
         }
 
-        private StackPanel createNewDirItem(Directory d)
+        private bool IsParent(Directory d)
         {
-            MoveListItem i = new MoveListItem(d);
-            return i;
+            var parentPath = d.Path.PathString;
+            foreach (var item in _actionables)
+            {
+                if (item.Path.Parent.PathString.Equals(d.Path.PathString))
+                    return true;
+            }
+            return false;
+        }
+
+        private MoveListItem createNewDirItem(Directory d)
+        {
+            return new MoveListItem(d);
         }
 
         private bool IsInIgnoreList(Directory dest, IActionable itemToMove)
@@ -105,22 +116,21 @@ namespace NotepadTheNextVersion.ListItems
                    dest.Path.IsInTrash;
         }
 
-        private void TryMoveItem(IActionable a, Directory newLoc)
+        private void TryMoveItem(IActionable a, Directory newParent)
         {
-            try
-            {
-                a.Move(newLoc);
-            }
-            catch (ActionableException)
+            var newLocation = new Directory(newParent.Path.NavigateIn(a.Name));
+            if (newLocation.Exists())
             {
                 MessageBoxResult r = MessageBox.Show("There is already a document or directory with the same name at this " +
                     "location. Tap OK to overwrite this item, or Cancel to skip it.", a.DisplayName, MessageBoxButton.OKCancel);
-                if (r == MessageBoxResult.OK)
-                {
-                    (new Directory(newLoc.Path.NavigateIn(a.DisplayName, ItemType.Directory))).Delete();
-                    TryMoveItem(a, newLoc);
-                }
+                if (r != MessageBoxResult.OK)
+                    return;
+
+                newLocation = (Directory)newLocation.Delete(); // to trash
+                newLocation.Delete(); // permanent
             }
+
+            a.Move(newParent);
         }
 
         #endregion
@@ -131,7 +141,9 @@ namespace NotepadTheNextVersion.ListItems
         {
             if (ContentBox.SelectedIndex == -1)
                 return;
-            
+            if (!(ContentBox.SelectedItem as MoveListItem).IsEnabled)
+                return;
+
             Directory newLoc = (ContentBox.SelectedItem as MoveListItem).DirectoryItem;
             ContentBox.SelectedIndex = -1;
 
