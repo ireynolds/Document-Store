@@ -114,7 +114,7 @@ namespace NotepadTheNextVersion
         public const string SaveIcon = "/Images/appbar.save.rest.png";
         public const string FolderIconLargeBlack = "/Images/folder.black.jpg";
         public const string FolderIconLargeWhite = "/Images/folder.white.jpg";
-        public const string UndeleteIcon = "/Images/appbar.undelete.rest3.png";
+        public const string UndeleteIcon = "/Images/appbar.cabinet.out.png";
         public const string PinIcon = "/Images/pushpin.png";
         public const string SelectIcon = "/Images/appbar.list.check.png";
         public const string FaveIcon = "/Images/appbar.favs.addto.rest.png";

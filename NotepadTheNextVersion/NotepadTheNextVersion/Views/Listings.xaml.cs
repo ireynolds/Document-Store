@@ -1030,7 +1030,7 @@ namespace NotepadTheNextVersion.ListItems
                 _menuItems = new ItemList() { EmptyItem };
                 SetElements(_appBar, _buttons, _menuItems);
                 SetAllEnabled(_appBar, false);
-                Page.CurrentBox.SelectionChanged += new SelectionChangedEventHandler(SelectedItemsChanged);
+                Page.CurrentBox.SelectionChanged += new SelectionChangedEventHandler(SelectedItemChanged);
                 _appBar.Mode = ApplicationBarMode.Default;
                 _appBar.IsMenuEnabled = true;
 
@@ -1043,7 +1043,7 @@ namespace NotepadTheNextVersion.ListItems
                 });
             }
 
-            public void SelectedItemChanged(object sender, SelectionChangedEventArgs e)
+            void SelectedItemChanged(object sender, SelectionChangedEventArgs e)
             {
                 int ct = Page.CurrentBox.SelectedItems.Count;
                 if (ct == 0)
