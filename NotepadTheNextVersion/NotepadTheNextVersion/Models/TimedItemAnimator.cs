@@ -74,6 +74,19 @@ namespace NotepadTheNextVersion.Models
             }
         }
 
+        public TimeSpan Interval
+        {
+            get
+            {
+                return _timer.Interval;
+            }
+            set
+            {
+                if (!_timer.Interval.Equals(value))
+                    _timer.Interval = value;
+            }
+        }
+
         public TimedItemAnimator(IList<IListingsListItem> items)
         {
             _items = items;

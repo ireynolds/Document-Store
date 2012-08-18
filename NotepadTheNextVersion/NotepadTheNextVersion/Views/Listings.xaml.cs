@@ -396,14 +396,18 @@ namespace NotepadTheNextVersion.ListItems
                 _curr = destination;
                 UpdateItems(null);
 
+                int ct = 0;
                 GetInForwardPageSB(destination).Begin();
                 if (_animationTimer != null)
                     _animationTimer.Stop();
                 _animationTimer = new TimedItemAnimator(_items);
                 _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
-                    GetInForwardItemSB(item).Begin();
+                    if (ct < 8)
+                        GetInForwardItemSB(item).Begin();
                     CurrentBox.Items.Add(item);
+                    ct++;
+                    _animationTimer.Interval = TimeSpan.FromMilliseconds(1);
                 };
                 _animationTimer.Completed += delegate(IList<IListingsListItem> itemsNotAdded)
                 {
@@ -417,8 +421,13 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateBack(Directory destination)
         {
+            int index = GetAnimationStartIndex();
+            var items = new List<IListingsListItem>();
+            for (int i = index; i < Math.Min(index + 8, CurrentBox.Items.Count); i++)
+                items.Add(CurrentBox.Items[i] as IListingsListItem);
+
             Storyboard sb = GetOutBackwardPageSB();
-            _animationTimer = new TimedItemAnimator(ToList<IListingsListItem>(CurrentBox.Items));
+            _animationTimer = new TimedItemAnimator(items);
             _animationTimer.ForEachItem += delegate(IListingsListItem item)
             {
                 GetOutBackwardItemSB(item).Begin();
@@ -497,6 +506,19 @@ namespace NotepadTheNextVersion.ListItems
                 }
             };
             sb.Begin();
+        }
+
+        private int GetAnimationStartIndex()
+        {
+            var currPosition = _currentViewer.VerticalOffset;
+            var index = -1;
+            var height = 0.0;
+            while (height < currPosition)
+            {
+                index++;
+                height += (CurrentBox.Items[index] as IListingsListItem).DesiredSize.Height;
+            }
+            return Math.Max(index, 0);
         }
 
         private static IList<T> ToList<T>(ItemCollection items)
