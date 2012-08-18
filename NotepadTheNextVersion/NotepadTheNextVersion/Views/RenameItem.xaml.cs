@@ -74,7 +74,7 @@ namespace NotepadTheNextVersion.ListItems
 
             if (newName.Equals(_actionable.DisplayName))
             {
-                NavigateOnSuccess(_actionable.IsTemp, _actionable);
+                NavigateOnSuccess(_actionable);
                 return;
             }
             else if (!FileUtils.IsValidFileName(newName, out badChars))
@@ -98,24 +98,34 @@ namespace NotepadTheNextVersion.ListItems
                 newName = (r == MessageBoxResult.OK) ? newName : newName.Substring(1);
             }
 
-            bool wasTemp = _actionable.IsTemp;
             try
             {
                 _actionable = _actionable.Rename(newName);
+                NavigateOnSuccess(_actionable);
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Notepad could not save the file with that filename. Please select a new name and try again.\n\nIf your filename includes any special characters or punctuation, please remove those characters.", "An error occurred", MessageBoxButton.OK);
-                return;
             }
-            NavigateOnSuccess(wasTemp, _actionable);
         }
 
-        private void NavigateOnSuccess(bool wasTemp, IActionable newIAct)
+        private void NavigateOnSuccess(IActionable act)
         {
-            newIAct.IsTemp = false;
-            if (wasTemp && newIAct.GetType() == typeof(Document))
-                newIAct.Open(NavigationService);
+            var prevPage = NavigationService.BackStack.ElementAt(NavigationService.BackStack.Count(delegate { return true; }) - 1);
+            act.IsTemp = false;
+            if (prevPage.Source.Equals(App.Listings))
+            {
+                NavigationService.GoBack();
+            }
+            else if (prevPage.Source.Equals(App.DocumentEditor))
+            {
+                act.Open(NavigationService);
+                NavigationService.RemoveBackEntry();
+            }
+            else if (prevPage.Source.Equals(App.AddNewItem))
+            {
+                act.Open(NavigationService);
+            }
             else
                 NavigationService.GoBack();
         }

@@ -111,6 +111,10 @@ namespace NotepadTheNextVersion.ListItems
                     Margin = new Thickness(12, 12, 0, 10),
                     RenderTransform = new CompositeTransform()
                 };
+                DocTitleBlock.Tap += delegate(object sender, System.Windows.Input.GestureEventArgs e)
+                {
+                    _doc.NavToRename(NavigationService);
+                };
                 DocStackPanel.Children.Add(DocTitleBlock);
             }
 
@@ -140,7 +144,7 @@ namespace NotepadTheNextVersion.ListItems
                 _foreground = SettingUtils.GetUserSetForegroundBrush();
 
                 LayoutRoot.Background = _background;
-                DocTitleBlock.Foreground = _foreground;
+                DocTitleBlock.Foreground = new SolidColorBrush(Colors.Gray);
                 DocTextBox.Background = _background;
                 DocTextBox.Foreground = _foreground;
                 DocTextBox.CaretBrush = CopyBrush(_foreground);
