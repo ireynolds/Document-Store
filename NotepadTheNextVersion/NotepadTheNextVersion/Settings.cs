@@ -189,7 +189,7 @@ namespace NotepadTheNextVersion
             }
             set
             {
-                AddOrUpdateValue(Setting.RootDirectoryName.Key(), value + ".dir");
+                AddOrUpdateValue(Setting.RootDirectoryName.Key(), value + FileUtils.DIRECTORY_EXTENSION);
                 Save();
             }
         }

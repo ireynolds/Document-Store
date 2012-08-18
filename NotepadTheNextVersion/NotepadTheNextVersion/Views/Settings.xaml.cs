@@ -7,6 +7,7 @@ using System.Windows.Media.Animation;
 using Microsoft.Phone.Controls;
 using NotepadTheNextVersion.Enumerations;
 using NotepadTheNextVersion.Utilities;
+using NotepadTheNextVersion.Models;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -126,16 +127,16 @@ namespace NotepadTheNextVersion.ListItems
 
             try
             {
-                using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-                {
-                    oldName = System.IO.Path.Combine(oldName + ".dir", "");
-                    newName = System.IO.Path.Combine(newName + ".dir", "");
+                oldName = System.IO.Path.Combine(oldName + FileUtils.DIRECTORY_EXTENSION, "");
+                newName = System.IO.Path.Combine(newName + FileUtils.DIRECTORY_EXTENSION, "");
 
-                    if (isf.DirectoryExists(newName))
-                        isf.DeleteDirectory(newName);
+                if (FileUtils.DirectoryExists(newName))
+                    (new Directory(new PathStr(newName))).Delete(true);
+                using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
+                {
                     isf.MoveDirectory(oldName, newName);
-                    _appSettings.AddOrUpdateValue(Setting.RootDirectoryName.Key(), newName);
                 }
+                _appSettings.AddOrUpdateValue(Setting.RootDirectoryName.Key(), newName);                    
             }
             catch (IsolatedStorageException)
             {

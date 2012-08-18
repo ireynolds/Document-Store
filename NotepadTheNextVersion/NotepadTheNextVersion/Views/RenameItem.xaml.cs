@@ -105,7 +105,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Notepad could not save the file with that filename. Please select a new name and try again.\n\nIf your filename includes any special characters or punctuation, please remove those characters.", "An error occurred", MessageBoxButton.OK);
+                return;
             }
         }
 
@@ -209,18 +209,15 @@ namespace NotepadTheNextVersion.ListItems
 
         private bool IsUniqueFileName(string name)
         {
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            if (_actionable is Document)
             {
-                if (_actionable.GetType() == typeof(Document))
-                {
-                    Models.PathStr newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Document);
-                    return !isf.FileExists(newPath.PathString);
-                }
-                else
-                {
-                    Models.PathStr newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Directory);
-                    return !isf.DirectoryExists(newPath.PathString);
-                }
+                Models.PathStr newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Document);
+                return !FileUtils.DocumentExists(newPath.PathString);
+            }
+            else
+            {
+                Models.PathStr newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Directory);
+                return !FileUtils.DirectoryExists(newPath.PathString);
             }
         }
 

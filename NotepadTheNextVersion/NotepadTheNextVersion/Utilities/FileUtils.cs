@@ -20,12 +20,54 @@ namespace NotepadTheNextVersion.Utilities
         public static readonly char[] InvalidFileNameChars = { };
 
         /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourcePath">Includes extensions.</param>
+        /// <param name="destinationPath">Includes extensions.</param>
+        /// <returns></returns>
+        public static void MoveDirectory(string sourcePath, string destinationPath)
+        {
+            using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                try
+                {
+                    isf.MoveDirectory(sourcePath, destinationPath);
+                }
+                catch (IsolatedStorageException ex)
+                {
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sourcePath">Includes extensions.</param>
+        /// <param name="destinationPath">Includes extensions.</param>
+        /// <returns></returns>
+        public static void MoveDocument(string sourcePath, string destinationPath)
+        {
+            using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                try
+                {
+                    isf.MoveFile(sourcePath, destinationPath);
+                }
+                catch (IsolatedStorageException ex)
+                {
+                    throw;
+                }
+            }
+        }
+
+        /// <summary>
         /// Creates a document with the given path in IsolatedStorage.
         /// </summary>
         /// <param name="parentPath">Includes extensions.</param>
         /// <param name="name">No extension.</param>
         /// <returns></returns>
-        private static Document CreateDocument(string parentPath, string name)
+        public static Document CreateDocument(string parentPath, string name)
         {
             using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
@@ -42,7 +84,7 @@ namespace NotepadTheNextVersion.Utilities
         /// <param name="parentPath">Includes extensions.</param>
         /// <param name="name">No extension.</param>
         /// <returns></returns>
-        private static Directory CreateDirectory(string parentPath, string name)
+        public static Directory CreateDirectory(string parentPath, string name)
         {
             using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
@@ -55,13 +97,12 @@ namespace NotepadTheNextVersion.Utilities
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="path">No extension.</param>
+        /// <param name="path">Include extensions.</param>
         /// <returns></returns>
         public static bool DirectoryExists(string path)
         {
             using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                path = path.Trim() + DIRECTORY_EXTENSION;
                 return isf.DirectoryExists(path);
             }
         }
@@ -69,13 +110,12 @@ namespace NotepadTheNextVersion.Utilities
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="path">No extension.</param>
+        /// <param name="path">Include extensions.</param>
         /// <returns></returns>
         public static bool DocumentExists(string path)
         {
             using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                path = path.Trim() + DOCUMENT_EXTENSION;
                 return isf.FileExists(path);
             }
         }
@@ -85,15 +125,18 @@ namespace NotepadTheNextVersion.Utilities
         /// </summary>
         /// <param name="newName">No extension.</param>
         /// <param name="currentName">Includes extension.</param>
+        /// <param name="parentDirectory">Includes extensions.</param>
         /// <returns></returns>
         public static bool IsUniqueFileName(string newName, string currentName, string parentDirectory)
         {
             if (FileUtils.IsDoc(currentName))
             {
+                newName += DOCUMENT_EXTENSION;
                 return !DocumentExists(System.IO.Path.Combine(parentDirectory, newName));
             }
             else if (FileUtils.IsDir(currentName))
             {
+                newName += DIRECTORY_EXTENSION;
                 return !DirectoryExists(System.IO.Path.Combine(parentDirectory, newName));
             }
             else
@@ -139,28 +182,41 @@ namespace NotepadTheNextVersion.Utilities
         }
 
         /// <summary>
-        /// Returns a new filename, {n}, of the form "name ($i)" such that {n} is not an existing 
-        /// directory in parent (parameter) and {n} is not a file in parent (parameter).
+        /// 
         /// </summary>
-        /// <param name="name"></param>
-        /// <param name="parent"></param>
-        /// <returns></returns>
-        public static string GetNumberedName(string name, Directory parent)
+        /// <param name="baseName">No extension.</param>
+        /// <param name="parentPath">Includes extensions.</param>
+        /// <returns>Includes extensions.</returns>
+        public static string GetNumberedDocumentPath(string baseName, string parentPath)
         {
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            var original = System.IO.Path.Combine(parentPath, baseName);
+            var result = original;
+            var ct = 1;
+            while (DocumentExists(result + DOCUMENT_EXTENSION))
             {
-                if (!isf.FileExists(parent.Path.NavigateIn(name, ItemType.Document).PathString) &&
-                    !isf.DirectoryExists(parent.Path.NavigateIn(name, ItemType.Directory).PathString))
-                    return name;
-                
-                int count = 1;
-                while (isf.FileExists(parent.Path.NavigateIn(String.Format("{0} ({1})", name, count), ItemType.Document).PathString) ||
-                       isf.DirectoryExists(parent.Path.NavigateIn(String.Format("{0} ({1})", name, count), ItemType.Directory).PathString))
-                {
-                    count++;
-                }
-                return String.Format("{0} ({1})", name, count);
+                result = String.Format(original + " ({0})", ct);
+                ct++;
             }
+            return result + DOCUMENT_EXTENSION;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseName">No extension.</param>
+        /// <param name="parentPath">Includes extensions.</param>
+        /// <returns>Includes extensions.</returns>
+        public static string GetNumberedDirectoryPath(string baseName, string parentPath)
+        {
+            var original = System.IO.Path.Combine(parentPath, baseName);
+            var result = original;
+            var ct = 1;
+            while (DirectoryExists(result + DIRECTORY_EXTENSION))
+            {
+                result = String.Format(original + " ({0})", ct);
+                ct++;
+            }
+            return result + DIRECTORY_EXTENSION;
         }
 
         /// <summary>

@@ -56,7 +56,7 @@ namespace NotepadTheNextVersion.Utilities
         /// <returns></returns>
         public static IActionable CreateActionableFromPath(Models.PathStr p)
         {
-            if (p.Name.EndsWith(".doc"))
+            if (FileUtils.IsDoc(p.PathString))
                 return new Document(p);
             else
                 return new Directory(p);

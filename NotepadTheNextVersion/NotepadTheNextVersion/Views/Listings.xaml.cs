@@ -130,6 +130,8 @@ namespace NotepadTheNextVersion.ListItems
         protected override void OnNavigatingFrom(System.Windows.Navigation.NavigatingCancelEventArgs e)
         {
             base.OnNavigatingFrom(e);
+            RemoveNotice(Notice.Empty);
+            RemoveNotice(Notice.Loading);
             Root.Opacity = 0;
         }
 

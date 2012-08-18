@@ -65,8 +65,7 @@ namespace NotepadTheNextVersion.ListItems
             base.OnNavigatedFrom(e);
             if (_doc.IsTemp && _shouldRemoveBackEntry)
             {
-                IActionable a = _doc.Delete(); // -> trash
-                a.Delete(); // permanent
+                _doc.Delete(true);
                 NavigationService.RemoveBackEntry();
             }
             else

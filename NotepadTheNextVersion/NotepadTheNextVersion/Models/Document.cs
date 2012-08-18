@@ -121,18 +121,26 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable Move(Directory newParent)
         {
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            var newLocation = new Document(newParent.Path.NavigateIn(Name));
+            if (FileUtils.DocumentExists(newLocation.Path.PathString))
             {
-                PathStr newLoc = newParent.Path.NavigateIn(Name, ItemType.Default);
-                if (isf.FileExists(newLoc.PathString))
-                    throw new ActionableException(this);
-                    
-                isf.MoveFile(_path.PathString, newLoc.PathString);
-                Document newDoc = new Document(newLoc);
-                if (this.IsFavorite)
-                    newDoc.IsFavorite = true;
-                return newDoc;
+                MessageBox.Show("A document with the specified name already exists.", "An error occurred", MessageBoxButton.OK);
+                return null;
             }
+
+            
+            try
+            {
+                FileUtils.MoveDocument(Path.PathString, newLocation.Path.PathString);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Notepad could not move the document. There may be an existing document at the specified destination.", "An error occurred", MessageBoxButton.OK);
+                return null;
+            }
+            if (IsFavorite)
+                newLocation.IsFavorite = true;
+            return newLocation;
         }
 
         public void NavToRename(NavigationService NavigationService)
@@ -143,24 +151,31 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable Rename(string newFileName)
         {
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            PathStr newLocation = Path.Parent.NavigateIn(newFileName, ItemType.Directory);
+            if (FileUtils.DocumentExists(newLocation.PathString))
             {
-                PathStr newLoc = Path.Parent.NavigateIn(newFileName, ItemType.Document);
-                if (isf.FileExists(newLoc.PathString))
-                    throw new ActionableException(this);
-
-                isf.MoveFile(Path.PathString, newLoc.PathString);
-                isf.DeleteFile(this.Path.PathString);
-                Document newDoc = new Document(newLoc);
-                if (this.IsFavorite)
-                    newDoc.IsFavorite = true;
-                return newDoc;
+                MessageBox.Show("A directory with the specified name already exists.", "An error occurred", MessageBoxButton.OK);
+                throw new IsolatedStorageException();
             }
+
+            try
+            {
+                FileUtils.MoveDocument(Path.PathString, newLocation.PathString);
+            }
+            catch (IsolatedStorageException ex)
+            {
+                MessageBox.Show("Notepad could not rename the file. There may be illegal characters in the specified name.\n\nIf applicable, remove any special characters or punctuation in the name.", "An error occurred", MessageBoxButton.OK);
+                throw;
+            }
+            var newDoc = new Document(newLocation);
+            if (IsFavorite)
+                FileUtils.ReplaceFavorite(this, newDoc);
+            return newDoc;
         }
 
-        public IActionable Delete()
+        public IActionable Delete(bool permanently = false)
         {
-            if (isTrash)
+            if (isTrash || permanently)
             {
                 using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
@@ -175,7 +190,14 @@ namespace NotepadTheNextVersion.Models
                 if (newLoc.Exists())
                     newLoc.Delete();
 
-                this.Move(trash);
+                try
+                {
+                    this.Move(trash);
+                }
+                catch
+                {
+                    return null;
+                }
                 this.IsFavorite = false;
                 return newLoc;
             }

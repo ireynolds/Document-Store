@@ -81,7 +81,7 @@ namespace NotepadTheNextVersion.Models
         /// <returns>
         /// If the item was moved to trash, returns the new item. If it was deleted from trash, return null.
         /// </returns>
-        IActionable Delete();
+        IActionable Delete(bool permanently = false);
 
         /// <summary>
         /// If this is pinned to the start screen, unpins this. If this is not pinned, pins this.

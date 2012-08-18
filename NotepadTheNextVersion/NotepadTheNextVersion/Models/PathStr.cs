@@ -94,7 +94,7 @@ namespace NotepadTheNextVersion.Models
                     _path = SettingUtils.GetSetting<string>(Setting.RootDirectoryName);
                     break;
                 case PathBase.Trash:
-                    _path = "trash.dir";
+                    _path = "trash" + FileUtils.DIRECTORY_EXTENSION;
                     break;
                 default:
                     throw new Exception();
@@ -107,10 +107,10 @@ namespace NotepadTheNextVersion.Models
                 switch (type)
                 {
                     case ItemType.Directory:
-                        name += ".dir";
+                        name += FileUtils.DIRECTORY_EXTENSION;
                         break;
                     case ItemType.Document:
-                        name += ".doc";
+                        name += FileUtils.DOCUMENT_EXTENSION;
                         break;
                 }
 

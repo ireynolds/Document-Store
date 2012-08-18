@@ -43,30 +43,21 @@ namespace NotepadTheNextVersion.ListItems
         #region Event Handlers
 
         private void Dir_Tap(object sender, System.Windows.Input.GestureEventArgs e)
-        {            
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                // Create a temporary directory that will be renamed in the new window
-                string tempName = FileUtils.GetNumberedName("Untitled", new Models.Directory(_currentDirectory.Path));
-                Directory newDirectory = new Directory(_currentDirectory, tempName) { IsTemp = true };
-                isf.CreateDirectory(newDirectory.Path.PathString);
-
-                newDirectory.NavToRename(NavigationService);
-            }
+        {    
+            // Create a temporary directory that will be renamed in the new window
+            string tempPath = FileUtils.GetNumberedDirectoryPath("Untitled", _currentDirectory.Path.PathString);
+            Directory newDirectory = new Directory(new PathStr(tempPath)) { IsTemp = true };
+            FileUtils.CreateDirectory(newDirectory.Path.Parent.PathString, newDirectory.DisplayName);
+            newDirectory.NavToRename(NavigationService);
         }
 
         private void Doc_Tap(object sender, System.Windows.Input.GestureEventArgs e)
         {
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                // Create a temporary document that will be renamed in the next window
-                string tempName = FileUtils.GetNumberedName("Untitled", new Models.Directory(_currentDirectory.Path));
-                Document newDocument = new Document(_currentDirectory, tempName) { IsTemp = true };
-                IsolatedStorageFileStream fs = isf.CreateFile(newDocument.Path.PathString);
-                fs.Close();
-
-                newDocument.NavToRename(NavigationService);
-            }
+            // Create a temporary document that will be renamed in the next window
+            string tempPath = FileUtils.GetNumberedDocumentPath("Untitled", _currentDirectory.Path.PathString);
+            Document newDocument = new Document(new PathStr(tempPath)) { IsTemp = true };
+            FileUtils.CreateDocument(newDocument.Path.Parent.PathString, newDocument.DisplayName);
+            newDocument.NavToRename(NavigationService);
         }
 
         #endregion

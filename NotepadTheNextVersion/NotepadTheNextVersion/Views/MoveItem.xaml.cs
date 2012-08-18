@@ -118,19 +118,22 @@ namespace NotepadTheNextVersion.ListItems
 
         private void TryMoveItem(IActionable a, Directory newParent)
         {
-            var newLocation = new Directory(newParent.Path.NavigateIn(a.Name));
+            var newLocation = Utils.CreateActionableFromPath(new PathStr(newParent.Path.NavigateIn(a.Name)));
             if (newLocation.Exists())
             {
-                MessageBoxResult r = MessageBox.Show("There is already a document or directory with the same name at this " +
-                    "location. Tap OK to overwrite this item, or Cancel to skip it.", a.DisplayName, MessageBoxButton.OKCancel);
+                MessageBoxResult r = MessageBox.Show("There is already an item with the same name at the specified destination. Tap OK to overwrite the existing item, or Cancel to skip this item.", a.DisplayName, MessageBoxButton.OKCancel);
                 if (r != MessageBoxResult.OK)
                     return;
-
-                newLocation = (Directory)newLocation.Delete(); // to trash
-                newLocation.Delete(); // permanent
+                newLocation.Delete(true);
             }
-
-            a.Move(newParent);
+            try
+            {
+                a.Move(newParent);
+            }
+            catch (Exception ex)
+            {
+                return;
+            }
         }
 
         #endregion

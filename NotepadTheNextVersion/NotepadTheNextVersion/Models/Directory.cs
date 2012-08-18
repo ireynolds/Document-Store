@@ -103,17 +103,25 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable Move(Directory newParent) 
         {
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            var newLocation = new Directory(newParent.Path.NavigateIn(Name));
+            if (FileUtils.DirectoryExists(newLocation.Path.PathString))
             {
-                Directory newLocation = new Directory(newParent.Path.NavigateIn(Name, ItemType.Default));
-                if (isf.DirectoryExists(newLocation.Path.PathString))
-                    throw new ActionableException(this);
-
-                isf.MoveDirectory(Path.PathString, newLocation.Path.PathString);
-                if (this.IsFavorite)
-                    newLocation.IsFavorite = true;
-                return newLocation;
+                MessageBox.Show("A directory with the specified name already exists.", "An error occurred", MessageBoxButton.OK);
+                return null;
             }
+            
+            try
+            {
+                FileUtils.MoveDirectory(Path.PathString, newLocation.Path.PathString);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Notepad could not move the directory. There may be an existing directory at the specified destination.", "An error occurred", MessageBoxButton.OK);
+                return null;
+            }
+            if (IsFavorite)
+                newLocation.IsFavorite = true;
+            return newLocation;
         }  
 
         public void NavToRename(NavigationService NavigationService)
@@ -124,24 +132,31 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable Rename(string newDirectoryName)
         {
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            PathStr newLocation = Path.Parent.NavigateIn(newDirectoryName, ItemType.Directory);
+            if (FileUtils.DirectoryExists(newLocation.PathString))
             {
-                PathStr newLoc = Path.Parent.NavigateIn(newDirectoryName, ItemType.Directory);
-                if (isf.DirectoryExists(newLoc.PathString))
-                    throw new ActionableException(this);
-
-                isf.MoveDirectory(Path.PathString, newLoc.PathString);
-                isf.DeleteFile(this.Path.PathString);
-                Directory newDir = new Directory(newLoc);
-                if (this.IsFavorite)
-                    FileUtils.ReplaceFavorite(this, newDir);
-                return newDir;
+                MessageBox.Show("A directory with the specified name already exists.", "An error occurred", MessageBoxButton.OK);
+                return null;
             }
+
+            try
+            {
+                FileUtils.MoveDirectory(Path.PathString, newLocation.PathString);
+            }
+            catch (IsolatedStorageException ex)
+            {
+                MessageBox.Show("Notepad could not rename the directory. There may be illegal characters in the specified name.\n\nIf applicable, remove any special characters or punctuation in the name.", "An error occurred", MessageBoxButton.OK);
+                return null;
+            }
+            Directory newDir = new Directory(newLocation);
+            if (IsFavorite)
+                FileUtils.ReplaceFavorite(this, newDir);
+            return newDir;
         }
 
-        public IActionable Delete()
+        public IActionable Delete(bool permanently = false)
         {
-            if (isTrash)
+            if (isTrash || permanently)
             {
                 using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
@@ -156,7 +171,14 @@ namespace NotepadTheNextVersion.Models
                 if (newLoc.Exists())
                     newLoc.Delete();
 
-                this.Move(trash);
+                try
+                {
+                    this.Move(trash);
+                }
+                catch (Exception ex)
+                {
+                    return null;
+                }
                 this.IsFavorite = false;
                 return newLoc;
             }
@@ -183,10 +205,7 @@ namespace NotepadTheNextVersion.Models
 
         public bool Exists()
         {
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                return isf.DirectoryExists(Path.PathString);
-            }
+            return FileUtils.DirectoryExists(Path.PathString);
         }
 
         public IActionable SwapRoot()

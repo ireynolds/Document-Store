@@ -31,14 +31,10 @@ namespace NotepadTheNextVersion
         private Document CreateTempFile()
         {
             Directory root = new Directory(PathBase.Root);
-            string name = FileUtils.GetNumberedName("Temp", root);
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-            {
-                Document d = new Document(root.Path.NavigateIn(name, ItemType.Document)) { IsTemp = true };
-                IsolatedStorageFileStream f = isf.CreateFile(d.Path.PathString);
-                f.Close();
-                return d;
-            }
+            string path = FileUtils.GetNumberedDocumentPath("Temp", root.Path.PathString);
+            var doc = new Document(new PathStr(path)) { IsTemp = true };
+            FileUtils.CreateDocument(doc.Path.Parent.PathString, doc.DisplayName);
+            return doc;
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
