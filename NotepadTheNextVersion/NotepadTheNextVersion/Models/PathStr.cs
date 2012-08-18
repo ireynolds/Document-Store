@@ -72,10 +72,7 @@ namespace NotepadTheNextVersion.Models
         {
             get
             {
-                if (_path.Contains("\\"))
-                    return _path.Substring(0, _path.IndexOf('\\')).Equals("trash.dir");
-                else
-                    return _path.Equals("trash.dir");
+                return _path.StartsWith("trash");
             }
         }
 

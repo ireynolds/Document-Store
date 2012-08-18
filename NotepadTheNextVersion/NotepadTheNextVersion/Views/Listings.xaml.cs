@@ -28,8 +28,8 @@ namespace NotepadTheNextVersion.ListItems
         private PageMode _pageMode;
         private IList<IListingsListItem> _items;
         private IList<IListingsListItem> _faves;
-        private bool _isShowingEmptyNotice { get { return _currentGrid.Children.Contains(_emptyNotice); } }
-        private bool _isShowingLoadingNotice { get { return _currentGrid.Children.Contains(_loadingNotice); } }
+        private bool _isShowingEmptyNotice;
+        private bool _isShowingLoadingNotice;
         private TimedItemAnimator _animationTimer;
 
         private StackPanel _pathPanel;
@@ -397,7 +397,7 @@ namespace NotepadTheNextVersion.ListItems
                 CurrentBox.Items.Clear();
                 _curr = destination;
                 UpdateItems(null);
-                        
+
                 GetInForwardPageSB(destination).Begin();
                 if (_animationTimer != null)
                     _animationTimer.Stop();
@@ -580,6 +580,11 @@ namespace NotepadTheNextVersion.ListItems
                 foreach (var item in _items)
                     item.IsSelectable = true;
 
+            if (_items.Count == 0)
+                ShowNotice(Notice.Empty);
+            else
+                RemoveNotice(Notice.Empty);
+
             if (Completed != null)
                 Completed(null, null);
         }
@@ -604,18 +609,20 @@ namespace NotepadTheNextVersion.ListItems
         {
             if (notice == Notice.Empty)
             {
-                if (_emptyNotice == null)
-                {
-                    _emptyNotice = CreateNoticeBlock(notice.GetText());
-                }
+                RemoveNotice(Notice.Empty);
+                _emptyNotice = CreateNoticeBlock(string.Empty);
+                _isShowingEmptyNotice = true;
+                if (_curr.Path.IsInTrash)
+                    _emptyNotice.Text = "Trash is currently empty.";
+                else
+                    _emptyNotice.Text = notice.GetText();
                 _currentGrid.Children.Add(_emptyNotice);
             }
             else if (notice == Notice.Loading)
             {
-                if (_loadingNotice == null)
-                {
-                    _loadingNotice = CreateNoticeBlock(notice.GetText());
-                }
+                RemoveNotice(Notice.Loading);
+                _loadingNotice = CreateNoticeBlock(notice.GetText());
+                _isShowingLoadingNotice = true;
                 _currentGrid.Children.Add(_loadingNotice);
             }
             else
@@ -627,10 +634,12 @@ namespace NotepadTheNextVersion.ListItems
             switch (notice)
             {
                 case Notice.Empty:
-                    _currentGrid.Children.Remove(_emptyNotice);
+                    _allGrid.Children.Remove(_emptyNotice);
+                    _isShowingEmptyNotice = false;
                     break;
                 case Notice.Loading:
-                    _currentGrid.Children.Remove(_loadingNotice);
+                    _allGrid.Children.Remove(_loadingNotice);
+                    _isShowingLoadingNotice = false;
                     break;
                 default:
                     throw new Exception("Unrecognized enum type");
@@ -769,6 +778,7 @@ namespace NotepadTheNextVersion.ListItems
                     foreach (var item in deletedItems)
                         CurrentBox.Items.Remove(item);
                 };
+                ShowNotice(Notice.Empty);
                 return;
             }
 
