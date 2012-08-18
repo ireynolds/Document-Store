@@ -21,6 +21,7 @@ namespace NotepadTheNextVersion.ListItems
 {
     public partial class Search : PhoneApplicationPage
     {
+        private TextBlock _title;
         private WatermarkedTextBox _searchTermBox;
         private IList<SearchResultListItem> _items;
         private Dictionary<string, List<SearchResultListItem>> _previousResults;
@@ -38,11 +39,12 @@ namespace NotepadTheNextVersion.ListItems
             _previousResults = new Dictionary<string, List<SearchResultListItem>>();
             this.Loaded += new RoutedEventHandler(Search_Loaded);
             _lastPattern = string.Empty;
+            LayoutRoot.RenderTransform = new CompositeTransform();
+            LayoutRoot.Opacity = 0;
         }
 
         private void Search_Loaded(object sender, RoutedEventArgs e)
         {
-            _searchTermBox.Focus();
             this.Loaded -= new RoutedEventHandler(Search_Loaded);
         }
 
@@ -57,6 +59,11 @@ namespace NotepadTheNextVersion.ListItems
             if (LayoutRoot.Children.Count == 0)
                 UpdateView();
             ContentBox.SelectedIndex = -1;
+
+            Storyboard sb = new Storyboard();
+            sb.Children.Add(AnimationUtils.TranslateY(350, 0, 250, LayoutRoot));
+            sb.Children.Add(AnimationUtils.FadeIn(150, LayoutRoot));
+            sb.Begin();
         }
 
         private void UpdateView()
@@ -66,17 +73,18 @@ namespace NotepadTheNextVersion.ListItems
             Grid.SetRow(StaticUIPanel, 0);
             LayoutRoot.Children.Add(StaticUIPanel);
 
-            TextBlock PageTitle = new TextBlock()
+            _title = new TextBlock()
             {
                 Style = (Style)App.Current.Resources["PhoneTextNormalStyle"],
                 Margin = new Thickness(12, 0, 0, 0),
                 Text = "DOCUMENT SEARCH"
             };
-            StaticUIPanel.Children.Add(PageTitle);
+            StaticUIPanel.Children.Add(_title);
 
             _searchTermBox = new WatermarkedTextBox("search your documents");
             _searchTermBox.InputScope = GetSearchInputScope();
             _searchTermBox.TextChanged += new TextChangedEventHandler(_searchTermBox_TextChanged);
+            _searchTermBox.KeyUp += new KeyEventHandler(_searchTermBox_KeyUp);
             StaticUIPanel.Children.Add(_searchTermBox);
 
             ContentBox = new ListBox();
@@ -86,23 +94,41 @@ namespace NotepadTheNextVersion.ListItems
             LayoutRoot.Children.Add(ContentBox);
         }
 
-        void ContentBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void _searchTermBox_KeyUp(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Enter)
+                _searcher.SetNextSearchPattern(_searchTermBox.Text);
+        }
+
+        private void ContentBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (ContentBox.SelectedIndex == -1)
                 return;
-            (ContentBox.SelectedItem as SearchResultListItem).Source.Open(NavigationService);
+            NavigateAway(() => (ContentBox.SelectedItem as SearchResultListItem).Source.Open(NavigationService));
         }
 
-        void _searchTermBox_TextChanged(object sender, TextChangedEventArgs e)
+        private void NavigateAway(Action Navigation)
         {
-            if (!_searchTermBox.HasUserSetText)
-                return;
+            var sb = new Storyboard();
+            sb.Children.Add(AnimationUtils.FadeOut(150, LayoutRoot));
+            sb.Children.Add(AnimationUtils.TranslateY(0, 350, 250, LayoutRoot));
+            sb.Completed += (object sender, EventArgs e) => Navigation();
+            sb.Begin();
+        }
 
+        private void _searchTermBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
             string pattern = _searchTermBox.Text;
-            if (StringUtils.EqualsIgnoreCase(_lastPattern, pattern))
+            if (!_searchTermBox.HasUserSetText || 
+                StringUtils.EqualsIgnoreCase(_lastPattern, pattern))
                 return;
-            _lastPattern = pattern;
+            if (pattern.Length < 2)
+            {
+                ContentBox.Items.Clear();
+                return;
+            }
 
+            _lastPattern = pattern;
             if (_previousResults.ContainsKey(pattern))
                 SetResultsPane(_previousResults[pattern]);
             else
@@ -116,7 +142,8 @@ namespace NotepadTheNextVersion.ListItems
             for (int i = 0; i < results.Count; i++)
                 uiResults.Add(new SearchResultListItem(results[i]));
             SetResultsPane(uiResults);
-            _previousResults.Add(pattern, uiResults);
+            if (!_previousResults.ContainsKey(pattern))
+                _previousResults.Add(pattern, uiResults);
         }
 
         private void DisplayEmptyNotice()
@@ -141,7 +168,7 @@ namespace NotepadTheNextVersion.ListItems
                 Text = Text,
                 Foreground = new SolidColorBrush(Colors.Gray),
                 TextWrapping = TextWrapping.Wrap,
-                Margin = new Thickness(12, 0, 12, 0),
+                Margin = new Thickness(24, 12, 24, 0),
                 FontSize = 24
             };
             Grid.SetRow(tb, 1);

@@ -302,15 +302,11 @@ namespace NotepadTheNextVersion.ListItems
             Storyboard s = new Storyboard();
 
             // Swoop
-            Storyboard swoop = new Storyboard();
+            var swoop = AnimationUtils.SwoopSelected(SWOOP_DURATION, selectedItem.GetAnimatedItemReference());
             swoop.Completed += delegate(object sender, EventArgs e)
             {
                 selectedItem.Opacity = 0;
             };
-            Storyboard.SetTarget(swoop, selectedItem.GetAnimatedItemReference());
-
-            swoop.Children.Add(AnimationUtils.TranslateY(0, 80, SWOOP_DURATION, new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 3 }));
-            swoop.Children.Add(AnimationUtils.TranslateX(0, 350, SWOOP_DURATION, new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 4 }));
             s.Children.Add(swoop);
 
             // Fade out

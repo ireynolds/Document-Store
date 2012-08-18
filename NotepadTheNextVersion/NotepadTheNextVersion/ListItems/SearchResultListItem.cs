@@ -11,12 +11,15 @@ using System.Windows.Shapes;
 using System.Text.RegularExpressions;
 using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Models;
+using System.Collections.Generic;
 
 namespace NotepadTheNextVersion.ListItems
 {
     public class SearchResultListItem : StackPanel
     {
         private SearchResult _result;
+        private TextBlock _textBlock;
+        private TextBlock _titleBlock;
 
         public Document Source
         {
@@ -26,7 +29,19 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        private static readonly int CHARS_TO_INCLUDE = 40;
+        private static readonly int CHARS_TO_INCLUDE = 1000;
+        private static readonly int LINES_TO_DISPLAY = 3;
+
+        public UIElement GetAnimatedElement()
+        {
+            _titleBlock.RenderTransform = new CompositeTransform();
+            return _titleBlock;
+        }
+
+        public UIElement GetNonanimatedElement()
+        {
+            return _textBlock;
+        }
 
         public SearchResultListItem(SearchResult result)
         {
@@ -35,60 +50,118 @@ namespace NotepadTheNextVersion.ListItems
             this.Orientation = Orientation.Vertical;
             this.Margin = new Thickness(12, 0, 0, 20);
 
-            TextBlock TitleBlock = new TextBlock()
+            _titleBlock = new TextBlock() 
             {
-                Text = _result.SourceTitle,
                 FontSize = 42,
                 FontFamily = new FontFamily("Segoe WP SemiLight"),
                 Margin = new Thickness(0, 0, 0, 0)
             };
-            this.Children.Add(TitleBlock);
-
-            TextBlock TextBlock = new TextBlock();
-            TextBlock.Margin = new Thickness(0, 0, 0, 0);
-            if (_result.HasTextMatches)
+            if (_result.HasTitleMatches)
             {
-                foreach (Inline i in GetInlines())
-                    TextBlock.Inlines.Add(i);
+                foreach (Inline i in GetTitleInlines())
+                    _titleBlock.Inlines.Add(i);
             }
             else
             {
-                TextBlock.Text = _result.SourceText;
+                _titleBlock.Text = _result.SourceTitle;
+                _titleBlock.Foreground = new SolidColorBrush(Colors.Gray);
             }
-            this.Children.Add(TextBlock);
+            this.Children.Add(_titleBlock);
+
+            _textBlock = new TextBlock()
+            {
+                Margin = new Thickness(0, -3, 0, 0),
+                TextWrapping = TextWrapping.Wrap,
+                LineStackingStrategy = LineStackingStrategy.BlockLineHeight,
+                LineHeight = 23
+            };
+            _textBlock.MaxHeight = _textBlock.LineHeight * LINES_TO_DISPLAY;
+            if (_result.HasTextMatches)
+            {
+                foreach (Inline i in GetTextInlines())
+                    _textBlock.Inlines.Add(i);
+            }
+            else
+            {
+                _textBlock.Text = _result.SourceText;
+                _textBlock.Foreground = new SolidColorBrush(Colors.Gray);
+            }
+            this.Children.Add(_textBlock);
         }
 
-        private Inline[] GetInlines()
+
+
+        private IList<Inline> GetTextInlines()
         {
-            Inline[] inlines = new Inline[3];
+            var inlines = new List<Inline>();
 
             Match firstMatch = _result.TextMatches[0];
             string sourceText = _result.SourceText;
 
+            if (firstMatch.Index >= CHARS_TO_INCLUDE)
+            {
+                inlines.Add(new Run()
+                {
+                    Text = sourceText.Substring(0, CHARS_TO_INCLUDE),
+                    Foreground = new SolidColorBrush(Colors.Gray)
+                });
+            }
+            else
+            {
+                string prev = sourceText.Substring(0, firstMatch.Index);
+                inlines.Add(new Run()
+                {
+                    Text = prev,
+                    Foreground = new SolidColorBrush(Colors.Gray)
+                });
+
+                string match = firstMatch.Value;
+                inlines.Add(new Run()
+                {
+                    Text = match,
+                    Foreground = (Brush)App.Current.Resources["PhoneForegroundBrush"]
+                });
+
+                int startIndex = firstMatch.Index + firstMatch.Value.Length;
+                string after = sourceText.Substring(startIndex, sourceText.Length - startIndex);
+                inlines.Add(new Run()
+                {
+                    Text = after,
+                    Foreground = new SolidColorBrush(Colors.Gray)
+                });
+            }
+
+            return inlines;
+        }
+
+        private IList<Inline> GetTitleInlines()
+        {
+            var inlines = new List<Inline>();
+            Match firstMatch = _result.TitleMatches[0];
+            string sourceTitle = _result.SourceTitle;
             int startIndex = Math.Max(0, firstMatch.Index - CHARS_TO_INCLUDE);
-            string prev = sourceText.Substring(startIndex, firstMatch.Index - startIndex);
-            inlines[0] = new Run()
+            string prev = sourceTitle.Substring(startIndex, firstMatch.Index - startIndex);
+            inlines.Add(new Run()
             {
                 Text = prev,
                 Foreground = new SolidColorBrush(Colors.Gray)
-            };
+            });
 
             string match = firstMatch.Value;
-            inlines[1] = new Run()
+            inlines.Add(new Run()
             {
                 Text = match,
                 Foreground = (Brush)App.Current.Resources["PhoneForegroundBrush"]
-            };
+            });
 
             startIndex = firstMatch.Index + firstMatch.Value.Length;
-            int length = Math.Min(sourceText.Length - startIndex, CHARS_TO_INCLUDE);
-            string after = sourceText.Substring(startIndex, length);
-            inlines[2] = new Run()
+            int length = Math.Min(sourceTitle.Length - startIndex, CHARS_TO_INCLUDE);
+            string after = sourceTitle.Substring(startIndex, length);
+            inlines.Add(new Run()
             {
                 Text = after,
                 Foreground = new SolidColorBrush(Colors.Gray)
-            };
-
+            });
             return inlines;
         }
     }

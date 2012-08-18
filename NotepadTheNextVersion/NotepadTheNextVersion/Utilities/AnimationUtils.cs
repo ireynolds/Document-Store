@@ -14,6 +14,14 @@ namespace NotepadTheNextVersion.Utilities
 {
     public static class AnimationUtils
     {
+        public static Storyboard SwoopSelected(int millis, UIElement target = null)
+        {
+            var swoop = new Storyboard();
+            swoop.Children.Add(TranslateY(0, 80, millis, new ExponentialEase() { EasingMode = EasingMode.EaseOut, Exponent = 3 }, target));
+            swoop.Children.Add(TranslateX(0, 350, millis, new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 4 }, target));
+            return swoop;
+        }
+
         /// <summary>
         /// 
         /// </summary>

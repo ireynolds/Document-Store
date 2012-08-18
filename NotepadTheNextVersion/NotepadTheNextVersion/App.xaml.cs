@@ -172,9 +172,9 @@ namespace NotepadTheNextVersion
                     isf.CreateDirectory("trash.dir");
             }
 
-            //// Add test data
-            //using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
-            //{
+            // Add test data
+            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            {
             //    IsolatedStorageFileStream s1 = isf.CreateFile(rootName + "/new1.doc");
             //    s1.Close();
             //    IsolatedStorageFileStream s2 = isf.CreateFile(rootName + "/new2.doc");
@@ -183,8 +183,8 @@ namespace NotepadTheNextVersion
             //    isf.CreateDirectory(rootName + "/Dir2.dir");
             //    isf.CreateDirectory(rootName + "/Dir1.dir/SubDir1.dir");
             //    isf.CreateDirectory(rootName + "/Dir2.dir/SubDir2.dir");
-            //    WriteFiles(new string[] { "FileDir1.dir", "FileDir2.dir" });
-            //}
+                WriteFiles(new string[] { "FileDir1.dir", "FileDir2.dir" });
+            }
         }
 
         // Code to execute when the application is activated (brought to foreground)

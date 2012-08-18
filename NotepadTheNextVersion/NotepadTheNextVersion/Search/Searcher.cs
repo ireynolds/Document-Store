@@ -127,7 +127,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             string pattern = (string)((object[])e.Result)[0];
             List<SearchResult> results = (List<SearchResult>)((object[])e.Result)[1];
-            if (_next != null)
+            if (_next != null && !_worker.IsBusy)
             {
                 _worker.RunWorkerAsync(_next);
                 _next = null;
