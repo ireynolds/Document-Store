@@ -69,33 +69,53 @@ namespace NotepadTheNextVersion.ListItems
 
         private void IconButton_Okay_Click(object sender, EventArgs e)
         {
-            // Ensure the filename is good.
-            string newName = NewNameBox.Text.Trim();
-            IList<string> badCharsInName = new List<string>();
-            if (!FileUtils.IsValidFileName(newName, out badCharsInName))
+            var newName = NewNameBox.Text.Trim();
+            IList<string> badChars = new List<string>();
+
+            if (newName.Equals(_actionable.DisplayName))
             {
-                AlertUserBadChars(badCharsInName);
+                NavigateOnSuccess(_actionable.IsTemp, _actionable);
                 return;
             }
-            if (!IsUniqueFileName(newName) && !_actionable.DisplayName.Equals(newName))
+            else if (!FileUtils.IsValidFileName(newName, out badChars))
             {
-                AlertUserDuplicateName();
+                MessageBox.Show("You used the following invalid characters: " + badChars.ToString(), "Invalid characters", MessageBoxButton.OK);
                 return;
             }
-            if (newName.StartsWith("."))
+            else if (!FileUtils.IsUniqueFileName(newName, _actionable.Name, _actionable.Path.Parent.PathString))
             {
-                AlertUserDotFile();
+                MessageBox.Show("An item with the same name already exists in that location.\n\nNote that names are case-insensitive.", "Invalid name", MessageBoxButton.OK);
                 return;
+            }
+            else if (newName.Equals("."))
+            {
+                MessageBox.Show("The name \".\" is an invalid file name.", "Invalid name", MessageBoxButton.OK);
+                return;
+            }
+            else if (newName.StartsWith("."))
+            {
+                var r = MessageBox.Show("Items whose names start with '.' are hidden. You can disable this feature in settings.", "Hidden file", MessageBoxButton.OKCancel);
+                newName = (r == MessageBoxResult.OK) ? newName : newName.Substring(1);
             }
 
-            // Rename the item
             bool wasTemp = _actionable.IsTemp;
-            if (!_actionable.DisplayName.Equals(newName))
+            try
+            {
                 _actionable = _actionable.Rename(newName);
-            _actionable.IsTemp = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Notepad could not save the file with that filename. Please select a new name and try again.\n\nIf your filename includes any special characters or punctuation, please remove those characters.", "An error occurred", MessageBoxButton.OK);
+                return;
+            }
+            NavigateOnSuccess(wasTemp, _actionable);
+        }
 
-            if (wasTemp && _actionable.GetType() == typeof(Document))
-                _actionable.Open(NavigationService);
+        private void NavigateOnSuccess(bool wasTemp, IActionable newIAct)
+        {
+            newIAct.IsTemp = false;
+            if (wasTemp && newIAct.GetType() == typeof(Document))
+                newIAct.Open(NavigationService);
             else
                 NavigationService.GoBack();
         }

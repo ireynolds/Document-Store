@@ -14,17 +14,123 @@ namespace NotepadTheNextVersion.Utilities
 {
     public static class FileUtils
     {
+        public const string DOCUMENT_EXTENSION = ".doc";
+        public const string DIRECTORY_EXTENSION = ".dir";
+
+        public static readonly char[] InvalidFileNameChars = { };
+
+        /// <summary>
+        /// Creates a document with the given path in IsolatedStorage.
+        /// </summary>
+        /// <param name="parentPath">Includes extensions.</param>
+        /// <param name="name">No extension.</param>
+        /// <returns></returns>
+        private static Document CreateDocument(string parentPath, string name)
+        {
+            using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                name = name.Trim() + DOCUMENT_EXTENSION;
+                var f = isf.CreateFile(System.IO.Path.Combine(parentPath, name));
+                f.Close();
+                return new Document(new PathStr(name));
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parentPath">Includes extensions.</param>
+        /// <param name="name">No extension.</param>
+        /// <returns></returns>
+        private static Directory CreateDirectory(string parentPath, string name)
+        {
+            using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                name = name.Trim() + DIRECTORY_EXTENSION;
+                isf.CreateDirectory(System.IO.Path.Combine(parentPath, name));
+                return new Directory(new PathStr(name));
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path">No extension.</param>
+        /// <returns></returns>
+        public static bool DirectoryExists(string path)
+        {
+            using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                path = path.Trim() + DIRECTORY_EXTENSION;
+                return isf.DirectoryExists(path);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path">No extension.</param>
+        /// <returns></returns>
+        public static bool DocumentExists(string path)
+        {
+            using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
+            {
+                path = path.Trim() + DOCUMENT_EXTENSION;
+                return isf.FileExists(path);
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newName">No extension.</param>
+        /// <param name="currentName">Includes extension.</param>
+        /// <returns></returns>
+        public static bool IsUniqueFileName(string newName, string currentName, string parentDirectory)
+        {
+            if (FileUtils.IsDoc(currentName))
+            {
+                return !DocumentExists(System.IO.Path.Combine(parentDirectory, newName));
+            }
+            else if (FileUtils.IsDir(currentName))
+            {
+                return !DirectoryExists(System.IO.Path.Combine(parentDirectory, newName));
+            }
+            else
+                throw new Exception();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path">Includes extension.</param>
+        /// <returns></returns>
+        public static bool IsDoc(string path)
+        {
+            return System.IO.Path.GetExtension(path).Equals(DOCUMENT_EXTENSION);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path">Includes extension.</param>
+        /// <returns></returns>
+        public static bool IsDir(string path)
+        {
+            return System.IO.Path.GetExtension(path).Equals(DIRECTORY_EXTENSION);
+        }
+
         /// <summary>
         /// Returns false if the name contains any invalid filename characters. The out 
         /// parameter contains a list of the bad chars.
         /// </summary>
         /// <param name="name">Name to check</param>
-        /// <param name="badCharsInName">List of invalid chars in name (if any)</param>
+        /// <param name="badCharsInName">List of invalid chars in name, or null if no errors</param>
         /// <returns></returns>
         public static bool IsValidFileName(string name, out IList<string> badCharsInName)
         {
             badCharsInName = new List<string>();
-            foreach (char ch in GetInvalidNameChars())
+            foreach (char ch in InvalidFileNameChars)
             {
                 if (name.Contains("" + ch))
                     badCharsInName.Add("" + ch);
@@ -89,21 +195,6 @@ namespace NotepadTheNextVersion.Utilities
         }
 
         /// <summary>
-        /// Returns an array containing all invalid path characters, as specified 
-        /// by System.IO.Path.GetInvalidPathChars() unioned with { '/', '\\' }.
-        /// </summary>
-        /// <returns></returns>
-        public static char[] GetInvalidNameChars()
-        {
-            // Get arrays of all invalid chars
-            List<char> invalidPathChars = new List<char>(System.IO.Path.GetInvalidPathChars());
-            char[] extraInvalidPathChars = new char[] { '/', '\\' };
-            foreach (char c in extraInvalidPathChars)
-                invalidPathChars.Add(c);
-            return invalidPathChars.ToArray();
-        }
-
-        /// <summary>
         /// Returns a list of all the directories (recursively) inside the given 
         /// pathbases. 
         /// </summary>
@@ -153,7 +244,7 @@ namespace NotepadTheNextVersion.Utilities
         }
 
         /// <summary>
-        /// Removes the favorite at the Path2 and adds a favorite at the newPath
+        /// Removes the favorite at the Path and adds a favorite at the newPath
         /// </summary>
         /// <param name="Path2"></param>
         /// <param name="newPath"></param>
