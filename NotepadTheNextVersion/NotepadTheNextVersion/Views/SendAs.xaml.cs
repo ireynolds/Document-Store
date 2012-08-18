@@ -64,8 +64,7 @@ namespace NotepadTheNextVersion.ListItems
 
             TextBlock email = new TextBlock();
             TextBlock sms = new TextBlock();
-
-            LayoutRoot.Margin = new Thickness(12, 0, 12, 0);
+            
             LayoutRoot.Children.Add(sms);
             LayoutRoot.Children.Add(email);
             LayoutRoot.Background = _background;
@@ -73,14 +72,14 @@ namespace NotepadTheNextVersion.ListItems
             email.Text = "email";
             email.FontSize = 50;
             email.Foreground = _foreground;
-            email.Margin = new Thickness(12, 0, 0, 0);
+            email.Margin = new Thickness(24, 12, 0, 0);
             email.FontFamily = new FontFamily("Segoe WP SemiLight");
             email.Tap += new EventHandler<System.Windows.Input.GestureEventArgs>(Email_Tap);
 
             sms.Text = "sms";
             sms.FontSize = 50;
             sms.Foreground = _foreground;
-            sms.Margin = new Thickness(12, 0, 0, 0);
+            sms.Margin = new Thickness(24, 0, 0, 0);
             sms.FontFamily = new FontFamily("Segoe WP SemiLight");
             sms.Tap += new EventHandler<System.Windows.Input.GestureEventArgs>(Sms_Tap);
         }

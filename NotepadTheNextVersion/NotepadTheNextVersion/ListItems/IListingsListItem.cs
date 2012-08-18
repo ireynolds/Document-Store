@@ -60,7 +60,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             get
             {
-                return (bool)_checkBox.IsChecked;
+                return _checkBox != null && (bool)_checkBox.IsChecked;
             }
             set
             {
@@ -73,7 +73,7 @@ namespace NotepadTheNextVersion.ListItems
             ActionableItem = a;
             this.Orientation = Orientation.Horizontal;
             this.RenderTransform = new CompositeTransform();
-
+            
             _contentPanel = new StackPanel();
             _contentPanel.Orientation = Orientation.Horizontal;
             this.Children.Add(_contentPanel);
