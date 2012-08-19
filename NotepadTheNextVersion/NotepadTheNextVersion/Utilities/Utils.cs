@@ -14,6 +14,7 @@ using Microsoft.Phone.Controls;
 using NotepadTheNextVersion.Enumerations;
 using NotepadTheNextVersion.ListItems;
 using NotepadTheNextVersion.Models;
+using System.Linq;
 
 namespace NotepadTheNextVersion.Utilities
 {
@@ -60,6 +61,23 @@ namespace NotepadTheNextVersion.Utilities
                 return new Document(p);
             else
                 return new Directory(p);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ItemPathString">Unescaped.</param>
+        /// <returns></returns>
+        public static ShellTile GetTile(string ItemPathString)
+        {
+            return ShellTile.ActiveTiles.FirstOrDefault(x =>
+                {
+                    var uri = x.NavigationUri.ToString();
+                    var index = uri.IndexOf('=');
+                    if (index != -1)
+                        return uri.Substring(index + 1).Equals(Uri.EscapeDataString(ItemPathString));
+                    return false;
+                });
         }
     }
 }

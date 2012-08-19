@@ -68,7 +68,10 @@ namespace NotepadTheNextVersion.Models
 
         public bool IsPinned
         {
-            get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(Uri.EscapeUriString(Path.PathString))) != null; }
+            get 
+            {
+                return Utils.GetTile(Path.PathString) != null; 
+            }
         }
 
         public PathStr Path
@@ -174,6 +177,8 @@ namespace NotepadTheNextVersion.Models
                 try
                 {
                     this.Move(trash);
+                    if (this.IsPinned)
+                        this.TogglePin();
                 }
                 catch (Exception ex)
                 {
@@ -187,7 +192,7 @@ namespace NotepadTheNextVersion.Models
         public void TogglePin()
         {
             // Import System.Linq to use "extension" methods
-            ShellTile currTile = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(Uri.EscapeUriString(Path.PathString)));
+            ShellTile currTile = Utils.GetTile(Path.PathString);
 
             if (currTile == null)
             {
@@ -234,7 +239,7 @@ namespace NotepadTheNextVersion.Models
 
         #region Private Helpers
 
-        private static void DeleteRecursive(PathStr dir, IsolatedStorageFile isf)
+        private void DeleteRecursive(PathStr dir, IsolatedStorageFile isf)
         {
             // Delete every subdirectory's contents recursively
             foreach (string subDir in isf.GetDirectoryNames(dir.PathString + "/*"))
@@ -242,7 +247,10 @@ namespace NotepadTheNextVersion.Models
             // Delete every file inside
             foreach (string file in isf.GetFileNames(dir.PathString + "/*"))
                 isf.DeleteFile(System.IO.Path.Combine(dir.PathString, file));
-            
+
+            var d = new Directory(dir);
+            if (d.Exists() && d.IsPinned)
+                d.TogglePin();
             isf.DeleteDirectory(dir.PathString);
         }
 

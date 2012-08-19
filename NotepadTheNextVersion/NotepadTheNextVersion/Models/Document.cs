@@ -74,7 +74,10 @@ namespace NotepadTheNextVersion.Models
 
         public bool IsPinned
         {
-            get { return ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(Uri.EscapeUriString(Path.PathString))) != null; }
+            get
+            {
+                return Utils.GetTile(Path.PathString) != null;
+            }
         }
 
         public PathStr Path
@@ -181,6 +184,8 @@ namespace NotepadTheNextVersion.Models
                 {
                     isf.DeleteFile(Path.PathString);
                 }
+                if (this.IsPinned)
+                    this.TogglePin();
                 return null;
             }
             else // if (!isTrash)
@@ -193,6 +198,8 @@ namespace NotepadTheNextVersion.Models
                 try
                 {
                     this.Move(trash);
+                    if (this.IsPinned)
+                        this.TogglePin();
                 }
                 catch
                 {
@@ -206,7 +213,7 @@ namespace NotepadTheNextVersion.Models
         public void TogglePin()
         {
             // Import System.Linq to use "extension" methods
-            ShellTile currTile = ShellTile.ActiveTiles.FirstOrDefault(x => x.NavigationUri.ToString().Contains(Uri.EscapeUriString(Path.PathString)));
+            var currTile = Utils.GetTile(Path.PathString);
 
             if (currTile == null)
             {

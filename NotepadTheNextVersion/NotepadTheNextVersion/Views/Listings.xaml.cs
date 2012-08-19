@@ -992,12 +992,6 @@ namespace NotepadTheNextVersion.ListItems
                 else if (Page.CurrentBox.SelectedItems.Count == 1)
                 {
                     IActionable selectedActionable = (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem;
-                    _appBar.Buttons.Clear();
-                    _appBar.Buttons.Add(DeleteButton);
-                    if (selectedActionable.IsFavorite)
-                        _appBar.Buttons.Add(UnfaveButton);
-                    else if (!selectedActionable.IsFavorite)
-                        _appBar.Buttons.Add(FaveButton);
                     SetAllEnabled(_appBar, true);
                     if (selectedActionable.IsPinned)
                         SetEnabledElements(false, new ButtonList(), new ItemList() { PinItem });
