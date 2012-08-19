@@ -397,6 +397,7 @@ namespace NotepadTheNextVersion.ListItems
                 UpdateItems(null);
 
                 int ct = 0;
+                _currentViewer.ScrollToVerticalOffset(0);
                 GetInForwardPageSB(destination).Begin();
                 if (_animationTimer != null)
                     _animationTimer.Stop();
@@ -438,6 +439,7 @@ namespace NotepadTheNextVersion.ListItems
                 _curr = destination;
                 UpdateItems(null);
 
+                _currentViewer.ScrollToVerticalOffset(0);
                 GetInBackwardPageSB().Begin();
                 if (_animationTimer != null)
                     _animationTimer.Stop();
@@ -467,6 +469,7 @@ namespace NotepadTheNextVersion.ListItems
                 _curr = curr;
                 UpdateItems(null);
 
+                _currentViewer.ScrollToVerticalOffset(0);
                 if (_animationTimer != null)
                     _animationTimer.Stop();
                 _animationTimer = new TimedItemAnimator(_items);
@@ -499,6 +502,7 @@ namespace NotepadTheNextVersion.ListItems
                 _curr = destination;
                 UpdateItems(null);
 
+                _currentViewer.ScrollToVerticalOffset(0);
                 GetNavToSB(destination).Begin();
                 foreach (var item in _items)
                 {
