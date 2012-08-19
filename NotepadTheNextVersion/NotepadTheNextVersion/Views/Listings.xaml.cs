@@ -388,6 +388,9 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateIn(IListingsListItem selectedItem)
         {
+            if (_animationTimer != null)
+                _animationTimer.Stop();
+
             Directory destination = selectedItem.ActionableItem as Directory;
             Storyboard sb = GetOutForwardPageSB(selectedItem);
             sb.Completed += delegate(object sender, EventArgs e)
@@ -399,8 +402,6 @@ namespace NotepadTheNextVersion.ListItems
                 int ct = 0;
                 _currentViewer.ScrollToVerticalOffset(0);
                 GetInForwardPageSB(destination).Begin();
-                if (_animationTimer != null)
-                    _animationTimer.Stop();
                 _animationTimer = new TimedItemAnimator(_items);
                 _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
@@ -422,6 +423,9 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateBack(Directory destination)
         {
+            if (_animationTimer != null)
+                _animationTimer.Stop();
+
             int index = GetAnimationStartIndex();
             var items = new List<IListingsListItem>();
             for (int i = index; i < Math.Min(index + 8, CurrentBox.Items.Count); i++)
@@ -441,8 +445,6 @@ namespace NotepadTheNextVersion.ListItems
 
                 _currentViewer.ScrollToVerticalOffset(0);
                 GetInBackwardPageSB().Begin();
-                if (_animationTimer != null)
-                    _animationTimer.Stop();
                 _animationTimer = new TimedItemAnimator(_items);
                 _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
@@ -462,6 +464,9 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateTo(Directory curr)
         {
+            if (_animationTimer != null)
+                _animationTimer.Stop();
+
             CurrentBox.Items.Clear();
             Storyboard sb = GetNavToSB(curr);
             sb.Completed += delegate(object sender, EventArgs e)
@@ -470,8 +475,6 @@ namespace NotepadTheNextVersion.ListItems
                 UpdateItems(null);
 
                 _currentViewer.ScrollToVerticalOffset(0);
-                if (_animationTimer != null)
-                    _animationTimer.Stop();
                 _animationTimer = new TimedItemAnimator(_items);
                 _animationTimer.ForEachItem += delegate(IListingsListItem item)
                 {
