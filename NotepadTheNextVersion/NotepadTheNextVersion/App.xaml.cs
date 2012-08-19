@@ -218,8 +218,6 @@ namespace NotepadTheNextVersion
         // Code to execute on Unhandled Exceptions
         private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
         {
-            MessageBox.Show(e.ExceptionObject.Message, "An error occurred", MessageBoxButton.OK);
-
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 // An unhandled exception has occurred; break into the debugger

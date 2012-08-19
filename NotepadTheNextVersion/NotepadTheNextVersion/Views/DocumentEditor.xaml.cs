@@ -50,13 +50,28 @@ namespace NotepadTheNextVersion.ListItems
             base.OnNavigatedFrom(e);
             if (_doc.IsTemp && _shouldRemoveBackEntry)
             {
-                _doc.Delete(true);
+                try
+                {
+                    _doc.Delete(true);
+                }
+                catch (Exception ex)
+                {
+                    // if you can't delete the document, that's probably because it already doesn't exist. 
+                }
                 NavigationService.RemoveBackEntry();
             }
             else
             {
                 _doc.Text = DocTextBox.Text;
-                _doc.Save();
+                try
+                {
+                    _doc.Save();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("This file could not be saved. It's likely that the file is corrupted, so please copy-paste the text, close the application, and create a new document.", "An error occurred", MessageBoxButton.OK);
+                    return;
+                }
             }
         }
 
@@ -124,7 +139,6 @@ namespace NotepadTheNextVersion.ListItems
             DocTextBox.BorderThickness = new Thickness(0);
             DocTextBox.AcceptsReturn = true;
             DocTextBox.MinHeight = 700;
-            DocTextBox.Text = _doc.Text;
             DocTextBox.SizeChanged += new SizeChangedEventHandler(DocTextBox_SizeChanged);
             DocTextBox.TextWrapping = TextWrapping.Wrap;
             DocTextBox.Margin = new Thickness(-5, 0, -5, 0);
@@ -132,7 +146,16 @@ namespace NotepadTheNextVersion.ListItems
             DocTextBox.TextChanged += new TextChangedEventHandler(DocTextBox_TextChanged);
             DocTextBox.GotFocus += new RoutedEventHandler((object sender, RoutedEventArgs e) => { DocTextBox.Background = _background; });
             DocTextBox.LostFocus +=new RoutedEventHandler((object sender, RoutedEventArgs e) => { DocTextBox.Background = _background; });
-            
+            try
+            {
+                DocTextBox.Text = _doc.Text;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("The specified file could not be opened.", "An error occurred", MessageBoxButton.OK);
+                throw;
+            }
+
             DocStackPanel.Children.Add(DocTextBox);
 
             UpdateColors();
@@ -184,7 +207,15 @@ namespace NotepadTheNextVersion.ListItems
 
         private void SendAsMenuItem_Click(object sender, EventArgs e)
         {
-            _doc.Save();
+            try
+            {
+                _doc.Save();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("This file could not be saved. It's likely that the file is corrupted, so please copy-paste the text, close the application, and create a new document.", "An error occurred", MessageBoxButton.OK); 
+                return;
+            }
             ParamUtils.SetArguments(_doc);
             NavigationService.Navigate(App.SendAs);
         }

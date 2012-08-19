@@ -565,57 +565,72 @@ namespace NotepadTheNextVersion.ListItems
         // Changes the currently-viewed folder and updates the view
         private void UpdateItems(EventHandler Completed)
         {
-            IList<IListingsListItem> Items = new List<IListingsListItem>();
-
-            // Re-fill ContentBox
-            using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+            try
             {
-                List<string> dirs = new List<string>();
-                foreach (string dir in isf.GetDirectoryNames(_curr.Path.PathString + "/*"))
-                    if (!dir.StartsWith("."))
-                        dirs.Add(dir);
-                dirs.Sort();
+                IList<IListingsListItem> Items = new List<IListingsListItem>();
 
-                // Add directories
-                foreach (string dir in dirs)
+                // Re-fill ContentBox
+                using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    Directory d = new Directory(_curr.Path.NavigateIn(dir, ItemType.Default));
-                    IListingsListItem li = IListingsListItem.CreateListItem(d);
-                    Items.Add(li);
+                    List<string> dirs = new List<string>();
+                    try
+                    {
+                        foreach (string dir in isf.GetDirectoryNames(_curr.Path.PathString + "/*"))
+                            if (!dir.StartsWith("."))
+                                dirs.Add(dir);
+                    }
+                    catch (System.IO.DirectoryNotFoundException ex)
+                    {
+                        MessageBox.Show("The specified directory could not be found.", "An error occurred", MessageBoxButton.OK);
+                        throw;
+                    }
+                    dirs.Sort();
+
+                    // Add directories
+                    foreach (string dir in dirs)
+                    {
+                        Directory d = new Directory(_curr.Path.NavigateIn(dir, ItemType.Default));
+                        IListingsListItem li = IListingsListItem.CreateListItem(d);
+                        Items.Add(li);
+                    }
+
+                    List<string> docs = new List<string>();
+                    foreach (string doc in isf.GetFileNames(_curr.Path.PathString + "/*"))
+                        if (!doc.StartsWith("."))
+                            docs.Add(doc);
+                    docs.Sort();
+
+                    // Add documents
+                    foreach (string doc in docs)
+                    {
+                        Document d = new Document(_curr.Path.NavigateIn(doc, ItemType.Default));
+                        IListingsListItem li = IListingsListItem.CreateListItem(d);
+                        Items.Add(li);
+                    }
                 }
 
-                List<string> docs = new List<string>();
-                foreach (string doc in isf.GetFileNames(_curr.Path.PathString + "/*"))
-                    if (!doc.StartsWith("."))
-                        docs.Add(doc);
-                docs.Sort();
-                
-                // Add documents
-                foreach (string doc in docs)
-                {
-                    Document d = new Document(_curr.Path.NavigateIn(doc, ItemType.Default));
-                    IListingsListItem li = IListingsListItem.CreateListItem(d);
-                    Items.Add(li);
-                }
+                if (_pageMode == PageMode.Edit)
+                    SetPageMode(PageMode.View);
+
+                _items = Items;
+
+                Directory trash = new Directory(PathBase.Trash);
+                if (_curr.Path.Equals(trash.Path))
+                    foreach (var item in _items)
+                        item.IsSelectable = true;
+
+                if (_items.Count == 0)
+                    ShowNotice(Notice.Empty);
+                else
+                    RemoveNotice(Notice.Empty);
+
+                if (Completed != null)
+                    Completed(null, null);
             }
-
-            if (_pageMode == PageMode.Edit)
-                SetPageMode(PageMode.View);
-
-            _items = Items;
-
-            Directory trash = new Directory(PathBase.Trash);
-            if (_curr.Path.Equals(trash.Path))
-                foreach (var item in _items)
-                    item.IsSelectable = true;
-
-            if (_items.Count == 0)
-                ShowNotice(Notice.Empty);
-            else
-                RemoveNotice(Notice.Empty);
-
-            if (Completed != null)
-                Completed(null, null);
+            catch (Exception ex)
+            {
+                (new Directory(PathBase.Root)).Open(NavigationService);
+            }
         }
 
         private void UpdateFavesView()

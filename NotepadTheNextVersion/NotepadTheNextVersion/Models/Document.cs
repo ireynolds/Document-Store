@@ -233,14 +233,9 @@ namespace NotepadTheNextVersion.Models
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                if (!Exists())
-                    throw new FileNotFoundException("File does not exist");
-
                 IsolatedStorageFileStream s = isf.OpenFile(Path.PathString, FileMode.Truncate);
                 using (StreamWriter sw = new StreamWriter(s))
-                {
                     sw.Write(_text);
-                }
                 s.Close();
             }
         }
