@@ -99,17 +99,15 @@ namespace NotepadTheNextVersion.ListItems
             StackPanel DocStackPanel = new StackPanel();
             DocScrollViewer.Content = DocStackPanel;
 
+            this.DocTitleBlock = new TextBlock();
             if (SettingUtils.GetSetting<bool>(Setting.DisplayNoteTitle))
             {
-                this.DocTitleBlock = new TextBlock()
-                {
-                    Text = _doc.DisplayName.ToUpper(),
-                    FontSize = (double)App.Current.Resources["PhoneFontSizeMedium"],
-                    FontFamily = new FontFamily("Segoe WP Semibold"),
-                    Foreground = new SolidColorBrush(Colors.Gray),
-                    Margin = new Thickness(12, 12, 0, 10),
-                    RenderTransform = new CompositeTransform()
-                };
+                DocTitleBlock.Text = _doc.DisplayName.ToUpper();
+                DocTitleBlock.FontSize = (double)App.Current.Resources["PhoneFontSizeMedium"];
+                DocTitleBlock.FontFamily = new FontFamily("Segoe WP Semibold");
+                DocTitleBlock.Foreground = new SolidColorBrush(Colors.Gray);
+                DocTitleBlock.Margin = new Thickness(12, 12, 0, 10);
+                DocTitleBlock.RenderTransform = new CompositeTransform();
                 DocTitleBlock.Tap += delegate(object sender, System.Windows.Input.GestureEventArgs e)
                 {
                     _doc.NavToRename(NavigationService);
@@ -164,7 +162,6 @@ namespace NotepadTheNextVersion.ListItems
         private void InitializeAppBar()
         {
             ApplicationBar = new ApplicationBar();
-            ApplicationBar.Mode = ApplicationBarMode.Minimized;
 
             ApplicationBar.Buttons.Add(Utils.CreateIconButton("folders", App.FolderIconSmall, new EventHandler(FoldersIconButton_Click)));
             ApplicationBar.MenuItems.Add(Utils.CreateMenuItem("settings", new EventHandler(SettingsMenuItem_Click)));
