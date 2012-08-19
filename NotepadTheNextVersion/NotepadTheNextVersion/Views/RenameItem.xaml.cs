@@ -60,13 +60,6 @@ namespace NotepadTheNextVersion.ListItems
             NewNameBox.SelectAll();
         }
 
-        private void Cancel()
-        {
-            if (GetPreviousPageUri().Equals(App.AddNewItem) && _actionable.IsTemp)
-                _actionable.Delete(true);
-            NavigationService.GoBack();
-        }
-
         private void IconButton_Okay_Click(object sender, EventArgs e)
         {
             var newName = NewNameBox.Text.Trim();
@@ -100,8 +93,8 @@ namespace NotepadTheNextVersion.ListItems
 
             try
             {
-                _actionable = _actionable.Rename(newName);
-                NavigateOnSuccess(_actionable);
+                var act = _actionable.Rename(newName);
+                NavigateOnSuccess(act);
             }
             catch (Exception ex)
             {
@@ -112,8 +105,11 @@ namespace NotepadTheNextVersion.ListItems
         private void NavigateOnSuccess(IActionable act)
         {
             var prevPage = GetPreviousPageUri();
-            act.IsTemp = false;
-            if (prevPage.Equals(App.Listings))
+            if (prevPage.Equals(App.Listings) && _actionable.IsTemp)
+            {
+                act.Open(NavigationService);
+            }
+            else if (prevPage.Equals(App.Listings))
             {
                 NavigationService.GoBack();
             }
@@ -121,10 +117,6 @@ namespace NotepadTheNextVersion.ListItems
             {
                 act.Open(NavigationService);
                 NavigationService.RemoveBackEntry();
-            }
-            else if (prevPage.Equals(App.AddNewItem))
-            {
-                act.Open(NavigationService);
             }
             else
                 NavigationService.GoBack();
@@ -151,6 +143,13 @@ namespace NotepadTheNextVersion.ListItems
         #endregion
 
         #region Private Helpers
+
+        private void Cancel()
+        {
+            if (GetPreviousPageUri().Equals(App.Listings) && _actionable.IsTemp)
+                _actionable.Delete(true);
+            NavigationService.GoBack();
+        }
 
         private void AlertUserBadChars(IList<string> badCharsInName)
         {

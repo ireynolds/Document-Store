@@ -161,9 +161,9 @@ namespace NotepadTheNextVersion.Models
         {
             if (isTrash || permanently)
             {
-                using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+                using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
-                    DeleteRecursive(Path, isf);
+                    DeleteRecursive(this.Path, isf);
                 }
                 return null;
             }
@@ -174,11 +174,14 @@ namespace NotepadTheNextVersion.Models
                 if (newLoc.Exists())
                     newLoc.Delete();
 
+                ApplyRecursive(a =>
+                {
+                    if (a.IsPinned)
+                        a.TogglePin();
+                });
                 try
                 {
                     this.Move(trash);
-                    if (this.IsPinned)
-                        this.TogglePin();
                 }
                 catch (Exception ex)
                 {
@@ -239,7 +242,15 @@ namespace NotepadTheNextVersion.Models
 
         #region Private Helpers
 
-        private void DeleteRecursive(PathStr dir, IsolatedStorageFile isf)
+        private void ApplyRecursive(Action<IActionable> a)
+        {
+            foreach (var d in FileUtils.GetAllDocuments(this))
+                a(d);
+            foreach (var d in FileUtils.GetAllDirectories(this))
+                a(d);
+        }
+
+        private static void DeleteRecursive(PathStr dir, IsolatedStorageFile isf)
         {
             // Delete every subdirectory's contents recursively
             foreach (string subDir in isf.GetDirectoryNames(dir.PathString + "/*"))
@@ -248,9 +259,6 @@ namespace NotepadTheNextVersion.Models
             foreach (string file in isf.GetFileNames(dir.PathString + "/*"))
                 isf.DeleteFile(System.IO.Path.Combine(dir.PathString, file));
 
-            var d = new Directory(dir);
-            if (d.Exists() && d.IsPinned)
-                d.TogglePin();
             isf.DeleteDirectory(dir.PathString);
         }
 

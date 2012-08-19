@@ -31,6 +31,7 @@ namespace NotepadTheNextVersion.ListItems
         private bool _isShowingEmptyNotice;
         private bool _isShowingLoadingNotice;
         private TimedItemAnimator _animationTimer;
+        private ICollection<SelectionChangedEventHandler> _handlers;
 
         private StackPanel _pathPanel;
         private Pivot _masterPivot;
@@ -112,6 +113,7 @@ namespace NotepadTheNextVersion.ListItems
             InitializeComponent();
             _items = new List<IListingsListItem>();
             _faves = new List<IListingsListItem>();
+            _handlers = new Collection<SelectionChangedEventHandler>();
             Root.RenderTransform = new CompositeTransform();
             Root.Opacity = 0;
             InitializePageUI();
@@ -762,7 +764,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             if (type == _pageMode)
                 return;
-
+            ResetHandlers(CurrentBox);
             if (type == PageMode.View)
             {
                 CurrentBox.SelectedIndex = -1;
@@ -800,7 +802,7 @@ namespace NotepadTheNextVersion.ListItems
                 foreach (IListingsListItem item in CurrentBox.Items)
                     s2.Children.Add(AnimationUtils.FadeOut(200, item));
                 s2.Begin();
-                s2.Completed += delegate(object sender, EventArgs e)
+                s2.Completed += (sender, e) =>
                 {
                     foreach (var item in deletedItems)
                         CurrentBox.Items.Remove(item);
@@ -847,6 +849,18 @@ namespace NotepadTheNextVersion.ListItems
                 if (CurrentBox.Items.Count == 0)
                     ShowNotice(Notice.Empty);
             };
+        }
+
+        private void AddHandler(ListBox box, SelectionChangedEventHandler handler)
+        {
+            _handlers.Add(handler);
+            box.SelectionChanged += handler;
+        }
+
+        private void ResetHandlers(ListBox box)
+        {
+            foreach (var handler in _handlers)
+                box.SelectionChanged -= handler;
         }
 
         #endregion 
@@ -976,7 +990,7 @@ namespace NotepadTheNextVersion.ListItems
                 _menuItems = new ItemList() { RenameItem, MoveItem, PinItem };
                 ApplicationBarSetup.SetElements(_appBar, _buttons, _menuItems);
                 ApplicationBarSetup.SetAllEnabled(_appBar, false);
-                Page.CurrentBox.SelectionChanged += new SelectionChangedEventHandler(SelectedItemsChanged);
+                Page.AddHandler(Page.CurrentBox, new SelectionChangedEventHandler(SelectedItemsChanged));
                 _appBar.Mode = ApplicationBarMode.Default;
                 _appBar.IsMenuEnabled = true;
 
@@ -1049,7 +1063,7 @@ namespace NotepadTheNextVersion.ListItems
                 _menuItems = new ItemList() { EmptyItem };
                 SetElements(_appBar, _buttons, _menuItems);
                 SetAllEnabled(_appBar, false);
-                Page.CurrentBox.SelectionChanged += new SelectionChangedEventHandler(SelectedItemChanged);
+                Page.AddHandler(Page.CurrentBox, new SelectionChangedEventHandler(this.SelectedItemChanged));
                 _appBar.Mode = ApplicationBarMode.Default;
                 _appBar.IsMenuEnabled = true;
 

@@ -36,7 +36,6 @@ namespace NotepadTheNextVersion.ListItems
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-
             NavigationService.RemoveBackEntry();
         }
 

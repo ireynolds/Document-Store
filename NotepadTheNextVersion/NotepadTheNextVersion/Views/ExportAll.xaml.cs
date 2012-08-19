@@ -129,7 +129,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             EmailComposeTask t = new EmailComposeTask();
             StringBuilder b = new StringBuilder();
-            IList<Document> docs = FileUtils.GetAllDocuments(PathBase.Root);
+            IList<Document> docs = FileUtils.GetAllDocuments(new Directory(PathBase.Root));
             foreach (Document d in docs)
                 b.Append(String.Format("==== {0} ====\n\n{1}\n\n", d.Path.PathString, d.Text));
             t.Body = b.ToString();

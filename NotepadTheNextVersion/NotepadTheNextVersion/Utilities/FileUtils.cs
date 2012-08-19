@@ -256,7 +256,7 @@ namespace NotepadTheNextVersion.Utilities
         /// </summary>
         /// <param name="bases"></param>
         /// <returns></returns>
-        public static IList<Directory> GetAllDirectories(params PathBase[] bases)
+        public static IList<Directory> GetAllDirectories(params Directory[] bases)
         {
             if (bases.Length == 0)
                 throw new ArgumentException("Zero arguments to GetAllDirectories");
@@ -265,8 +265,8 @@ namespace NotepadTheNextVersion.Utilities
             {
                 Queue<Directory> dirsQ = new Queue<Directory>();
                 List<Directory> dirsL = new List<Directory>();
-                foreach (PathBase b in bases)
-                    dirsQ.Enqueue(new Directory(b));
+                foreach (var b in bases)
+                    dirsQ.Enqueue(b);
 
                 while (dirsQ.Count != 0)
                 {
@@ -284,7 +284,7 @@ namespace NotepadTheNextVersion.Utilities
         /// </summary>
         /// <param name="bases"></param>
         /// <returns></returns>
-        public static IList<Document> GetAllDocuments(params PathBase[] bases)
+        public static IList<Document> GetAllDocuments(params Directory[] bases)
         {
             if (bases.Length == 0)
                 throw new ArgumentException("Zero arguments to GetAllDocuments");
