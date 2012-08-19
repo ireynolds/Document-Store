@@ -213,8 +213,8 @@ namespace NotepadTheNextVersion.Models
                 StandardTileData data = new StandardTileData();
                 data.Title = this.DisplayName;
                 data.BackContent = Text;
-                data.BackgroundImage = new Uri(App.DirectoryTile, UriKind.Relative);
-                ShellTile.Create(App.Listings + "?param=" + Uri.EscapeUriString(Path.PathString), data);
+                data.BackgroundImage = new Uri(App.DocumentTile, UriKind.Relative);
+                ShellTile.Create(App.DocumentEditor + "?param=" + Uri.EscapeUriString(Path.PathString), data);
             }
             else
             {

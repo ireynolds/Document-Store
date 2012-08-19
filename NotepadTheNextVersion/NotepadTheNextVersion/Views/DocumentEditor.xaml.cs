@@ -32,21 +32,6 @@ namespace NotepadTheNextVersion.ListItems
         public DocumentEditor()
         {
             InitializeComponent();
-
-            GetArgs();
-            UpdateView();
-            DocScrollViewer.Opacity = 0;
-            this.Loaded += new RoutedEventHandler(DocumentEditor_Loaded);
-        }
-
-        void DocumentEditor_Loaded(object sender, RoutedEventArgs e)
-        {
-            DocScrollViewer.RenderTransform = new CompositeTransform();
-            Storyboard s = new Storyboard();
-            s.Children.Add(AnimationUtils.FadeIn(100));
-            s.Children.Add(AnimationUtils.TranslateY(350, 0, 200));
-            Storyboard.SetTarget(s, DocScrollViewer);
-            s.Begin();
         }
 
         #region Private Helpers
@@ -78,13 +63,33 @@ namespace NotepadTheNextVersion.ListItems
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+            if (_doc == null)
+                GetArgs();
+            UpdateView();
+            DocScrollViewer.Opacity = 0;
             UpdateColors();
+
+            DocScrollViewer.RenderTransform = new CompositeTransform();
+            Storyboard s = new Storyboard();
+            s.Children.Add(AnimationUtils.FadeIn(100));
+            s.Children.Add(AnimationUtils.TranslateY(350, 0, 200));
+            Storyboard.SetTarget(s, DocScrollViewer);
+            s.Begin();
         }
 
         private void GetArgs()
         {
-            IList<object> args = ParamUtils.GetArguments();
-            _doc = (Document)args[0];
+            string s;
+            if (NavigationContext.QueryString.TryGetValue("param", out s))
+            {
+                PathStr p = new PathStr(s);
+                _doc = new Document(p);
+            }
+            else
+            {
+                IList<object> args = ParamUtils.GetArguments();
+                _doc = (Document)args[0];
+            }
         }
 
         private void UpdateView()
