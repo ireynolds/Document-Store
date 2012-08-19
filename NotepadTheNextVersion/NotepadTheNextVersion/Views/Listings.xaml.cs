@@ -576,7 +576,7 @@ namespace NotepadTheNextVersion.ListItems
                     try
                     {
                         foreach (string dir in isf.GetDirectoryNames(_curr.Path.PathString + "/*"))
-                            if (!dir.StartsWith("."))
+                            if (!dir.StartsWith(".") || SettingUtils.GetSetting<bool>(Setting.ShowHiddenItems))
                                 dirs.Add(dir);
                     }
                     catch (System.IO.DirectoryNotFoundException ex)
@@ -596,7 +596,7 @@ namespace NotepadTheNextVersion.ListItems
 
                     List<string> docs = new List<string>();
                     foreach (string doc in isf.GetFileNames(_curr.Path.PathString + "/*"))
-                        if (!doc.StartsWith("."))
+                        if (!doc.StartsWith(".") || SettingUtils.GetSetting<bool>(Setting.ShowHiddenItems))
                             docs.Add(doc);
                     docs.Sort();
 

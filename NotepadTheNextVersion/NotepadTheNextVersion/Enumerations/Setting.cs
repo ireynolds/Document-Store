@@ -19,7 +19,8 @@ namespace NotepadTheNextVersion.Enumerations
         SearchFileText,
         NoteEditorThemeColor,
         RootDirectoryName,
-        FavoritesList
+        FavoritesList,
+        ShowHiddenItems
     }
 
     public static class Extensions2
@@ -40,6 +41,8 @@ namespace NotepadTheNextVersion.Enumerations
                     return "RootDirectoryNameSetting";
                 case Setting.FavoritesList:
                     return "FavoritesList";
+                case Setting.ShowHiddenItems:
+                    return "ShowHiddenItems";
                 default:
                     throw new Exception("Unrecognized enum type");
             }

@@ -87,8 +87,9 @@ namespace NotepadTheNextVersion.ListItems
             }
             else if (newName.StartsWith("."))
             {
-                var r = MessageBox.Show("Items whose names start with '.' are hidden. You can disable this feature in settings.", "Hidden file", MessageBoxButton.OKCancel);
-                newName = (r == MessageBoxResult.OK) ? newName : newName.Substring(1);
+                var r = MessageBox.Show("Items whose names start with '.' are hidden. You can enable showing hidden files in the application's settings.", "Hidden file", MessageBoxButton.OKCancel);
+                if (r == MessageBoxResult.Cancel)
+                    return;
             }
 
             try
@@ -105,7 +106,7 @@ namespace NotepadTheNextVersion.ListItems
         private void NavigateOnSuccess(IActionable act)
         {
             var prevPage = GetPreviousPageUri();
-            if (prevPage.Equals(App.Listings) && _actionable.IsTemp)
+            if (prevPage.Equals(App.Listings) && _actionable.IsTemp && _actionable is Document)
             {
                 act.Open(NavigationService);
             }

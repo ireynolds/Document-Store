@@ -193,5 +193,18 @@ namespace NotepadTheNextVersion
                 Save();
             }
         }
+
+        public bool ShowHiddenItems
+        {
+            get
+            {
+                return GetValueOrDefault<bool>(Setting.ShowHiddenItems.Key(), SettingUtils.GetSetting<bool>(Setting.ShowHiddenItems));
+            }
+            set
+            {
+                AddOrUpdateValue(Setting.ShowHiddenItems.Key(), value);
+                Save();
+            }
+        }
     }
 }

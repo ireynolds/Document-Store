@@ -45,6 +45,7 @@ namespace NotepadTheNextVersion.ListItems
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Open to documents explorer", "OpenToFoldersList"));
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Also search document text", "SearchFileText"));
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Show document title in editor", "DisplayNoteTitle"));
+            SettingsPanel.Children.Add(CreateBoundToggleSwitch("Show hidden items", "ShowHiddenItems"));
             SettingsPanel.Children.Add(new TextBlock() 
             { 
                 Text = "Select new name for the home directory",

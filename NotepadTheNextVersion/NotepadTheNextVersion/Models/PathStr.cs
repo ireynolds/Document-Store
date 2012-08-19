@@ -103,17 +103,15 @@ namespace NotepadTheNextVersion.Models
 
         public PathStr NavigateIn(string name, ItemType type = ItemType.Default)
         {
-            if (!Path.HasExtension(name))
-                switch (type)
-                {
-                    case ItemType.Directory:
-                        name += FileUtils.DIRECTORY_EXTENSION;
-                        break;
-                    case ItemType.Document:
-                        name += FileUtils.DOCUMENT_EXTENSION;
-                        break;
-                }
-
+            switch (type)
+            {
+                case ItemType.Directory:
+                    name += FileUtils.DIRECTORY_EXTENSION;
+                    break;
+                case ItemType.Document:
+                    name += FileUtils.DOCUMENT_EXTENSION;
+                    break;
+            }
             return new PathStr(Path.Combine(_path, name));
         }
 

@@ -83,6 +83,8 @@ namespace NotepadTheNextVersion.Utilities
                     if (!App.AppSettings.Contains(setting.Key()))
                         App.AppSettings.Add(setting.Key(), new Collection<string>());
                     return App.AppSettings[setting.Key()];
+                case Setting.ShowHiddenItems:
+                    return false;
                 default:
                     throw new Exception("Unrecognized enum type");
             }
