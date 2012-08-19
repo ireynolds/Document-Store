@@ -121,7 +121,8 @@ namespace NotepadTheNextVersion.ListItems
             var newLocation = Utils.CreateActionableFromPath(new PathStr(newParent.Path.NavigateIn(a.Name)));
             if (newLocation.Exists())
             {
-                MessageBoxResult r = MessageBox.Show("There is already an item with the same name at the specified destination. Tap OK to overwrite the existing item, or Cancel to skip this item.", a.DisplayName, MessageBoxButton.OKCancel);
+                var type = a.GetType().Name.ToLower();
+                MessageBoxResult r = MessageBox.Show(string.Format("There is already an {0} with the same name at the specified destination. Tap OK to overwrite the existing {0}, or Cancel to skip this item.", type), a.DisplayName, MessageBoxButton.OKCancel);
                 if (r != MessageBoxResult.OK)
                     return;
                 newLocation.Delete(true);
