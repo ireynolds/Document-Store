@@ -62,8 +62,8 @@ namespace NotepadTheNextVersion.ListItems
 
         private void Cancel()
         {
-            if (_actionable.IsTemp)
-                _actionable.Delete();
+            if (GetPreviousPageUri().Equals(App.AddNewItem) && _actionable.IsTemp)
+                _actionable.Delete(true);
             NavigationService.GoBack();
         }
 
@@ -111,23 +111,28 @@ namespace NotepadTheNextVersion.ListItems
 
         private void NavigateOnSuccess(IActionable act)
         {
-            var prevPage = NavigationService.BackStack.ElementAt(NavigationService.BackStack.Count(delegate { return true; }) - 1);
+            var prevPage = GetPreviousPageUri();
             act.IsTemp = false;
-            if (prevPage.Source.Equals(App.Listings))
+            if (prevPage.Equals(App.Listings))
             {
                 NavigationService.GoBack();
             }
-            else if (prevPage.Source.Equals(App.DocumentEditor))
+            else if (prevPage.Equals(App.DocumentEditor))
             {
                 act.Open(NavigationService);
                 NavigationService.RemoveBackEntry();
             }
-            else if (prevPage.Source.Equals(App.AddNewItem))
+            else if (prevPage.Equals(App.AddNewItem))
             {
                 act.Open(NavigationService);
             }
             else
                 NavigationService.GoBack();
+        }
+
+        private Uri GetPreviousPageUri()
+        {
+            return NavigationService.BackStack.ElementAt(NavigationService.BackStack.Count(delegate { return true; }) - 1).Source;
         }
 
         private void IconButton_Cancel_Click(object sender, EventArgs e)
