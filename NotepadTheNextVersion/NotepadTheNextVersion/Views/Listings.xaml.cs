@@ -250,7 +250,6 @@ namespace NotepadTheNextVersion.ListItems
         {
             Storyboard s = new Storyboard();
             s.Children.Add(AnimationUtils.TranslateX(500, 0, SLIDE_X_IN_DURATION, SLIDE_X_IN_EASE, item));
-            s.Children.Add(AnimationUtils.ChangeOpacity(0.8, 1, _timer_duration * 2.5, item));
             return s;
         }
 
@@ -1022,6 +1021,10 @@ namespace NotepadTheNextVersion.ListItems
                 {
                     IActionable selectedActionable = (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem;
                     SetAllEnabled(_appBar, true);
+                    if (selectedActionable.IsFavorite)
+                        _appBar.Buttons[1] = UnfaveButton;
+                    else
+                        _appBar.Buttons[1] = FaveButton;
                     if (selectedActionable.IsPinned)
                         SetEnabledElements(false, new ButtonList(), new ItemList() { PinItem });
                 }

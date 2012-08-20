@@ -93,7 +93,7 @@ namespace NotepadTheNextVersion.Models
             _timer = new DispatcherTimer();
             _timer.Tick += new EventHandler(DoWork);
 
-            _timer.Interval = TimeSpan.FromMilliseconds(60);
+            _timer.Interval = TimeSpan.FromMilliseconds(70);
         }
 
         private void DoWork(object sender, EventArgs e)
