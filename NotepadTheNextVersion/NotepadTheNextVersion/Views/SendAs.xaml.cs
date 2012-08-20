@@ -86,7 +86,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            IList<object> args = ParamUtils.GetArguments();
+            IList<IActionable> args = ParamUtils.GetArguments();
             _currentDocument = (Document)args[0];
         }
 

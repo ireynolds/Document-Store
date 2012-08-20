@@ -65,6 +65,10 @@ namespace NotepadTheNextVersion.ListItems
             var newName = NewNameBox.Text.Trim();
             IList<string> badChars = new List<string>();
 
+            if (newName.Equals(string.Empty))
+            {
+                return;
+            }
             if (newName.Equals(_actionable.DisplayName))
             {
                 NavigateOnSuccess(_actionable);
@@ -106,7 +110,11 @@ namespace NotepadTheNextVersion.ListItems
         private void NavigateOnSuccess(IActionable act)
         {
             var prevPage = GetPreviousPageUri();
-            if (prevPage.Equals(App.Listings) && _actionable.IsTemp && _actionable is Document)
+            if (prevPage == null)
+            {
+                act.Open(NavigationService);
+            }
+            else if (prevPage.Equals(App.Listings) && _actionable.IsTemp && _actionable is Document)
             {
                 act.Open(NavigationService);
             }
@@ -121,11 +129,16 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
                 NavigationService.GoBack();
+            act.IsTemp = false;
         }
 
         private Uri GetPreviousPageUri()
         {
-            return NavigationService.BackStack.ElementAt(NavigationService.BackStack.Count(delegate { return true; }) - 1).Source;
+            int index = NavigationService.BackStack.Count(delegate { return true; }) - 1;
+            if (index == -1)
+                return null;
+            else
+                return NavigationService.BackStack.ElementAt(index).Source;
         }
 
         private void IconButton_Cancel_Click(object sender, EventArgs e)
@@ -147,7 +160,8 @@ namespace NotepadTheNextVersion.ListItems
 
         private void Cancel()
         {
-            if (GetPreviousPageUri().Equals(App.Listings) && _actionable.IsTemp)
+            var prevPage = GetPreviousPageUri();
+            if (App.Listings.Equals(prevPage) && _actionable.IsTemp) // .equals(prevPage) accounts for prevPage == null
                 _actionable.Delete(true);
             NavigationService.GoBack();
         }
@@ -207,7 +221,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            IList<object> args = ParamUtils.GetArguments();
+            IList<IActionable> args = ParamUtils.GetArguments();
 
             _actionable = (IActionable)args[0];
         }

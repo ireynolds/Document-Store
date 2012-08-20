@@ -50,7 +50,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             get
             {
-                return (Grid)((PivotItem)_masterPivot.SelectedItem).Content;
+                return (_masterPivot.SelectedItem as PivotItem).Content as Grid;
             }
         }
 
@@ -556,7 +556,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                IList<object> args = ParamUtils.GetArguments();
+                IList<IActionable> args = ParamUtils.GetArguments();
                 _curr = (Directory)args[0];
             }
         }
@@ -742,8 +742,7 @@ namespace NotepadTheNextVersion.ListItems
             _allBox.RenderTransform = new CompositeTransform();
             _allBox.Template = (ControlTemplate)Root.Resources["ItemTemplate"];
             _allScrollViewer.Content = _allBox;
-
-            SetPageMode(PageMode.View);
+            _masterPivot.SelectedItem = _allPivot; // also sets pagemode
 
             if (SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList).Count > 0)
             {

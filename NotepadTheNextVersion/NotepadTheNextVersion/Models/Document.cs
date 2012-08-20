@@ -102,17 +102,21 @@ namespace NotepadTheNextVersion.Models
 
         public Document(PathStr p)
         {
+            if (!FileUtils.IsDoc(p.PathString))
+                throw new Exception();
             _path = p;
         }
 
         public Document(Directory parent, string name)
         {
+            if (!FileUtils.IsDoc(name))
+                throw new Exception();
             _path = parent.Path.NavigateIn(name, ItemType.Document);
         }
 
         public void Open(NavigationService NavigationService)
         {
-            ParamUtils.SetArguments(this, IsTemp);
+            ParamUtils.SetArguments(this);
             NavigationService.Navigate(App.DocumentEditor);
         }
 
@@ -154,10 +158,10 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable Rename(string newFileName)
         {
-            PathStr newLocation = Path.Parent.NavigateIn(newFileName, ItemType.Directory);
+            PathStr newLocation = Path.Parent.NavigateIn(newFileName, ItemType.Document);
             if (FileUtils.DocumentExists(newLocation.PathString))
             {
-                MessageBox.Show("A directory with the specified name already exists.", "An error occurred", MessageBoxButton.OK);
+                MessageBox.Show("A document with the specified name already exists.", "An error occurred", MessageBoxButton.OK);
                 throw new IsolatedStorageException();
             }
 

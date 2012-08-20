@@ -25,12 +25,17 @@ namespace NotepadTheNextVersion
         /// <summary>
         /// Holds parameters during navigations.
         /// </summary>
-        public IList<object> Arguments;
+        public static IList<IActionable> Argument;
 
         /// <summary>
         /// Stores the settings for the application.
         /// </summary>
         public static readonly IsolatedStorageSettings AppSettings = IsolatedStorageSettings.ApplicationSettings;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static bool WasTombstoned;
 
         public static MyUri Listings
         {
@@ -191,12 +196,28 @@ namespace NotepadTheNextVersion
         // This code will not execute when the application is first launched
         private void Application_Activated(object sender, ActivatedEventArgs e)
         {
+            WasTombstoned = !e.IsApplicationInstancePreserved;
+            Collection<string> arg = null;
+            if (WasTombstoned && IsolatedStorageSettings.ApplicationSettings.TryGetValue<Collection<string>>("args", out arg))
+            {
+                Argument = new List<IActionable>();
+                foreach (var s in arg)
+                    Argument.Add(Utils.CreateActionableFromPath(new PathStr(s)));
+            }
         }
 
         // Code to execute when the application is deactivated (sent to background)
         // This code will not execute when the application is closing
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
+            var s = IsolatedStorageSettings.ApplicationSettings;
+            var args = new Collection<string>();
+            foreach (IActionable a in Argument)
+                args.Add(a.Path.PathString);
+            if (!s.Contains("args"))
+                s.Add("args", null);
+            s["args"] = args;
+            s.Save();
         }
 
         // Code to execute when the application is closing (eg, user hit Back)

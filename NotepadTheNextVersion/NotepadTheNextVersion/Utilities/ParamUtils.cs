@@ -36,23 +36,20 @@ namespace NotepadTheNextVersion.Utilities
         }
 
         // Sets the arguments to prepare for navigation
-        public static void SetArguments(params object[] list)
+        public static void SetArguments(IList<IActionable> a)
         {
-            if ((App.Current as App).Arguments != null)
-                throw new InvalidOperationException("Arguments already non-null");
+            App.Argument = a;
+        }
 
-            (App.Current as App).Arguments = list;
+        public static void SetArguments(IActionable a)
+        {
+            App.Argument = new List<IActionable>() { a };
         }
 
         // Retrieves the arguments from the current navigation
-        public static IList<object> GetArguments()
+        public static IList<IActionable> GetArguments()
         {
-            if ((App.Current as App).Arguments == null)
-                throw new InvalidOperationException("Arguments null");
-
-            IList<object> Arguments = (App.Current as App).Arguments;
-            (App.Current as App).Arguments = null;
-            return Arguments;
+            return App.Argument;
         }
     }
 }

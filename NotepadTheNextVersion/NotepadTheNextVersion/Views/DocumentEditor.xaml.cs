@@ -45,16 +45,10 @@ namespace NotepadTheNextVersion.ListItems
             return scope;
         }
 
-        protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
-        {
-            base.OnBackKeyPress(e);
-            _shouldDelete = true;
-        }
-
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-            if (_doc.IsTemp && _shouldDelete)
+            if (_doc.IsTemp)
             {
                 try
                 {
@@ -87,14 +81,7 @@ namespace NotepadTheNextVersion.ListItems
             if (_doc == null)
                 GetArgs();
             UpdateView();
-            //DocScrollViewer.Opacity = 0;
             UpdateColors();
-            //DocScrollViewer.RenderTransform = new CompositeTransform();
-            //Storyboard s = new Storyboard();
-            //s.Children.Add(AnimationUtils.FadeIn(100));
-            //s.Children.Add(AnimationUtils.TranslateY(350, 0, 200));
-            //Storyboard.SetTarget(s, DocScrollViewer);
-            //s.Begin();
         }
 
         private void GetArgs()
@@ -107,7 +94,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                IList<object> args = ParamUtils.GetArguments();
+                IList<IActionable> args = ParamUtils.GetArguments();
                 _doc = (Document)args[0];
             }
         }
@@ -135,6 +122,7 @@ namespace NotepadTheNextVersion.ListItems
                 DocTitleBlock.RenderTransform = new CompositeTransform();
                 DocTitleBlock.Tap += delegate(object sender, System.Windows.Input.GestureEventArgs e)
                 {
+                    _doc.IsTemp = false;
                     _doc.NavToRename(NavigationService);
                 };
                 DocStackPanel.Children.Add(DocTitleBlock);
@@ -232,7 +220,6 @@ namespace NotepadTheNextVersion.ListItems
 
         private void FoldersIconButton_Click(object sender, EventArgs e)
         {
-            _shouldDelete = true;
             ParamUtils.SetArguments(new Directory(_doc.Path.Parent));
             NavigationService.Navigate(App.Listings);
         }

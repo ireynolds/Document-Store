@@ -94,7 +94,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            IList<object> args = ParamUtils.GetArguments();
+            IList<IActionable> args = ParamUtils.GetArguments();
             _currentDirectory = (Directory)args[0];
         }
 

@@ -81,11 +81,15 @@ namespace NotepadTheNextVersion.Models
 
         public Directory(PathStr p)
         {
+            if (!FileUtils.IsDir(p.PathString))
+                throw new Exception();
             _path = p;
         }
 
         public Directory(Directory parent, string name)
         {
+            if (!FileUtils.IsDir(name))
+                throw new Exception();
             _path = parent.Path.NavigateIn(name, ItemType.Directory);
         }
 
