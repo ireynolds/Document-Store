@@ -37,15 +37,7 @@ namespace NotepadTheNextVersion.ListItems
             InitializeComponent();
             _items = new List<SearchResultListItem>();
             _previousResults = new Dictionary<string, List<SearchResultListItem>>();
-            this.Loaded += new RoutedEventHandler(Search_Loaded);
             _lastPattern = string.Empty;
-            LayoutRoot.RenderTransform = new CompositeTransform();
-            LayoutRoot.Opacity = 0;
-        }
-
-        private void Search_Loaded(object sender, RoutedEventArgs e)
-        {
-            this.Loaded -= new RoutedEventHandler(Search_Loaded);
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
@@ -59,11 +51,6 @@ namespace NotepadTheNextVersion.ListItems
             if (LayoutRoot.Children.Count == 0)
                 UpdateView();
             ContentBox.SelectedIndex = -1;
-
-            Storyboard sb = new Storyboard();
-            sb.Children.Add(AnimationUtils.TranslateY(350, 0, 250, LayoutRoot));
-            sb.Children.Add(AnimationUtils.FadeIn(150, LayoutRoot));
-            sb.Begin();
         }
 
         private void UpdateView()
@@ -104,16 +91,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             if (ContentBox.SelectedIndex == -1)
                 return;
-            NavigateAway(() => (ContentBox.SelectedItem as SearchResultListItem).Source.Open(NavigationService));
-        }
-
-        private void NavigateAway(Action Navigation)
-        {
-            var sb = new Storyboard();
-            sb.Children.Add(AnimationUtils.FadeOut(150, LayoutRoot));
-            sb.Children.Add(AnimationUtils.TranslateY(0, 350, 250, LayoutRoot));
-            sb.Completed += (object sender, EventArgs e) => Navigation();
-            sb.Begin();
+            (ContentBox.SelectedItem as SearchResultListItem).Source.Open(NavigationService);
         }
 
         private void _searchTermBox_TextChanged(object sender, TextChangedEventArgs e)

@@ -22,11 +22,28 @@ namespace NotepadTheNextVersion.ListItems
         public AboutAndTips()
         {
             InitializeComponent();
-
-            this.Loaded += new RoutedEventHandler(AboutAndTips_Loaded);
+            _masterPivot.SelectionChanged += (s, e) =>
+            {
+                var pivot = (s as Pivot).SelectedItem as PivotItem;
+                if (pivot.Header.Equals("tips"))
+                {
+                    if (TipsPanel.Children.Count == 0)
+                        UpdateTips();
+                }
+                else if (pivot.Header.Equals("about"))
+                {
+                    if (AboutPanel.Children.Count == 0)
+                        UpdateAbout();
+                }
+                else if (pivot.Header.Equals("contact"))
+                {
+                    if (ContactPanel.Children.Count == 0)
+                        UpdateContact();
+                }
+            };
         }
 
-        void AboutAndTips_Loaded(object sender, RoutedEventArgs e)
+        private void AboutAndTips_Loaded(object sender, RoutedEventArgs e)
         {
             UpdateTips();
             UpdateContact();

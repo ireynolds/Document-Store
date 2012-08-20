@@ -48,9 +48,6 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DynamicOrientationChanges">
-      <HintPath>..\DynamicOrientationChanges.dll</HintPath>
-    </Reference>
     <Reference Include="Microsoft.Phone" />
     <Reference Include="Microsoft.Phone.Controls, Version=7.0.0.0, Culture=neutral, PublicKeyToken=24eec0d8c86cda1e, processorArchitecture=MSIL" />
     <Reference Include="Microsoft.Phone.Controls.Toolkit, Version=7.0.0.0, Culture=neutral, PublicKeyToken=b772ad94eb9ca604, processorArchitecture=MSIL" />
@@ -77,6 +74,7 @@
     <Compile Include="Exceptions\InvalidStateException.cs" />
     <Compile Include="Exceptions\LocationNotFoundException.cs" />
     <Compile Include="Exceptions\ActionableException.cs" />
+    <Compile Include="HybridOrientationChangesFrame.cs" />
     <Compile Include="Models\ApplicationBarSetup.cs" />
     <Compile Include="Models\ButtonList.cs" />
     <Compile Include="Models\IActionableComparer.cs" />

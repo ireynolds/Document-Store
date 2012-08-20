@@ -26,14 +26,20 @@ namespace NotepadTheNextVersion.ListItems
         public ExportAll()
         {
             InitializeComponent();
-
-            this.Loaded += new RoutedEventHandler(ExportAll_Loaded);
-        }
-
-        void ExportAll_Loaded(object sender, RoutedEventArgs e)
-        {
-            UpdateExport();
-            UpdateImport();
+            _masterPivot.SelectionChanged += (s, e) =>
+            {
+                var piv = (s as Pivot).SelectedItem as PivotItem;
+                if (piv.Header.Equals("export"))
+                {
+                    if (ExportPanel.Children.Count == 0)
+                        UpdateExport();
+                }
+                else if (piv.Header.Equals("import"))
+                {
+                    if (ImportScrollViewer.Content == null)
+                        UpdateImport();
+                }
+            };
         }
 
         #region Private Helpers

@@ -19,25 +19,8 @@ namespace NotepadTheNextVersion.ListItems
         public Settings()
         {
             InitializeComponent();
-            LayoutRoot.Opacity = 0;
-            this.Loaded += new RoutedEventHandler((object sender, RoutedEventArgs e) => RunNavigateInStoryboard());
-            LayoutRoot.RenderTransform = new CompositeTransform();
             _appSettings = new NotepadTheNextVersion.Settings();
-        }
-
-        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
-        {
-            base.OnNavigatedTo(e);
-            if (SettingsPanel.Children.Count == 0)
-                UpdateView();
-        }
-
-        private void RunNavigateInStoryboard()
-        {
-            Storyboard s = new Storyboard();
-            Storyboard.SetTarget(s, LayoutRoot);
-            s.Children.Add(AnimationUtils.FadeIn(100));
-            s.Begin();
+            UpdateView();
         }
 
         private void UpdateView()

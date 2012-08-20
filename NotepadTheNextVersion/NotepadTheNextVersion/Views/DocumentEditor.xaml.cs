@@ -25,7 +25,7 @@ namespace NotepadTheNextVersion.ListItems
         private Document _doc;
         private TextBox DocTextBox;
         private TextBlock DocTitleBlock;
-        private bool _shouldRemoveBackEntry;
+        private bool _shouldDelete;
         private SolidColorBrush _background;
         private SolidColorBrush _foreground;
 
@@ -45,10 +45,16 @@ namespace NotepadTheNextVersion.ListItems
             return scope;
         }
 
+        protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
+        {
+            base.OnBackKeyPress(e);
+            _shouldDelete = true;
+        }
+
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-            if (_doc.IsTemp && _shouldRemoveBackEntry)
+            if (_doc.IsTemp && _shouldDelete)
             {
                 try
                 {
@@ -81,15 +87,14 @@ namespace NotepadTheNextVersion.ListItems
             if (_doc == null)
                 GetArgs();
             UpdateView();
-            DocScrollViewer.Opacity = 0;
+            //DocScrollViewer.Opacity = 0;
             UpdateColors();
-
-            DocScrollViewer.RenderTransform = new CompositeTransform();
-            Storyboard s = new Storyboard();
-            s.Children.Add(AnimationUtils.FadeIn(100));
-            s.Children.Add(AnimationUtils.TranslateY(350, 0, 200));
-            Storyboard.SetTarget(s, DocScrollViewer);
-            s.Begin();
+            //DocScrollViewer.RenderTransform = new CompositeTransform();
+            //Storyboard s = new Storyboard();
+            //s.Children.Add(AnimationUtils.FadeIn(100));
+            //s.Children.Add(AnimationUtils.TranslateY(350, 0, 200));
+            //Storyboard.SetTarget(s, DocScrollViewer);
+            //s.Begin();
         }
 
         private void GetArgs()
@@ -227,7 +232,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void FoldersIconButton_Click(object sender, EventArgs e)
         {
-            _shouldRemoveBackEntry = true;
+            _shouldDelete = true;
             ParamUtils.SetArguments(new Directory(_doc.Path.Parent));
             NavigationService.Navigate(App.Listings);
         }
