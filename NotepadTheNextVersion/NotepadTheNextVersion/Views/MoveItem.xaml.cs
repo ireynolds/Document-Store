@@ -33,27 +33,30 @@ namespace NotepadTheNextVersion.ListItems
         public MoveItem()
         {
             InitializeComponent();
-
-            GetArguments();
-            UpdateView();
-
-            ContentBox.SelectionChanged += new SelectionChangedEventHandler(ContentBox_SelectionChanged);
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-
             NavigationService.RemoveBackEntry();
+        }
+
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            GetArguments();
+            UpdateView();
+            ContentBox.SelectionChanged += new SelectionChangedEventHandler(ContentBox_SelectionChanged);
         }
 
         #region Private Helpers
 
         private void GetArguments()
         {
-            IList<IActionable> args = ParamUtils.GetArguments();
-
-            _actionables = (IList<IActionable>)args.ElementAt(0);
+            var args = new List<IActionable>();
+            foreach (var key in NavigationContext.QueryString.Keys)
+                args.Add(Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString[key])));
+            _actionables = args;
         }
 
         private void UpdateView()

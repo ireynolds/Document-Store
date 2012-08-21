@@ -27,11 +27,6 @@ namespace NotepadTheNextVersion.ListItems
         public RenameItem()
         {
             InitializeComponent();
-
-            GetArgs();
-            UpdateView();
-
-            NewNameBox.GotFocus += new RoutedEventHandler(NewNameBox_GotFocus);
             this.Loaded += new RoutedEventHandler(RenameItem_Loaded);
         }
 
@@ -40,6 +35,14 @@ namespace NotepadTheNextVersion.ListItems
             Cancel();
             e.Cancel = true;
             base.OnBackKeyPress(e);
+        }
+
+        protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
+        {
+            base.OnNavigatedTo(e);
+            GetArgs();
+            UpdateView();
+            NewNameBox.GotFocus += new RoutedEventHandler(NewNameBox_GotFocus);
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
@@ -114,15 +117,15 @@ namespace NotepadTheNextVersion.ListItems
             {
                 act.Open(NavigationService);
             }
-            else if (prevPage.Equals(App.Listings) && _actionable.IsTemp && _actionable is Document)
+            else if (prevPage.StartsWith(App.Listings.OriginalString) && _actionable.IsTemp && _actionable is Document)
             {
                 act.Open(NavigationService);
             }
-            else if (prevPage.Equals(App.Listings))
+            else if (prevPage.StartsWith(App.Listings.OriginalString))
             {
                 NavigationService.GoBack();
             }
-            else if (prevPage.Equals(App.DocumentEditor))
+            else if (prevPage.StartsWith(App.DocumentEditor.OriginalString))
             {
                 act.Open(NavigationService);
                 NavigationService.RemoveBackEntry();
@@ -132,13 +135,13 @@ namespace NotepadTheNextVersion.ListItems
             act.IsTemp = false;
         }
 
-        private Uri GetPreviousPageUri()
+        private string GetPreviousPageUri()
         {
             int index = NavigationService.BackStack.Count(delegate { return true; }) - 1;
             if (index == -1)
                 return null;
             else
-                return NavigationService.BackStack.ElementAt(index).Source;
+                return NavigationService.BackStack.ElementAt(index).Source.OriginalString;
         }
 
         private void IconButton_Cancel_Click(object sender, EventArgs e)
@@ -221,9 +224,9 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            IList<IActionable> args = ParamUtils.GetArguments();
-
-            _actionable = (IActionable)args[0];
+            _actionable = Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
+            if (NavigationContext.QueryString.ContainsKey("istemp"))
+                _actionable.IsTemp = bool.Parse(NavigationContext.QueryString["istemp"]);
         }
 
         private bool IsUniqueFileName(string name)

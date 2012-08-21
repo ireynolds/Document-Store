@@ -556,8 +556,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                IList<IActionable> args = ParamUtils.GetArguments();
-                _curr = (Directory)args[0];
+                _curr = (Directory)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
             }
         }
 
@@ -895,8 +894,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 NewButton = Utils.CreateIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
                 {
-                    ParamUtils.SetArguments(Page._curr);
-                    Page.NavigationService.Navigate(App.AddNewItem);
+                    Page.NavigationService.Navigate(App.AddNewItem.AddArg(Page._curr));
                 });
                 SelectButton = Utils.CreateIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { Invoke(delegate { Page.SetPageMode(PageMode.Edit); }); });
                 SearchButton = Utils.CreateIconButton("search", App.SearchIcon, (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Search); });
@@ -990,8 +988,7 @@ namespace NotepadTheNextVersion.ListItems
                     IList<IActionable> args = new List<IActionable>();
                     foreach (IListingsListItem li in Page.CurrentBox.SelectedItems)
                         args.Add(li.ActionableItem);
-                    ParamUtils.SetArguments(args);
-                    Page.NavigationService.Navigate(App.MoveItem);
+                    Page.NavigationService.Navigate(App.MoveItem.AddArgs(args));
                 });
                 PinItem = Utils.CreateMenuItem("pin", (object sender, EventArgs e) =>
                 {
@@ -1062,9 +1059,7 @@ namespace NotepadTheNextVersion.ListItems
                     IList<IActionable> args = new List<IActionable>();
                     foreach (IListingsListItem li in Page.CurrentBox.SelectedItems)
                         args.Add(li.ActionableItem);
-
-                    ParamUtils.SetArguments(args);
-                    Page.NavigationService.Navigate(App.MoveItem);
+                    Page.NavigationService.Navigate(App.MoveItem.AddArgs(args));
                 });
                 EmptyItem = Utils.CreateMenuItem("empty trash", (object sender, EventArgs e) =>
                 {

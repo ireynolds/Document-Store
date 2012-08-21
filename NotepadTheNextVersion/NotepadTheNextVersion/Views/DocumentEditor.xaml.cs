@@ -25,7 +25,6 @@ namespace NotepadTheNextVersion.ListItems
         private Document _doc;
         private TextBox DocTextBox;
         private TextBlock DocTitleBlock;
-        private bool _shouldDelete;
         private SolidColorBrush _background;
         private SolidColorBrush _foreground;
 
@@ -86,17 +85,9 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            string s;
-            if (NavigationContext.QueryString.TryGetValue("param", out s))
-            {
-                PathStr p = new PathStr(s);
-                _doc = new Document(p);
-            }
-            else
-            {
-                IList<IActionable> args = ParamUtils.GetArguments();
-                _doc = (Document)args[0];
-            }
+            _doc = (Document)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
+            if (NavigationContext.QueryString.ContainsKey("istemp"))
+                _doc.IsTemp = bool.Parse(NavigationContext.QueryString["istemp"]);
         }
 
         private void UpdateView()
@@ -209,8 +200,7 @@ namespace NotepadTheNextVersion.ListItems
                 MessageBox.Show("This file could not be saved. It's likely that the file is corrupted, so please copy-paste the text, close the application, and create a new document.", "An error occurred", MessageBoxButton.OK); 
                 return;
             }
-            ParamUtils.SetArguments(_doc);
-            NavigationService.Navigate(App.SendAs);
+            NavigationService.Navigate(App.SendAs.AddArg(_doc));
         }
 
         private void SettingsMenuItem_Click(object sender, EventArgs e)
@@ -220,8 +210,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void FoldersIconButton_Click(object sender, EventArgs e)
         {
-            ParamUtils.SetArguments(new Directory(_doc.Path.Parent));
-            NavigationService.Navigate(App.Listings);
+            NavigationService.Navigate(App.Listings.AddArg(new Directory(new PathStr(_doc.Path.Parent.PathString))));
         }
 
         void DocTextBox_SizeChanged(object sender, SizeChangedEventArgs e)

@@ -116,14 +116,12 @@ namespace NotepadTheNextVersion.Models
 
         public void Open(NavigationService NavigationService)
         {
-            ParamUtils.SetArguments(this);
-            NavigationService.Navigate(App.DocumentEditor);
+            NavigationService.Navigate(App.DocumentEditor.AddArg(this).AddArg("istemp", IsTemp.ToString()));
         }
 
         public void NavToMove(NavigationService NavigationService)
         {
-            ParamUtils.SetArguments(this);
-            NavigationService.Navigate(App.MoveItem);
+            NavigationService.Navigate(App.MoveItem.AddArg(this));
         }
 
         public IActionable Move(Directory newParent)
@@ -152,8 +150,7 @@ namespace NotepadTheNextVersion.Models
 
         public void NavToRename(NavigationService NavigationService)
         {
-            ParamUtils.SetArguments(this);
-            NavigationService.Navigate(App.RenameItem);
+            NavigationService.Navigate(App.RenameItem.AddArg(this).AddArg("istemp", IsTemp.ToString()));
         }
 
         public IActionable Rename(string newFileName)
@@ -225,7 +222,7 @@ namespace NotepadTheNextVersion.Models
                 data.Title = this.DisplayName;
                 data.BackContent = Text;
                 data.BackgroundImage = new Uri(App.DocumentTile, UriKind.Relative);
-                ShellTile.Create(App.DocumentEditor + "?param=" + Uri.EscapeUriString(Path.PathString), data);
+                ShellTile.Create(App.DocumentEditor.AddArg(this).AddArg("istemp", IsTemp.ToString()), data);
             }
             else
             {

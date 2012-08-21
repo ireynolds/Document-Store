@@ -34,22 +34,5 @@ namespace NotepadTheNextVersion.Utilities
             if (!param.Exists())
                 throw new ArgumentException("The parameter " + paramName + " did not exist.");
         }
-
-        // Sets the arguments to prepare for navigation
-        public static void SetArguments(IList<IActionable> a)
-        {
-            App.Argument = a;
-        }
-
-        public static void SetArguments(IActionable a)
-        {
-            App.Argument = new List<IActionable>() { a };
-        }
-
-        // Retrieves the arguments from the current navigation
-        public static IList<IActionable> GetArguments()
-        {
-            return App.Argument;
-        }
     }
 }

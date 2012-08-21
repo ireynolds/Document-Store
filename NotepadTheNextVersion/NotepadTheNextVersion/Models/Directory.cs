@@ -98,14 +98,12 @@ namespace NotepadTheNextVersion.Models
 
         public void Open(NavigationService NavigationService)
         {
-            ParamUtils.SetArguments(this);
-            NavigationService.Navigate(App.Listings);
+            NavigationService.Navigate(App.Listings.AddArg(this));
         }
 
         public void NavToMove(NavigationService NavigationService)
         {
-            ParamUtils.SetArguments(this);
-            NavigationService.Navigate(App.MoveItem);
+            NavigationService.Navigate(App.MoveItem.AddArg(this));
         }
 
         public IActionable Move(Directory newParent) 
@@ -133,8 +131,7 @@ namespace NotepadTheNextVersion.Models
 
         public void NavToRename(NavigationService NavigationService)
         {
-            ParamUtils.SetArguments(this);
-            NavigationService.Navigate(App.RenameItem);
+            NavigationService.Navigate(App.RenameItem.AddArg(this).AddArg("istemp", IsTemp.ToString()));
         }
 
         public IActionable Rename(string newDirectoryName)

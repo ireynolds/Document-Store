@@ -22,15 +22,14 @@ namespace NotepadTheNextVersion.ListItems
         public SendAs()
         {
             InitializeComponent();
-            GetArgs();
-            UpdateView();
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             if (_hasBeenNavigatedTo)
                 NavigationService.GoBack();
-
+            GetArgs();
+            UpdateView();
             base.OnNavigatedTo(e);
         }
 
@@ -86,8 +85,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            IList<IActionable> args = ParamUtils.GetArguments();
-            _currentDocument = (Document)args[0];
+            _currentDocument = (Document)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
         }
 
         #endregion
