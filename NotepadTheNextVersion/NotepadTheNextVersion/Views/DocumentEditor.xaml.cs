@@ -230,6 +230,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             try
             {
+                _doc.IsTemp = false;
                 _doc.Save();
             }
             catch (Exception ex)

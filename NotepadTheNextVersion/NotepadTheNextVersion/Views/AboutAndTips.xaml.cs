@@ -63,6 +63,20 @@ namespace NotepadTheNextVersion.ListItems
                 FontFamily = new FontFamily("Segoe WP SemiLight"),
                 Margin = new Thickness(0, 0, 0, 30)
             });
+
+            var b = new HyperlinkButton();
+            b.Content = "Visit Notepad's website.";
+            b.Margin = new Thickness(-12, 0, 0, 30);
+            b.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
+            b.FontSize = 26;
+            b.Click += (s, e) =>
+                {
+                    var t = new WebBrowserTask();
+                    t.Uri = new Uri("http://github.com/ireynolds/notepad/wiki");
+                    t.Show();
+                };
+            AboutPanel.Children.Add(b);
+
             AboutPanel.Children.Add(new TextBlock() { Text = "Software Engineer: Isaac Reynolds" });
             AboutPanel.Children.Add(new TextBlock() { Text = "Front-end Engineer: Isaac Reynolds" });
             AboutPanel.Children.Add(new TextBlock() { Text = "Quality Engineer: Isaac Reynolds" });
