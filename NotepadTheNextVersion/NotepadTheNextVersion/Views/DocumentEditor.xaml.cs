@@ -62,15 +62,7 @@ namespace NotepadTheNextVersion.ListItems
             else
             {
                 _doc.Text = DocTextBox.Text;
-                try
-                {
-                    _doc.Save();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("This file could not be saved. It's likely that the file is corrupted, so please copy-paste the text, close the application, and create a new document.", "An error occurred", MessageBoxButton.OK);
-                    return;
-                }
+                TrySave();
             }
         }
 
@@ -175,9 +167,54 @@ namespace NotepadTheNextVersion.ListItems
         {
             ApplicationBar = new ApplicationBar();
 
+            ApplicationBar.Buttons.Add(Utils.CreateIconButton("save", App.SaveIcon, new EventHandler(Save_IconButton)));
             ApplicationBar.Buttons.Add(Utils.CreateIconButton("folders", App.FolderIconSmall, new EventHandler(FoldersIconButton_Click)));
             ApplicationBar.MenuItems.Add(Utils.CreateMenuItem("settings", new EventHandler(SettingsMenuItem_Click)));
             ApplicationBar.MenuItems.Add(Utils.CreateMenuItem("send as...", new EventHandler(SendAsMenuItem_Click)));
+        }
+
+        private void Save_IconButton(object sender, EventArgs e)
+        {
+            if (TrySave())
+                DisplaySuccessNotification();
+        }
+
+        private void DisplaySuccessNotification()
+        {
+            var c = new Canvas();
+            c.Background = (SolidColorBrush)App.Current.Resources["PhoneAccentBrush"];
+            c.Height = 72;
+            c.VerticalAlignment = System.Windows.VerticalAlignment.Top;
+            c.Opacity = 0;
+            c.RenderTransform = new CompositeTransform();
+            c.Children.Add(new TextBlock()
+            {
+                Text = "Document saved successfully",
+                Foreground = new SolidColorBrush(Colors.White),
+                FontSize = 23,
+                VerticalAlignment = System.Windows.VerticalAlignment.Center,
+                Margin = new Thickness(10, 20, 0, 0)
+            });
+            LayoutRoot.Children.Add(c);
+
+            var sbc = new Storyboard();
+            EventHandler completed = (s, e) =>
+            {
+                sbc.BeginTime = TimeSpan.FromMilliseconds(1000);
+                sbc.Children.Add(AnimationUtils.TranslateX(0, 500, 200, new ExponentialEase() { EasingMode = EasingMode.EaseInOut, Exponent = 2 }, c));
+                sbc.Children.Add(AnimationUtils.FadeOut(150, c));
+                sbc.Begin();
+            };
+            c.Tap += (s, e) =>
+            {
+                sbc.Seek(TimeSpan.FromMilliseconds(1000));
+            };
+
+            var sb = new Storyboard();
+            sb.Children.Add(AnimationUtils.TranslateX(-500, 0, 200, new ExponentialEase() { EasingMode = EasingMode.EaseInOut, Exponent = 2 }, c));
+            sb.Children.Add(AnimationUtils.FadeIn(150, c));
+            sb.Completed += completed;
+            sb.Begin();
         }
 
         #endregion
@@ -189,7 +226,7 @@ namespace NotepadTheNextVersion.ListItems
             _doc.IsTemp = false;
         }
 
-        private void SendAsMenuItem_Click(object sender, EventArgs e)
+        private bool TrySave()
         {
             try
             {
@@ -197,10 +234,16 @@ namespace NotepadTheNextVersion.ListItems
             }
             catch (Exception ex)
             {
-                MessageBox.Show("This file could not be saved. It's likely that the file is corrupted, so please copy-paste the text, close the application, and create a new document.", "An error occurred", MessageBoxButton.OK); 
-                return;
+                MessageBox.Show("This file could not be saved.", "An error occurred", MessageBoxButton.OK);
+                return false;
             }
-            NavigationService.Navigate(App.SendAs.AddArg(_doc));
+            return true;
+        }
+
+        private void SendAsMenuItem_Click(object sender, EventArgs e)
+        {
+            if (TrySave())
+                NavigationService.Navigate(App.SendAs.AddArg(_doc));
         }
 
         private void SettingsMenuItem_Click(object sender, EventArgs e)
