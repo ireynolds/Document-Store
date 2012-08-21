@@ -852,14 +852,18 @@ namespace NotepadTheNextVersion.ListItems
                 i++;
             }
 
-            foreach (IListingsListItem item in deletedItems)
-                CurrentBox.Items.Remove(item);
-
-            s.Begin();
             s.Completed += (object sender, EventArgs e) =>
             {
                 if (CurrentBox.Items.Count == 0)
                     ShowNotice(Notice.Empty);
+            };
+            if (_pageMode != PageMode.Trash)
+                SetPageMode(PageMode.View);
+            deletedItems[0].IsSelectableAnimationCompleted += (s2, e2) =>
+            {
+                foreach (IListingsListItem item in deletedItems)
+                    CurrentBox.Items.Remove(item);
+                s.Begin();
             };
         }
 
@@ -960,7 +964,6 @@ namespace NotepadTheNextVersion.ListItems
                         deletedItems.Add(li);
                     }
                     Page.BeginDeleteAnimations(deletedItems);
-                    Page.SetPageMode(PageMode.View);
                 });
                 FaveButton = Utils.CreateIconButton("add favorite", App.FaveIcon, (object sender, EventArgs e) =>
                 {

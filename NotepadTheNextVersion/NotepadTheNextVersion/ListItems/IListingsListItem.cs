@@ -12,12 +12,12 @@ namespace NotepadTheNextVersion.ListItems
 {
     public abstract class IListingsListItem : StackPanel
     {
-        private const int SHOW_CHECKBOX_DURATION = 150;
-        private const int CHECKBOX_FADEIN_DURATION = 125;
-        private const int HIDE_CHECKBOX_DURATION = 100;
-        private const int CHECKBOX_FADEOUT_DURATION = 125;
-        private static readonly IEasingFunction SHOW_CHECKBOX_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 4 };
-        private static readonly IEasingFunction HIDE_CHECKBOX_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseIn, Exponent = 3 };
+        private const int SHOW_CHECKBOX_DURATION = 100;
+        private const int CHECKBOX_FADEIN_DURATION = 100;
+        private const int HIDE_CHECKBOX_DURATION = 90;
+        private const int CHECKBOX_FADEOUT_DURATION = 100;
+        private static readonly IEasingFunction SHOW_CHECKBOX_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseInOut, Exponent = 2 };
+        private static readonly IEasingFunction HIDE_CHECKBOX_EASE = new ExponentialEase() { EasingMode = EasingMode.EaseInOut, Exponent = 2 };
 
         public readonly IActionable ActionableItem;
         protected readonly StackPanel _contentPanel;
@@ -53,6 +53,24 @@ namespace NotepadTheNextVersion.ListItems
                     DisplayCheckBox();
                 else
                     HideCheckBox();
+            }
+        }
+
+        public event EventHandler IsSelectableAnimationCompleted
+        {
+            add
+            {
+                if (_hideCheckBoxStoryboard == null)
+                    InitHideAnim();
+                if (_displayCheckBoxStoryboard == null)
+                    InitShowAnim();
+                _hideCheckBoxStoryboard.Completed += value;
+                _displayCheckBoxStoryboard.Completed += value;
+            }
+            remove
+            {
+                _hideCheckBoxStoryboard.Completed -= value;
+                _hideCheckBoxStoryboard.Completed -= value;
             }
         }
 
@@ -114,44 +132,54 @@ namespace NotepadTheNextVersion.ListItems
         {
             if (_displayCheckBoxStoryboard == null)
             {
-                _displayCheckBoxStoryboard = new Storyboard();
-
-                DoubleAnimation slide = AnimationUtils.TranslateX(SLIDE_POSITION, 0, SHOW_CHECKBOX_DURATION, SHOW_CHECKBOX_EASE);
-                Storyboard.SetTarget(slide, this);
-                _displayCheckBoxStoryboard.Children.Add(slide);
-
-                DoubleAnimation fade = AnimationUtils.FadeIn(CHECKBOX_FADEIN_DURATION);
-                Storyboard.SetTarget(fade, _checkBox);
-                _displayCheckBoxStoryboard.Children.Add(fade);
+                InitShowAnim();
             }
             _checkBox.Visibility = Visibility.Visible;
             _displayCheckBoxStoryboard.Begin();
+        }
+
+        private void InitShowAnim()
+        {
+            _displayCheckBoxStoryboard = new Storyboard();
+
+            DoubleAnimation slide = AnimationUtils.TranslateX(SLIDE_POSITION, 0, SHOW_CHECKBOX_DURATION, SHOW_CHECKBOX_EASE);
+            Storyboard.SetTarget(slide, this);
+            _displayCheckBoxStoryboard.Children.Add(slide);
+
+            DoubleAnimation fade = AnimationUtils.FadeIn(CHECKBOX_FADEIN_DURATION);
+            Storyboard.SetTarget(fade, _checkBox);
+            _displayCheckBoxStoryboard.Children.Add(fade);
         }
 
         private void HideCheckBox()
         {
             if (_hideCheckBoxStoryboard == null)
             {
-                _hideCheckBoxStoryboard = new Storyboard();
-                _hideCheckBoxStoryboard.Completed += (object sender, EventArgs e) =>
-                {
-                    _checkBox.Visibility = Visibility.Collapsed;
-                    _hideCheckBoxStoryboard.Stop();
-                };
-
-                DoubleAnimation slide = AnimationUtils.TranslateX(0, SLIDE_POSITION, HIDE_CHECKBOX_DURATION, HIDE_CHECKBOX_EASE);
-                Storyboard.SetTarget(slide, this);
-                _hideCheckBoxStoryboard.Children.Add(slide);
-
-                DoubleAnimation fade = AnimationUtils.FadeOut(CHECKBOX_FADEOUT_DURATION);
-                Storyboard.SetTarget(fade, _checkBox);
-                _hideCheckBoxStoryboard.Children.Add(fade);
+                InitHideAnim();
             }
-            _hideCheckBoxStoryboard.Completed +=new EventHandler((object sender, EventArgs e) =>
+            _hideCheckBoxStoryboard.Begin();
+        }
+
+        private void InitHideAnim()
+        {
+            _hideCheckBoxStoryboard = new Storyboard();
+            _hideCheckBoxStoryboard.Completed += (object sender, EventArgs e) =>
+            {
+                _checkBox.Visibility = Visibility.Collapsed;
+                _hideCheckBoxStoryboard.Stop();
+            };
+
+            DoubleAnimation slide = AnimationUtils.TranslateX(0, SLIDE_POSITION, HIDE_CHECKBOX_DURATION, HIDE_CHECKBOX_EASE);
+            Storyboard.SetTarget(slide, this);
+            _hideCheckBoxStoryboard.Children.Add(slide);
+
+            DoubleAnimation fade = AnimationUtils.FadeOut(CHECKBOX_FADEOUT_DURATION);
+            Storyboard.SetTarget(fade, _checkBox);
+            _hideCheckBoxStoryboard.Children.Add(fade);
+            _hideCheckBoxStoryboard.Completed += new EventHandler((object sender, EventArgs e) =>
             {
                 _checkBox.Visibility = Visibility.Collapsed;
             });
-            _hideCheckBoxStoryboard.Begin();
         }
 
         protected abstract void OverrideHighlightColor();

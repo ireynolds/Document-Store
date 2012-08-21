@@ -38,7 +38,7 @@ namespace NotepadTheNextVersion.ListItems
             SettingsPanel.Children.Add(CreateThemeColorListPicker());
             SettingsPanel.Children.Add(CreateDescriptionBlock("The color you select will be the background color " + 
                 "of the document editor. The 'phone theme' setting sets the background color according to the " + 
-                "phone's theme ('dark' or 'light')."));
+                "phone's theme."));
         }
 
         private TextBox CreateRootNameTextBox()
