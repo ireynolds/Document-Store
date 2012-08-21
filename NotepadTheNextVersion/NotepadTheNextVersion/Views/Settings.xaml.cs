@@ -25,7 +25,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void UpdateView()
         {
-            SettingsPanel.Children.Add(CreateBoundToggleSwitch("Open to documents explorer", "OpenToFoldersList"));
+            SettingsPanel.Children.Add(CreateBoundToggleSwitch("Open to document explorer", "OpenToFoldersList"));
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Also search document text", "SearchFileText"));
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Show document title in editor", "DisplayNoteTitle"));
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Show hidden items", "ShowHiddenItems"));

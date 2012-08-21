@@ -63,17 +63,14 @@ namespace NotepadTheNextVersion.ListItems
                 FontFamily = new FontFamily("Segoe WP SemiLight"),
                 Margin = new Thickness(0, 0, 0, 30)
             });
-            AboutPanel.Children.Add(new TextBlock() { Text = "New Features Guru: You" });
             AboutPanel.Children.Add(new TextBlock() { Text = "Software Engineer: Isaac Reynolds" });
             AboutPanel.Children.Add(new TextBlock() { Text = "Front-end Engineer: Isaac Reynolds" });
             AboutPanel.Children.Add(new TextBlock() { Text = "Quality Engineer: Isaac Reynolds" });
             AboutPanel.Children.Add(new TextBlock() { Text = "Senior Program Manager: Isaac Reynolds" });
-            AboutPanel.Children.Add(new TextBlock() { Text = "Director of Fun: Isaac Reynolds" });
+            AboutPanel.Children.Add(new TextBlock() { Text = "President of Having Fun: Isaac Reynolds" });
             AboutPanel.Children.Add(new TextBlock()
             {
-                Text = "Isaac, a university student of Computer Science at the University of Washington " +
-                    "in Seattle, is the one man in the one-man crew of AppsForMe. He loves the Windows Phone platform, and enjoys " +
-                    "software engineering and UI design.",
+                Text = "Isaac, a university student of Computer Science at the University of Washington in Seattle, is the one man in the one-man crew of AppsForMe. He loves the Windows Phone platform, and enjoys software engineering and UI design.",
                 Margin = new Thickness(0, 20, 0, 0),
                 TextWrapping = TextWrapping.Wrap
             });
@@ -114,24 +111,18 @@ namespace NotepadTheNextVersion.ListItems
         private void UpdateTips()
         {
             TipsPanel.Margin = new Thickness(12, 0, 0, 0);
-            
-            AddNewTitleBlock(TipsPanel, "navigate up, not back");
-            AddNewDescriptionBlock(TipsPanel, "Open the settings screen and enable \"" +
-                "Override back key.\" When you tap the back key while viewing directory listings, yo" +
-                "u'll always navigate to the parent directory.");
 
-            AddNewTitleBlock(TipsPanel, "delete, move, rename, pin");
-            AddNewDescriptionBlock(TipsPanel, "Navigate to the page of document and directory " + 
-                "listings. Press and hold on an item until a context menu pops up.");
+            AddNewTitleBlock(TipsPanel, "open to document explorer");
+            AddNewDescriptionBlock(TipsPanel, "Open the settings screen and enable \"Open to document explorer\". When you open Notepad, you'll skip the document editor page and open to the directory explorer instead.");
 
-            AddNewTitleBlock(TipsPanel, "open to folders list");
-            AddNewDescriptionBlock(TipsPanel, "Open the settings screen and enable \"Open to folders " + 
-                "list.\" When you open Notepad, you'll skip the note editor screen and open to document" + 
-                " listings instead.");
+            AddNewTitleBlock(TipsPanel, "delete, move, rename");
+            AddNewDescriptionBlock(TipsPanel, "While you’re using the document explorer, tap the \"select\" icon in the application bar. Select some items in the list and use the application bar to delete them, move them, or rename them.");
 
-            AddNewTitleBlock(TipsPanel, "send as sms or email");
-            AddNewDescriptionBlock(TipsPanel, "Use notes as email/sms draft templates. After saving a note, " + 
-                "use the \"send as sms\" or \"send as email\" features. You can find them in the note editor.");
+            AddNewTitleBlock(TipsPanel, "pin, favorite");
+            AddNewDescriptionBlock(TipsPanel, "In addition to deleting, moving, and renaming items, you can also pin them to the start or add them as favorites so they’re easily accessible from the document explorer.");
+
+            AddNewTitleBlock(TipsPanel, "send as email or sms");
+            AddNewDescriptionBlock(TipsPanel, "Use documents as email or sms templates. While you’re editing a document, tap \"send as…\" in the application bar, then choose SMS or email.");
 
         }
 
@@ -180,7 +171,7 @@ namespace NotepadTheNextVersion.ListItems
         void b1_Click(object sender, RoutedEventArgs e)
         {
             EmailComposeTask emailTask = new EmailComposeTask();
-            emailTask.To = "appsforme@live.com";
+            emailTask.To = "appsforme@outlook.com";
             emailTask.Show();
         }
 
