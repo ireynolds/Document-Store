@@ -197,7 +197,9 @@ namespace NotepadTheNextVersion.ListItems
                 if (CurrentBox.SelectedIndex == -1)
                     return;
                 _masterPivot.SelectedItem = _allPivot;
-                Open((IListingsListItem)_favesBox.SelectedItem);
+                var dest = _favesBox.SelectedItem as IListingsListItem;
+                if (!dest.ActionableItem.Path.Equals(_curr.Path))
+                    Open(dest);
             }
             else if (_pageMode == PageMode.View)
             {
