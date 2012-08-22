@@ -124,8 +124,12 @@ namespace NotepadTheNextVersion.ListItems
             base.OnNavigatedTo(e);
             if (_curr == null)
                 GetArgs();
+            if (!_curr.Exists())
+            {
+                MessageBox.Show("The selected directory could not be found.", "An error occurred", MessageBoxButton.OK);
+                NavigationService.Navigate(App.Listings.AddArg(new Directory(PathBase.Root)));
+            }
             _curr = (Directory)_curr.SwapRoot();
-            
             NavigateTo(_curr);
         }
 

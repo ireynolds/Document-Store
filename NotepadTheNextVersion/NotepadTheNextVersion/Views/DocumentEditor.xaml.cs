@@ -71,6 +71,12 @@ namespace NotepadTheNextVersion.ListItems
             base.OnNavigatedTo(e);
             if (_doc == null)
                 GetArgs();
+            if (!_doc.Exists())
+            {
+                MessageBox.Show("The selected file could not be found.", "An error occurred", MessageBoxButton.OK);
+                _doc.IsTemp = true;
+                NavigationService.Navigate(App.Listings.AddArg(new Directory(PathBase.Root)));
+            }
             UpdateView();
             UpdateColors();
         }
