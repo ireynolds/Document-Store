@@ -123,7 +123,16 @@ namespace NotepadTheNextVersion.ListItems
             {
                 string docName = GetDocName(docs[i].Trim());
                 string docText = docs[i + 1].Trim();
-                Document newDoc = FileUtils.CreateFileFromString(docName);
+                Document newDoc; 
+                try
+                {
+                    newDoc = FileUtils.CreateFileFromString(docName);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Notepad could not parse the data.", "An error occurred", MessageBoxButton.OK);
+                    return;
+                }
                 newDoc.Text = docText;
                 newDoc.Save();
             }

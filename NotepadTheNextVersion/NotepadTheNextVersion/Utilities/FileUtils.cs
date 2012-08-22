@@ -227,6 +227,9 @@ namespace NotepadTheNextVersion.Utilities
         /// <returns></returns>
         public static Document CreateFileFromString(string path)
         {
+            if (!IsDoc(path) && !IsDir(path))
+                throw new Exception();
+
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 string[] pathArray = path.Split(new char[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
