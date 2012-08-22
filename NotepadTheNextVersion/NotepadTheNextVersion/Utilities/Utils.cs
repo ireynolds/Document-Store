@@ -75,7 +75,16 @@ namespace NotepadTheNextVersion.Utilities
                     var uri = x.NavigationUri.ToString();
                     var index = uri.IndexOf('=');
                     if (index != -1)
-                        return uri.Substring(index + 1).Equals(Uri.EscapeDataString(ItemPathString));
+                    {
+                        if (FileUtils.IsDoc(ItemPathString))
+                        {
+                            return uri.Substring(index + 1).StartsWith(Uri.EscapeDataString(ItemPathString) + "&istemp=");
+                        }
+                        else
+                        {
+                            return uri.Substring(index + 1).Equals(Uri.EscapeDataString(ItemPathString));
+                        }
+                    }
                     return false;
                 });
         }

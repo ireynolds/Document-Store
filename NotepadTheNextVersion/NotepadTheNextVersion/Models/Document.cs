@@ -145,6 +145,8 @@ namespace NotepadTheNextVersion.Models
             }
             if (IsFavorite)
                 newLocation.IsFavorite = true;
+            if (IsPinned)
+                TogglePin();
             return newLocation;
         }
 
@@ -174,6 +176,8 @@ namespace NotepadTheNextVersion.Models
             var newDoc = new Document(newLocation);
             if (IsFavorite)
                 FileUtils.ReplaceFavorite(this, newDoc);
+            if (IsPinned)
+                TogglePin();
             return newDoc;
         }
 
@@ -207,6 +211,8 @@ namespace NotepadTheNextVersion.Models
                     return null;
                 }
                 this.IsFavorite = false;
+                if (IsPinned)
+                    TogglePin();
                 return newLoc;
             }
         }
