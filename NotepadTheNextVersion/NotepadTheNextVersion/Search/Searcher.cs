@@ -75,7 +75,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             
             // Search
-            Regex rgx = new Regex(pattern, RegexOptions.IgnoreCase);
+            Regex rgx = new Regex(Regex.Escape(pattern), RegexOptions.IgnoreCase);
             foreach (Document doc in _scope)
             {
                 SearchResult result = new SearchResult(doc, pattern);
