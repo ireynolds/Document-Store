@@ -168,7 +168,7 @@ namespace NotepadTheNextVersion.Models
             }
             catch (IsolatedStorageException ex)
             {
-                MessageBox.Show("Notepad could not rename the file. There may be illegal characters in the specified name.\n\nIf applicable, remove any special characters or punctuation in the name.", "An error occurred", MessageBoxButton.OK);
+                MessageBox.Show("There may be illegal characters in the specified name.\n\nIf applicable, remove any special characters or punctuation in the name.", "An error occurred", MessageBoxButton.OK);
                 throw;
             }
             var newDoc = new Document(newLocation);
