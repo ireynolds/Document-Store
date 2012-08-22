@@ -100,13 +100,13 @@ namespace NotepadTheNextVersion.ListItems
             if (!_searchTermBox.HasUserSetText || 
                 StringUtils.EqualsIgnoreCase(_lastPattern, pattern))
                 return;
+            _lastPattern = pattern;
             if (pattern.Length < 2)
             {
                 ContentBox.Items.Clear();
                 return;
             }
 
-            _lastPattern = pattern;
             if (_previousResults.ContainsKey(pattern))
                 SetResultsPane(_previousResults[pattern]);
             else

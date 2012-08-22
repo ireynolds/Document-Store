@@ -1055,6 +1055,9 @@ namespace NotepadTheNextVersion.ListItems
                 this.Page = Page;
                 DeleteButton = Utils.CreateIconButton("delete", App.DeleteIcon, (object sender, EventArgs e) =>
                 {
+                    if (!ConfirmDelete())
+                        return;
+
                     IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
                     foreach (IListingsListItem li in Page.CurrentBox.SelectedItems)
                     {
@@ -1072,7 +1075,7 @@ namespace NotepadTheNextVersion.ListItems
                 });
                 EmptyItem = Utils.CreateMenuItem("empty trash", (object sender, EventArgs e) =>
                 {
-                    if (MessageBoxResult.Cancel == MessageBox.Show("This will delete all documents in trash permanently. Do you want to continue?", "Warning", MessageBoxButton.OKCancel))
+                    if (MessageBoxResult.OK != MessageBox.Show("This will delete all documents in trash permanently.", "Are you sure?", MessageBoxButton.OKCancel))
                         return;
 
                     foreach (IListingsListItem i in Page.CurrentBox.SelectedItems)
@@ -1097,13 +1100,19 @@ namespace NotepadTheNextVersion.ListItems
                 });
             }
 
-            void SelectedItemChanged(object sender, SelectionChangedEventArgs e)
+            protected void SelectedItemChanged(object sender, SelectionChangedEventArgs e)
             {
                 int ct = Page.CurrentBox.SelectedItems.Count;
                 if (ct == 0)
                     SetEnabledElements(false, new ButtonList() { DeleteButton, RestoreButton }, new ItemList());
                 else
                     SetAllEnabled(_appBar, true);
+            }
+
+            private bool ConfirmDelete()
+            {
+                var r = MessageBox.Show("The selected items will be deleted permanently.", "Are you sure?", MessageBoxButton.OKCancel);
+                return r == MessageBoxResult.OK;
             }
         }
 

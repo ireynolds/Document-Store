@@ -108,27 +108,61 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                string prev = sourceText.Substring(0, firstMatch.Index);
-                inlines.Add(new Run()
+                var prev = 0;
+                var curr = 0;
+                var i = 0;
+                while (curr <= CHARS_TO_INCLUDE && curr < sourceText.Length && i < _result.TextMatches.Count)
                 {
-                    Text = prev,
-                    Foreground = new SolidColorBrush(Colors.Gray)
-                });
+                    var m = _result.TextMatches[i];
+                    curr = m.Index;
+                    inlines.Add(new Run()
+                    {
+                        Text = _result.SourceText.Substring(prev, curr - prev),
+                        Foreground = new SolidColorBrush(Colors.Gray)
+                    });
+                    prev = curr;
+                    curr += m.Value.Length;
+                    inlines.Add(new Run()
+                    {
+                        Text = m.Value,
+                        Foreground = new SolidColorBrush(Colors.White)
+                    });
+                    prev = curr;
+                    i++;
+                }
 
-                string match = firstMatch.Value;
-                inlines.Add(new Run()
+                if (curr <= CHARS_TO_INCLUDE && curr < sourceText.Length)
                 {
-                    Text = match,
-                    Foreground = (Brush)App.Current.Resources["PhoneForegroundBrush"]
-                });
+                    curr = Math.Min(CHARS_TO_INCLUDE, sourceText.Length);
+                    inlines.Add(new Run()
+                    {
+                        Text = sourceText.Substring(prev, curr - prev),
+                        Foreground = new SolidColorBrush(Colors.Gray)
+                    });
+                }
 
-                int startIndex = firstMatch.Index + firstMatch.Value.Length;
-                string after = sourceText.Substring(startIndex, sourceText.Length - startIndex);
-                inlines.Add(new Run()
-                {
-                    Text = after,
-                    Foreground = new SolidColorBrush(Colors.Gray)
-                });
+
+                //string prev = sourceText.Substring(0, firstMatch.Index);
+                //inlines.Add(new Run()
+                //{
+                //    Text = prev,
+                //    Foreground = new SolidColorBrush(Colors.Gray)
+                //});
+
+                //string match = firstMatch.Value;
+                //inlines.Add(new Run()
+                //{
+                //    Text = match,
+                //    Foreground = (Brush)App.Current.Resources["PhoneForegroundBrush"]
+                //});
+
+                //int startIndex = firstMatch.Index + firstMatch.Value.Length;
+                //string after = sourceText.Substring(startIndex, sourceText.Length - startIndex);
+                //inlines.Add(new Run()
+                //{
+                //    Text = after,
+                //    Foreground = new SolidColorBrush(Colors.Gray)
+                //});
             }
 
             return inlines;
