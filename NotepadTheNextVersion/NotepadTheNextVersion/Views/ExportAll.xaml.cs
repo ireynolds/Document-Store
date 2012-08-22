@@ -139,6 +139,7 @@ namespace NotepadTheNextVersion.ListItems
             foreach (Document d in docs)
                 b.Append(String.Format("==== {0} ====\n\n{1}\n\n", d.Path.PathString, d.Text));
             t.Body = b.ToString();
+            t.Subject = String.Format("Notepad backup ({0})", DateTime.Now.ToShortDateString());
             t.Show();
         }
 
