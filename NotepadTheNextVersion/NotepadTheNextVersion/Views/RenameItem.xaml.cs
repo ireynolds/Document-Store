@@ -74,7 +74,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             if (newName.Equals(_actionable.DisplayName))
             {
-                NavigateOnSuccess(_actionable);
+                NavigateOnSuccess(Utils.CreateActionableFromPath(_actionable.Path));
                 return;
             }
             else if (!FileUtils.IsValidFileName(newName, out badChars))
@@ -113,6 +113,7 @@ namespace NotepadTheNextVersion.ListItems
         private void NavigateOnSuccess(IActionable act)
         {
             var prevPage = GetPreviousPageUri();
+            act.IsTemp = false;
             if (prevPage == null)
             {
                 act.Open(NavigationService);
@@ -132,7 +133,6 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
                 NavigationService.GoBack();
-            act.IsTemp = false;
         }
 
         private string GetPreviousPageUri()
