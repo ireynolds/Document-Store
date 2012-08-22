@@ -249,7 +249,8 @@ namespace NotepadTheNextVersion.ListItems
 
         private void SettingsMenuItem_Click(object sender, EventArgs e)
         {
-            NavigationService.Navigate(App.Settings);
+            if (TrySave())
+                NavigationService.Navigate(App.Settings);
         }
 
         private void FoldersIconButton_Click(object sender, EventArgs e)
