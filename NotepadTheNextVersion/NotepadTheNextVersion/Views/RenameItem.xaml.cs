@@ -164,7 +164,7 @@ namespace NotepadTheNextVersion.ListItems
         private void Cancel()
         {
             var prevPage = GetPreviousPageUri();
-            if (App.Listings.Equals(prevPage) && _actionable.IsTemp) // .equals(prevPage) accounts for prevPage == null
+            if (prevPage.StartsWith(App.Listings.OriginalString) && _actionable.IsTemp) // .equals(prevPage) accounts for prevPage == null
                 _actionable.Delete(true);
             NavigationService.GoBack();
         }
