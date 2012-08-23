@@ -27,10 +27,13 @@ namespace NotepadTheNextVersion.ListItems
         private TextBlock DocTitleBlock;
         private SolidColorBrush _background;
         private SolidColorBrush _foreground;
+        private bool _isNewInstance;
 
         public DocumentEditor()
         {
             InitializeComponent();
+            _isNewInstance = true;
+            UpdateView();
         }
 
         #region Private Helpers
@@ -69,16 +72,30 @@ namespace NotepadTheNextVersion.ListItems
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            if (_doc == null)
-                GetArgs();
+            if (App.WasTombstoned || _isNewInstance)
+            {
+                _isNewInstance = false;
+                if (_doc == null)
+                    GetArgs();
+                DocTitleBlock.Text = _doc.DisplayName.ToUpper();
+                try
+                {
+                    DocTextBox.Text = _doc.Text;
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("The specified file could not be opened.", "An error occurred", MessageBoxButton.OK);
+                    throw;
+                }
+            }
+            if (App.WasTombstoned)
+                _doc.IsTemp = false;
             if (!_doc.Exists())
             {
-                MessageBox.Show("The selected file could not be found.", "An error occurred", MessageBoxButton.OK);
                 _doc.IsTemp = true;
                 NavigationService.Navigate(App.Listings.AddArg(new Directory(PathBase.Root)));
                 return;
             }
-            UpdateView();
             UpdateColors();
         }
 
@@ -104,7 +121,6 @@ namespace NotepadTheNextVersion.ListItems
             this.DocTitleBlock = new TextBlock();
             if (SettingUtils.GetSetting<bool>(Setting.DisplayNoteTitle))
             {
-                DocTitleBlock.Text = _doc.DisplayName.ToUpper();
                 DocTitleBlock.FontSize = (double)App.Current.Resources["PhoneFontSizeMedium"];
                 DocTitleBlock.FontFamily = new FontFamily("Segoe WP Semibold");
                 DocTitleBlock.Foreground = new SolidColorBrush(Colors.Gray);
@@ -128,20 +144,9 @@ namespace NotepadTheNextVersion.ListItems
             DocTextBox.InputScope = GetTextInputScope();
             DocTextBox.TextChanged += new TextChangedEventHandler(DocTextBox_TextChanged);
             DocTextBox.GotFocus += new RoutedEventHandler((object sender, RoutedEventArgs e) => { DocTextBox.Background = _background; });
-            DocTextBox.LostFocus +=new RoutedEventHandler((object sender, RoutedEventArgs e) => { DocTextBox.Background = _background; });
-            try
-            {
-                DocTextBox.Text = _doc.Text;
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("The specified file could not be opened.", "An error occurred", MessageBoxButton.OK);
-                throw;
-            }
+            DocTextBox.LostFocus += new RoutedEventHandler((object sender, RoutedEventArgs e) => { DocTextBox.Background = _background; });
 
             DocStackPanel.Children.Add(DocTextBox);
-
-            UpdateColors();
         }
 
         private void UpdateColors()

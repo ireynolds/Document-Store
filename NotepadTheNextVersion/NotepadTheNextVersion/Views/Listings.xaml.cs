@@ -32,6 +32,7 @@ namespace NotepadTheNextVersion.ListItems
         private bool _isShowingLoadingNotice;
         private TimedItemAnimator _animationTimer;
         private ICollection<SelectionChangedEventHandler> _handlers;
+        private bool _isNewInstance;
 
         private StackPanel _pathPanel;
         private Pivot _masterPivot;
@@ -116,20 +117,25 @@ namespace NotepadTheNextVersion.ListItems
             _handlers = new Collection<SelectionChangedEventHandler>();
             Root.RenderTransform = new CompositeTransform();
             Root.Opacity = 0;
+            _isNewInstance = true;
             InitializePageUI();
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
-            if (_curr == null)
-                GetArgs();
-            if (!_curr.Exists())
+            if (App.WasTombstoned || _isNewInstance)
             {
-                MessageBox.Show("The selected directory could not be found.", "An error occurred", MessageBoxButton.OK);
-                NavigationService.Navigate(App.Listings.AddArg(new Directory(PathBase.Root)));
+                _isNewInstance = false;
+                if (_curr == null)
+                    GetArgs();
+                if (!_curr.Exists())
+                {
+                    MessageBox.Show("The selected directory could not be found.", "An error occurred", MessageBoxButton.OK);
+                    NavigationService.Navigate(App.Listings.AddArg(new Directory(PathBase.Root)));
+                }
+                _curr = (Directory)_curr.SwapRoot();
             }
-            _curr = (Directory)_curr.SwapRoot();
             NavigateTo(_curr);
         }
 
