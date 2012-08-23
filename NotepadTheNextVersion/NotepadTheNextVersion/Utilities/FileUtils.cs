@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (C) Isaac Reynolds. All Rights Reserved.
+// This code released under the terms of the Microsoft Public License
+// (Ms-PL, http://opensource.org/licenses/ms-pl.html).
+
+using System;
 using System.Collections.Generic;
 using NotepadTheNextVersion.ListItems;
 using System.Windows;

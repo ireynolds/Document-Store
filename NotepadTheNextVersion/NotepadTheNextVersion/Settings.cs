@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (C) Isaac Reynolds. All Rights Reserved.
+// This code released under the terms of the Microsoft Public License
+// (Ms-PL, http://opensource.org/licenses/ms-pl.html).
+
+using System;
 using System.Net;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,43 +23,25 @@ namespace NotepadTheNextVersion
 
     public class Settings
     {
-
-        // Our isolated storage settings
         IsolatedStorageSettings isolatedStore; 
 
-        // Constructor that gets the application settings.
         public Settings()
         {
-            try
-            {
-                // Get the settings for this application.
-                isolatedStore = App.AppSettings;
-
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Exception while using IsolatedStorageSettings: " + e.ToString());
-            }
+            isolatedStore = App.AppSettings;
         }
 
-        // Update a setting value for our application. If the setting does not
-        // exist, then add the setting.
         public bool AddOrUpdateValue(string Key, Object value)
         {
             bool valueChanged = false;
 
-            // If the key exists
             if (isolatedStore.Contains(Key))
             {
-                // If the value has changed
                 if (isolatedStore[Key] != value)
                 {
-                    // Store the new value
                     isolatedStore[Key] = value;
                     valueChanged = true;
                 }
             }
-            // Otherwise create the key.
             else
             {
                 isolatedStore.Add(Key, value);
@@ -67,18 +53,14 @@ namespace NotepadTheNextVersion
 
 
 
-        // Get the current value of the setting, or if it is not found, set the 
-        // setting to the default setting.
         public valueType GetValueOrDefault<valueType>(string Key, valueType defaultValue)
         {
             valueType value;
 
-            // If the key exists, retrieve the value.
             if (isolatedStore.Contains(Key))
             {
                 value = (valueType)isolatedStore[Key];
             }
-            // Otherwise, use the default value.
             else
             {
                 value = defaultValue;
@@ -89,7 +71,6 @@ namespace NotepadTheNextVersion
 
 
 
-        // Save the settings.
         public void Save()
         {
             isolatedStore.Save();
@@ -97,7 +78,6 @@ namespace NotepadTheNextVersion
 
 
 
-        // Property to get and set a DisplayNoteTitle Setting Key.
         public bool DisplayNoteTitle
         {
             get
@@ -111,7 +91,6 @@ namespace NotepadTheNextVersion
             }
         }
 
-        // Property to get and set an OpenToFoldersList Setting Key.
         public bool OpenToFoldersList
         {
             get
@@ -125,7 +104,6 @@ namespace NotepadTheNextVersion
             }
         }
 
-        // Property to get and set a SearchFileText Setting Key.
         public bool SearchFileText
         {
             get
@@ -139,7 +117,6 @@ namespace NotepadTheNextVersion
             }
         }
 
-        // Property to get and set a NoteEditorThemeColor Setting Key.
         public ThemeColor NoteEditorThemeColor
         {
             get

@@ -1,4 +1,8 @@
-﻿using System.IO.IsolatedStorage;
+﻿// Copyright (C) Isaac Reynolds. All Rights Reserved.
+// This code released under the terms of the Microsoft Public License
+// (Ms-PL, http://opensource.org/licenses/ms-pl.html).
+
+using System.IO.IsolatedStorage;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
