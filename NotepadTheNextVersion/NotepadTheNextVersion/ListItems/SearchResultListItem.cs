@@ -125,7 +125,8 @@ namespace NotepadTheNextVersion.ListItems
                     inlines.Add(new Run()
                     {
                         Text = m.Value,
-                        Foreground = new SolidColorBrush(Colors.White)
+                        FontFamily = new FontFamily("Segoe WP SemiBold"),
+                        Foreground = (Brush)App.Current.Resources["PhoneForegroundBrush"]
                     });
                     prev = curr;
                     i++;
@@ -140,29 +141,6 @@ namespace NotepadTheNextVersion.ListItems
                         Foreground = new SolidColorBrush(Colors.Gray)
                     });
                 }
-
-
-                //string prev = sourceText.Substring(0, firstMatch.Index);
-                //inlines.Add(new Run()
-                //{
-                //    Text = prev,
-                //    Foreground = new SolidColorBrush(Colors.Gray)
-                //});
-
-                //string match = firstMatch.Value;
-                //inlines.Add(new Run()
-                //{
-                //    Text = match,
-                //    Foreground = (Brush)App.Current.Resources["PhoneForegroundBrush"]
-                //});
-
-                //int startIndex = firstMatch.Index + firstMatch.Value.Length;
-                //string after = sourceText.Substring(startIndex, sourceText.Length - startIndex);
-                //inlines.Add(new Run()
-                //{
-                //    Text = after,
-                //    Foreground = new SolidColorBrush(Colors.Gray)
-                //});
             }
 
             return inlines;
@@ -185,6 +163,7 @@ namespace NotepadTheNextVersion.ListItems
             inlines.Add(new Run()
             {
                 Text = match,
+                FontFamily = new FontFamily("Segoe WP SemiBold"),
                 Foreground = (Brush)App.Current.Resources["PhoneForegroundBrush"]
             });
 
