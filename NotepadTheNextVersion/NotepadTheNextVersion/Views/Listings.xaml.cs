@@ -162,6 +162,11 @@ namespace NotepadTheNextVersion.ListItems
                 SetPageMode(PageMode.View);
                 e.Cancel = true;
             }
+            else if (_pageMode == PageMode.Favorites)
+            {
+                _masterPivot.SelectedItem = _allPivot;
+                e.Cancel = true;
+            }
             else if (_pageMode == PageMode.View)
             {
                 PathStr parent = _curr.Path.Parent;
@@ -170,15 +175,10 @@ namespace NotepadTheNextVersion.ListItems
                     NavigateBack(new Directory(parent));
                     e.Cancel = true;
                 }
-            }
-            else if (_pageMode == PageMode.Favorites) 
-            {
-                _masterPivot.SelectedItem = _allPivot;
-                e.Cancel = true;
-            }
-            else if (_curr.Equals(new Directory(PathBase.Root)))
-            {
-                throw new ApplicationMustExitException();
+                else if (_curr.Path.PathString.Equals(new Directory(PathBase.Root).Path.PathString))
+                {
+                    throw new ApplicationMustExitException();
+                }
             }
             else
                 throw new Exception("Unrecognized PageMode.");

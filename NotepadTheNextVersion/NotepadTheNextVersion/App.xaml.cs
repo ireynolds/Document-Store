@@ -11,6 +11,7 @@ using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Enumerations;
 using System.IO;
 using System.Collections.ObjectModel;
+using NotepadTheNextVersion.Exceptions;
 
 namespace NotepadTheNextVersion
 {
@@ -109,18 +110,15 @@ namespace NotepadTheNextVersion
         }
 
         public const string AddIcon = "/Images/appbar.add.rest.png";
-        public const string BackIcon = "/Images/appbar.back.rest.png";
         public const string CancelIcon = "/Images/appbar.cancel.rest.png";
         public const string CheckIcon = "/Images/appbar.check.rest.png";
         public const string DeleteIcon = "/Images/appbar.delete.rest.png";
         public const string SearchIcon = "/Images/appbar.feature.search.rest.png";
-        public const string SettingsIcon = "/Images/appbar.feature.settings.rest.png";
         public const string FolderIconSmall = "/Images/appbar.folder.rest.png";
         public const string SaveIcon = "/Images/appbar.save.rest.png";
         public const string FolderIconLargeBlack = "/Images/folder.black.jpg";
         public const string FolderIconLargeWhite = "/Images/folder.white.jpg";
         public const string UndeleteIcon = "/Images/appbar.cabinet.out.png";
-        public const string PinIcon = "/Images/pushpin.png";
         public const string SelectIcon = "/Images/appbar.list.check.png";
         public const string FaveIcon = "/Images/appbar.favs.addto.rest.png";
         public const string UnfaveIcon = "/Images/appbar.star.minus.png";
@@ -197,27 +195,13 @@ namespace NotepadTheNextVersion
         private void Application_Activated(object sender, ActivatedEventArgs e)
         {
             WasTombstoned = !e.IsApplicationInstancePreserved;
-            //Collection<string> arg = null;
-            //if (WasTombstoned && IsolatedStorageSettings.ApplicationSettings.TryGetValue<Collection<string>>("args", out arg))
-            //{
-            //    Argument = new List<IActionable>();
-            //    foreach (var s in arg)
-            //        Argument.Add(Utils.CreateActionableFromPath(new PathStr(s)));
-            //}
         }
 
         // Code to execute when the application is deactivated (sent to background)
         // This code will not execute when the application is closing
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
-            //var s = IsolatedStorageSettings.ApplicationSettings;
-            //var args = new Collection<string>();
-            //foreach (IActionable a in Argument)
-            //    args.Add(a.Path.PathString);
-            //if (!s.Contains("args"))
-            //    s.Add("args", null);
-            //s["args"] = args;
-            //s.Save();
+
         }
 
         // Code to execute when the application is closing (eg, user hit Back)
@@ -239,6 +223,9 @@ namespace NotepadTheNextVersion
         // Code to execute on Unhandled Exceptions
         private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
         {
+            if (!(e.ExceptionObject is ApplicationMustExitException))
+                MessageBox.Show(e.ExceptionObject.GetType().Name + ": " + e.ExceptionObject.Message + "\r\rNotepad will now exit.", "An error occurred", MessageBoxButton.OK);
+
             if (System.Diagnostics.Debugger.IsAttached)
             {
                 // An unhandled exception has occurred; break into the debugger

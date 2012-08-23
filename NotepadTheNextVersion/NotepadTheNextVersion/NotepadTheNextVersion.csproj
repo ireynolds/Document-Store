@@ -71,9 +71,6 @@
     <Compile Include="Enumerations\Setting.cs" />
     <Compile Include="Enumerations\ThemeColor.cs" />
     <Compile Include="Exceptions\ApplicationMustExitException.cs" />
-    <Compile Include="Exceptions\InvalidStateException.cs" />
-    <Compile Include="Exceptions\LocationNotFoundException.cs" />
-    <Compile Include="Exceptions\ActionableException.cs" />
     <Compile Include="HybridOrientationChangesFrame.cs" />
     <Compile Include="Models\ApplicationBarSetup.cs" />
     <Compile Include="Models\ButtonList.cs" />
@@ -197,9 +194,6 @@
     <Content Include="Images\appbar.add.rest.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="Images\appbar.back.rest.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="Images\appbar.cabinet.out.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
@@ -216,9 +210,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\appbar.feature.search.rest.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Images\appbar.feature.settings.rest.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\appbar.folder.rest.png">
@@ -240,9 +231,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Images\folder.white.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Images\pushpin.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="ApplicationIcon.png">
