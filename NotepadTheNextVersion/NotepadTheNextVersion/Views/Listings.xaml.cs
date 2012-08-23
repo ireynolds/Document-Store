@@ -977,7 +977,7 @@ namespace NotepadTheNextVersion.ListItems
                     }
                     Page.BeginDeleteAnimations(deletedItems);
                 });
-                FaveButton = Utils.CreateIconButton("add favorite", App.FaveIcon, (object sender, EventArgs e) =>
+                FaveButton = Utils.CreateIconButton("add", App.FaveIcon, (object sender, EventArgs e) =>
                 {
                     (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite = true;
                     Page.SetPageMode(PageMode.View);
@@ -986,7 +986,7 @@ namespace NotepadTheNextVersion.ListItems
                     else if (!Page._masterPivot.Items.Contains(Page._favesPivot))
                         Page._masterPivot.Items.Add(Page._favesPivot);
                 });
-                UnfaveButton = Utils.CreateIconButton("remove favorite", App.UnfaveIcon, (object sender, EventArgs e) =>
+                UnfaveButton = Utils.CreateIconButton("remove", App.UnfaveIcon, (object sender, EventArgs e) =>
                 {
                     (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem.IsFavorite = false;
                     Page.SetPageMode(PageMode.View);
