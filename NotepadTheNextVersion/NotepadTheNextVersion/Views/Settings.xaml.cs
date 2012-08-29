@@ -33,8 +33,9 @@ namespace NotepadTheNextVersion.ListItems
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Also search document text", "SearchFileText"));
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Show document title in editor", "DisplayNoteTitle"));
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Show hidden items", "ShowHiddenItems"));
-            SettingsPanel.Children.Add(new TextBlock() 
-            { 
+            SettingsPanel.Children.Add(CreateDescriptionBlock("To hide a document or directory, preface its name with a period."));
+            SettingsPanel.Children.Add(new TextBlock()
+            {
                 Text = "Select new name for the home directory",
                 Style = (Style)App.Current.Resources["PhoneTextSubtleStyle"]
             });
@@ -58,7 +59,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             ListPicker p = new ListPicker();
             p.Header = "Select document editor background color";
-            p.Margin = new Thickness(12, 0, 12, 30);
+            p.Margin = new Thickness(12, 35, 12, 30);
             p.Items.Add(ThemeColor.dark);
             p.Items.Add(ThemeColor.light);
             p.Items.Add(ThemeColor.phone);

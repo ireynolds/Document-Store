@@ -147,7 +147,6 @@ namespace NotepadTheNextVersion.ListItems
 
             AddNewTitleBlock(TipsPanel, "send as email or sms");
             AddNewDescriptionBlock(TipsPanel, "Use documents as email or sms templates. While you’re editing a document, tap \"send as…\" in the application bar, then choose SMS or email.");
-
         }
 
         private void AddNewTitleBlock(StackPanel p, string text)
