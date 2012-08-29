@@ -92,6 +92,12 @@ namespace NotepadTheNextVersion.ListItems
                 Margin = new Thickness(0, 20, 0, 0),
                 TextWrapping = TextWrapping.Wrap
             });
+            AboutPanel.Children.Add(new TextBlock()
+            {
+                Text = "Notepad is released under the MS-PL (http://opensource.org/licenses/ms-pl).",
+                Margin = new Thickness(0, 100, 0, 0),
+                TextWrapping = TextWrapping.Wrap
+            });
 
             AboutScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
         }
