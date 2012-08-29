@@ -75,9 +75,8 @@ namespace NotepadTheNextVersion.ListItems
             
             ImportPanel.Children.Add(new TextBlock()
             {
-                Text = "Import creates folders and files based on the text you provide. For " +
-                       "Import to work correctly, you should provide only the text created by" +
-                       " the Export tool or by Send as... (email only) in the Document Editor tool.",
+                Text = "Open a email sent using the Export tool and paste its text into the textbox below, then tap Import." +
+                       " Notepad will recreate each file and folder that existed when you sent the export email.",
                 Margin = new Thickness(12, 0, 0, 30),
                 TextWrapping = TextWrapping.Wrap,
             });
