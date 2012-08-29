@@ -34,12 +34,12 @@ namespace NotepadTheNextVersion.ListItems
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Show document title in editor", "DisplayNoteTitle"));
             SettingsPanel.Children.Add(CreateBoundToggleSwitch("Show hidden items", "ShowHiddenItems"));
             SettingsPanel.Children.Add(CreateDescriptionBlock("To hide a document or directory, preface its name with a period."));
-            SettingsPanel.Children.Add(new TextBlock()
-            {
-                Text = "Select new name for the home directory",
-                Style = (Style)App.Current.Resources["PhoneTextSubtleStyle"]
-            });
-            SettingsPanel.Children.Add(CreateRootNameTextBox());
+            //SettingsPanel.Children.Add(new TextBlock()
+            //{
+            //    Text = "Select new name for the home directory",
+            //    Style = (Style)App.Current.Resources["PhoneTextSubtleStyle"]
+            //});
+            //SettingsPanel.Children.Add(CreateRootNameTextBox());
             SettingsPanel.Children.Add(CreateThemeColorListPicker());
             SettingsPanel.Children.Add(CreateDescriptionBlock("The color you select will be the background color " + 
                 "of the document editor. The 'phone theme' setting sets the background color according to the " + 
