@@ -92,6 +92,12 @@ namespace NotepadTheNextVersion.ListItems
                 Margin = new Thickness(0, 20, 0, 0),
                 TextWrapping = TextWrapping.Wrap
             });
+            AboutPanel.Children.Add(new TextBlock()
+            {
+                Text = "Notepad is released under the MS-PL (http://opensource.org/licenses/ms-pl).",
+                Margin = new Thickness(0, 100, 0, 0),
+                TextWrapping = TextWrapping.Wrap
+            });
 
             AboutScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
         }
@@ -141,7 +147,6 @@ namespace NotepadTheNextVersion.ListItems
 
             AddNewTitleBlock(TipsPanel, "send as email or sms");
             AddNewDescriptionBlock(TipsPanel, "Use documents as email or sms templates. While you’re editing a document, tap \"send as…\" in the application bar, then choose SMS or email.");
-
         }
 
         private void AddNewTitleBlock(StackPanel p, string text)
