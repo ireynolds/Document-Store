@@ -13,6 +13,8 @@ using NotepadTheNextVersion.Enumerations;
 using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Models;
 using System;
+using Microsoft.Live.Controls;
+using Microsoft.Live;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -51,6 +53,23 @@ namespace NotepadTheNextVersion.ListItems
             SettingsPanel.Children.Add(CreateDescriptionBlock("The color you select will be the background color " + 
                 "of the document editor. The 'phone theme' setting sets the background color according to the " + 
                 "phone's theme."));
+            SignInButton b = new SignInButton()
+            {
+                ClientId = "00000000480D2168",
+                Scopes = "wl.basic wl.skydrive wl.offline_access wl.signin wl.skydrive_update",
+                Branding = BrandingType.Skydrive,
+                TextType = ButtonTextType.SignIn
+            };
+            b.SessionChanged += SessionChanged;
+            SettingsPanel.Children.Add(b);
+        }
+
+        private void SessionChanged(object sender, LiveConnectSessionChangedEventArgs e)
+        {
+            if (e.Session != null && e.Status == LiveConnectSessionStatus.Connected)
+            {
+                App.Session = e.Session;
+            }
         }
 
         private TextBox CreateRootNameTextBox()
