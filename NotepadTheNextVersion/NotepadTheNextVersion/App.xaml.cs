@@ -16,6 +16,7 @@ using NotepadTheNextVersion.Enumerations;
 using System.IO;
 using System.Collections.ObjectModel;
 using NotepadTheNextVersion.Exceptions;
+using Microsoft.Live;
 
 namespace NotepadTheNextVersion
 {
@@ -41,6 +42,8 @@ namespace NotepadTheNextVersion
         /// 
         /// </summary>
         public static bool WasTombstoned;
+
+        public static LiveConnectSession Session;
 
         public static MyUri Listings
         {
@@ -179,6 +182,14 @@ namespace NotepadTheNextVersion
                     isf.CreateDirectory("trash.dir");
             }
 
+            var auth = new LiveAuthClient("00000000480D2168");
+            auth.InitializeCompleted += (o, e2) =>
+            {
+                Session = e2.Session;
+            };
+            var access = new List<string>() { "wl.basic", "wl.skydrive", "wl.offline_access", "wl.signin", "wl.skydrive_update" };
+            auth.InitializeAsync(access);
+
             // Add test data
             //using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             //{
@@ -199,19 +210,26 @@ namespace NotepadTheNextVersion
         private void Application_Activated(object sender, ActivatedEventArgs e)
         {
             WasTombstoned = !e.IsApplicationInstancePreserved;
+            //if (WasTombstoned)
+            //{
+            //    Session = (LiveConnectSession)AppSettings["session"];
+            //}
         }
 
         // Code to execute when the application is deactivated (sent to background)
         // This code will not execute when the application is closing
         private void Application_Deactivated(object sender, DeactivatedEventArgs e)
         {
-
+            //AppSettings["session"] = Session;
+            //AppSettings.Save();
         }
 
         // Code to execute when the application is closing (eg, user hit Back)
         // This code will not execute when the application is deactivated
         private void Application_Closing(object sender, ClosingEventArgs e)
         {
+            //AppSettings["session"] = Session;
+            //AppSettings.Save();
         }
 
         // Code to execute if a navigation fails
