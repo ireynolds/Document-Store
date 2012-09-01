@@ -588,6 +588,20 @@ namespace NotepadTheNextVersion.ListItems
             {
                 IList<IListingsListItem> Items = new List<IListingsListItem>();
 
+                if (_curr.Path.Equals(new PathStr(PathBase.Root)))
+                {
+                    var client = new SkydriveClient();
+                    IList<Directory> skydriveDirs = null;
+                    client.GetDirectories((o, e) =>
+                    {
+                        var data = (List<object>)e.Result["data"];
+                        foreach (IDictionary<string, object> dict in data)
+                        {
+                            var name = dict["name"];
+                        }
+                    });
+                }
+
                 // Re-fill ContentBox
                 using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
