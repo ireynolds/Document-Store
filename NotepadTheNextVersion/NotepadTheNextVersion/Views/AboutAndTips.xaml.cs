@@ -76,7 +76,7 @@ namespace NotepadTheNextVersion.ListItems
             b.Click += (s, e) =>
                 {
                     var t = new WebBrowserTask();
-                    t.Uri = new Uri("http://github.com/ireynolds/notepad/wiki");
+                    t.Uri = new Uri("http://ireynolds.github.com/Notepad");
                     t.Show();
                 };
             AboutPanel.Children.Add(b);
