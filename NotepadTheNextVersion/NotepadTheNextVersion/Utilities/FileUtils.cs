@@ -20,6 +20,7 @@ namespace NotepadTheNextVersion.Utilities
     {
         public const string DOCUMENT_EXTENSION = ".doc";
         public const string DIRECTORY_EXTENSION = ".dir";
+        public const string SKYDRIVE_DIRECTORY_EXTENSION = ".skydir";
 
         public static readonly char[] InvalidFileNameChars = { };
 
@@ -165,6 +166,11 @@ namespace NotepadTheNextVersion.Utilities
         public static bool IsDir(string path)
         {
             return System.IO.Path.GetExtension(path).Equals(DIRECTORY_EXTENSION);
+        }
+
+        public static bool IsSkydriveDir(string path)
+        {
+            return System.IO.Path.GetExtension(path).Equals(SKYDRIVE_DIRECTORY_EXTENSION);
         }
 
         /// <summary>

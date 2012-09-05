@@ -74,6 +74,7 @@
     <Compile Include="Enumerations\ThemeColor.cs" />
     <Compile Include="Exceptions\ApplicationMustExitException.cs" />
     <Compile Include="HybridOrientationChangesFrame.cs" />
+    <Compile Include="ListItems\SkydriveDirectoryListItem.cs" />
     <Compile Include="Models\ApplicationBarSetup.cs" />
     <Compile Include="Models\ButtonList.cs" />
     <Compile Include="Models\IActionableComparer.cs" />
@@ -85,6 +86,7 @@
     <Compile Include="Models\MyUri.cs" />
     <Compile Include="Models\PathStr.cs" />
     <Compile Include="Models\SkydriveClient.cs" />
+    <Compile Include="Models\SkydriveDirectory.cs" />
     <Compile Include="Models\TimedItemAnimator.cs" />
     <Compile Include="Search\Tuple.cs" />
     <Compile Include="Models\WatermarkedTextBox.cs" />

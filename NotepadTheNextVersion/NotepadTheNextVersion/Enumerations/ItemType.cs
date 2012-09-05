@@ -19,6 +19,7 @@ namespace NotepadTheNextVersion.Enumerations
     {
         Document,
         Directory,
+        SkydriveDirectory,
         Default
     }
 }
