@@ -29,7 +29,7 @@ namespace NotepadTheNextVersion.ListItems
         private static readonly FontFamily displayNameTextBox_FontFamily = new FontFamily("Segoe WP SemiLight");
 
         private TextBlock displayNameTextBlock;
-        private TextBlock fullPathTextBlock;
+        protected TextBlock fullPathTextBlock;
         private Image image;
         private StackPanel verticalRightPanel;
 

@@ -18,7 +18,7 @@ namespace NotepadTheNextVersion.Models
 {
     public class Directory : IActionable, IComparable<Directory>
     {
-        private PathStr _path;
+        protected PathStr _path;
 
 
         private bool _isTemp;
@@ -83,6 +83,8 @@ namespace NotepadTheNextVersion.Models
         {
             get { return new PathStr(_path); }
         }
+
+        protected Directory() { }
 
         public Directory(PathStr p)
         {
