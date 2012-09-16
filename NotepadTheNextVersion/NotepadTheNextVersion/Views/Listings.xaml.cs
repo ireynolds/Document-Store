@@ -181,6 +181,11 @@ namespace NotepadTheNextVersion.ListItems
                 }
                 else if (_curr.Path.PathString.Equals(new Directory(PathBase.Root).Path.PathString))
                 {
+                    if (!App.AppSettings.Contains("HasExitedBefore"))
+                    {
+                        App.AppSettings.Add("HasExitedBefore", true);
+                        MessageBox.Show("When you press the back key from the root directory, the application will exit.", "Exiting Notepad", MessageBoxButton.OK);
+                    }
                     throw new ApplicationMustExitException();
                 }
             }
