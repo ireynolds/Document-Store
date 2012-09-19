@@ -129,7 +129,11 @@ namespace NotepadTheNextVersion.Models
                 return null;
             }
             if (IsFavorite)
-                newLocation.IsFavorite = true;
+            {
+                this.IsFavorite = false;
+                if (!newLocation.isTrash)
+                    newLocation.IsFavorite = true;
+            }
             if (IsPinned)
                 TogglePin();
             return newLocation;
@@ -187,6 +191,8 @@ namespace NotepadTheNextVersion.Models
                 {
                     if (a.IsPinned)
                         a.TogglePin();
+                    if (a.IsFavorite)
+                        a.IsFavorite = false;
                 });
                 try
                 {

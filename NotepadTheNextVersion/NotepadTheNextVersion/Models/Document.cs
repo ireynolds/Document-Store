@@ -38,9 +38,12 @@ namespace NotepadTheNextVersion.Models
             set
             {
                 var favs = SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList);
-                if (value && !IsFavorite)
+                if (value == IsFavorite)
+                    return;
+                
+                if (value)
                     favs.Add(this.Path.PathString);
-                else if (!value && IsFavorite)
+                else
                     favs.Remove(this.Path.PathString);
                 App.AppSettings.Save();
             }
@@ -137,7 +140,6 @@ namespace NotepadTheNextVersion.Models
                 return null;
             }
 
-            
             try
             {
                 FileUtils.MoveDocument(Path.PathString, newLocation.Path.PathString);
@@ -148,7 +150,11 @@ namespace NotepadTheNextVersion.Models
                 return null;
             }
             if (IsFavorite)
-                newLocation.IsFavorite = true;
+            {
+                this.IsFavorite = false;
+                if (!newLocation.isTrash)
+                    newLocation.IsFavorite = true;
+            }
             if (IsPinned)
                 TogglePin();
             return newLocation;
@@ -207,8 +213,6 @@ namespace NotepadTheNextVersion.Models
                 try
                 {
                     this.Move(trash);
-                    if (this.IsPinned)
-                        this.TogglePin();
                 }
                 catch
                 {
