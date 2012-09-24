@@ -38,7 +38,7 @@ namespace NotepadTheNextVersion.Models
 
         public MyUri AddArg(IActionable value)
         {
-            return this.AddArg("param", Uri.EscapeUriString(value.Path.PathString));
+            return this.AddArg("param", Uri.EscapeDataString(value.Path.PathString));
         }
 
         public MyUri AddArgs(IList<IActionable> values)
@@ -46,7 +46,7 @@ namespace NotepadTheNextVersion.Models
             var sb = new StringBuilder();
             sb.Append("?");
             for (int i = 0; i < values.Count; i++)
-                sb.Append(i.ToString() + "=" + Uri.EscapeUriString(values[i].Path.PathString) + "&");
+                sb.Append(i.ToString() + "=" + Uri.EscapeDataString(values[i].Path.PathString) + "&");
             return this + sb.ToString();
         }
     }

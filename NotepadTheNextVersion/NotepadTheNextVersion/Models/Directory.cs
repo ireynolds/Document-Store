@@ -219,7 +219,7 @@ namespace NotepadTheNextVersion.Models
                 StandardTileData data = new StandardTileData();
                 data.Title = this.DisplayName;
                 data.BackgroundImage = new Uri(App.DirectoryTile, UriKind.Relative);
-                Uri myUri = App.Listings + "?param=" + Uri.EscapeUriString(Path.PathString); // App.Listings already has ?id= attached in order to create a unique string
+                Uri myUri = App.Listings + "?param=" + Uri.EscapeDataString(Path.PathString); // App.Listings already has ?id= attached in order to create a unique string
                 ShellTile.Create(myUri, data);
             }
             else

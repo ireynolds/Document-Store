@@ -919,7 +919,8 @@ namespace NotepadTheNextVersion.ListItems
             {
                 NewButton = Utils.CreateIconButton("new", App.AddIcon, (object Sender, EventArgs e) =>
                 {
-                    Page.NavigationService.Navigate(App.AddNewItem.AddArg(Page._curr));
+                    var c = App.AddNewItem.AddArg(Page._curr);
+                    Page.NavigationService.Navigate(c);
                 });
                 SelectButton = Utils.CreateIconButton("select", App.SelectIcon, (object sender, EventArgs e) => { Invoke(delegate { Page.SetPageMode(PageMode.Edit); }); });
                 SearchButton = Utils.CreateIconButton("search", App.SearchIcon, (object sender, EventArgs e) => { Page.NavigationService.Navigate(App.Search); });
