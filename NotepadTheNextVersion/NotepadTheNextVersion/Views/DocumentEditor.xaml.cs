@@ -133,7 +133,7 @@ namespace NotepadTheNextVersion.ListItems
                 DocTitleBlock.Tap += delegate(object sender, System.Windows.Input.GestureEventArgs e)
                 {
                     _doc.IsTemp = false;
-                    _doc.NavToRename(NavigationService);
+                    _doc.NavToRename(NavigationService, this);
                 };
                 DocStackPanel.Children.Add(DocTitleBlock);
             }

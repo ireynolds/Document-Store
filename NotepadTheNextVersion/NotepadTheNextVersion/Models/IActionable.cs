@@ -4,6 +4,8 @@
 
 using System;
 using System.Windows.Navigation;
+using System.Windows;
+using Microsoft.Phone.Controls;
 
 namespace NotepadTheNextVersion.Models
 {
@@ -68,7 +70,7 @@ namespace NotepadTheNextVersion.Models
         /// Navigates to a page that renames this. 
         /// </summary>
         /// <param name="NavigationService"></param>
-        void NavToRename(NavigationService NavigationService);
+        void NavToRename(NavigationService NavigationService, PhoneApplicationPage page);
 
         /// <summary>
         /// Renames this with the given filename. Returns an IActionable 

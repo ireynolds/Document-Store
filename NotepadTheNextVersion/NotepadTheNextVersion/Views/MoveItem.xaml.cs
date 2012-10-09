@@ -165,7 +165,7 @@ namespace NotepadTheNextVersion.ListItems
                 TryMoveItem(a, newLoc);
             }
 
-            NavigationService.GoBack();
+            Utils.TryGoBack(NavigationService);
         }
 
         #endregion

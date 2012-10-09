@@ -12,6 +12,7 @@ using Microsoft.Phone.Shell;
 using System.Linq;
 using System.Windows;
 using System.Collections.ObjectModel;
+using Microsoft.Phone.Controls;
 
 namespace NotepadTheNextVersion.Models
 {
@@ -137,11 +138,13 @@ namespace NotepadTheNextVersion.Models
             if (IsPinned)
                 TogglePin();
             return newLocation;
-        }  
+        }
 
-        public void NavToRename(NavigationService NavigationService)
+        public void NavToRename(NavigationService NavigationService, PhoneApplicationPage page)
         {
-            NavigationService.Navigate(App.RenameItem.AddArg(this).AddArg("istemp", IsTemp.ToString()));
+            NavigationService.Navigate(App.RenameItem.AddArg(this)
+                                                     .AddArg("istemp", IsTemp.ToString())
+                                                     .AddArg("prevpage", page.NavigationService.CurrentSource.OriginalString));
         }
 
         public IActionable Rename(string newDirectoryName)

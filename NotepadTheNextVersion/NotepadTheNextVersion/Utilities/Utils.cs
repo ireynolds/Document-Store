@@ -19,6 +19,7 @@ using NotepadTheNextVersion.Enumerations;
 using NotepadTheNextVersion.ListItems;
 using NotepadTheNextVersion.Models;
 using System.Linq;
+using System.Windows.Navigation;
 
 namespace NotepadTheNextVersion.Utilities
 {
@@ -91,6 +92,19 @@ namespace NotepadTheNextVersion.Utilities
                     }
                     return false;
                 });
+        }
+
+        public static void TryGoBack(NavigationService NavigationService)
+        {
+            TryGoBack(NavigationService, App.Listings);
+        }
+
+        public static void TryGoBack(NavigationService NavigationService, Uri DefaultLocation)
+        {
+            if (NavigationService.CanGoBack)
+                NavigationService.GoBack();
+            else
+                NavigationService.Navigate(DefaultLocation);
         }
     }
 }

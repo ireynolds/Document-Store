@@ -32,13 +32,13 @@ namespace NotepadTheNextVersion.Models
             string s = string.Empty;
             if (!this.OriginalString.EndsWith("?") && !this.OriginalString.EndsWith("&"))
                 s += "?";
-            s += key + "=" + value + "&";
+            s += Uri.EscapeDataString(key) + "=" + Uri.EscapeDataString(value) + "&";
             return this + s;
         }
 
         public MyUri AddArg(IActionable value)
         {
-            return this.AddArg("param", Uri.EscapeDataString(value.Path.PathString));
+            return this.AddArg("param", value.Path.PathString);
         }
 
         public MyUri AddArgs(IList<IActionable> values)

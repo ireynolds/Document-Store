@@ -31,7 +31,7 @@ namespace NotepadTheNextVersion.ListItems
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             if (_hasBeenNavigatedTo)
-                NavigationService.GoBack();
+                Utils.TryGoBack(NavigationService);
             GetArgs();
             UpdateView();
             base.OnNavigatedTo(e);

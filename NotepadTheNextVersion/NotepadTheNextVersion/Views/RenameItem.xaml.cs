@@ -31,7 +31,7 @@ namespace NotepadTheNextVersion.ListItems
         public RenameItem()
         {
             InitializeComponent();
-            this.Loaded += new RoutedEventHandler(RenameItem_Loaded);
+            this.Loaded += RenameItem_Loaded;
         }
 
         protected override void OnBackKeyPress(System.ComponentModel.CancelEventArgs e)
@@ -45,20 +45,21 @@ namespace NotepadTheNextVersion.ListItems
         {
             base.OnNavigatedTo(e);
             GetArgs();
-            UpdateView();
-            NewNameBox.GotFocus += new RoutedEventHandler(NewNameBox_GotFocus);
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
             NavigationService.RemoveBackEntry();
+            NewNameBox.GotFocus += new RoutedEventHandler(NewNameBox_GotFocus);
         }
 
         #region Event Handlers
 
         void RenameItem_Loaded(object sender, RoutedEventArgs e)
         {
+            this.Loaded -= RenameItem_Loaded;
+            UpdateView();
             NewNameBox.Focus();
         }
 
@@ -118,34 +119,31 @@ namespace NotepadTheNextVersion.ListItems
         {
             var prevPage = GetPreviousPageUri();
             act.IsTemp = false;
+
             if (prevPage == null)
             {
-                act.Open(NavigationService);
+                Utils.TryGoBack(NavigationService);
             }
-            else if (prevPage.StartsWith(App.Listings.OriginalString) && _actionable.IsTemp && _actionable is Document)
+            else if ((prevPage.StartsWith(App.AddNewItem.OriginalString) && _actionable is Document))
             {
                 act.Open(NavigationService);
-            }
-            else if (prevPage.StartsWith(App.Listings.OriginalString))
-            {
-                NavigationService.GoBack();
             }
             else if (prevPage.StartsWith(App.DocumentEditor.OriginalString))
             {
-                act.Open(NavigationService);
                 NavigationService.RemoveBackEntry();
+                act.Open(NavigationService);
             }
             else
-                NavigationService.GoBack();
+            {
+                Utils.TryGoBack(NavigationService);
+            }
         }
 
         private string GetPreviousPageUri()
         {
-            int index = NavigationService.BackStack.Count(delegate { return true; }) - 1;
-            if (index == -1)
-                return null;
-            else
-                return NavigationService.BackStack.ElementAt(index).Source.OriginalString;
+            string s;
+            NavigationContext.QueryString.TryGetValue("prevpage", out s);
+            return s;
         }
 
         private void IconButton_Cancel_Click(object sender, EventArgs e)
@@ -168,9 +166,9 @@ namespace NotepadTheNextVersion.ListItems
         private void Cancel()
         {
             var prevPage = GetPreviousPageUri();
-            if (prevPage.StartsWith(App.Listings.OriginalString) && _actionable.IsTemp) // .equals(prevPage) accounts for prevPage == null
+            if (prevPage.StartsWith(App.AddNewItem.OriginalString))
                 _actionable.Delete(true);
-            NavigationService.GoBack();
+            Utils.TryGoBack(NavigationService);
         }
 
         private void AlertUserBadChars(IList<string> badCharsInName)

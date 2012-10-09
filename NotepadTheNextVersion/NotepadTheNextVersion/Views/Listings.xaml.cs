@@ -577,7 +577,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             else
             {
-                _curr = (Directory)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
+                _curr = (Directory)Utils.CreateActionableFromPath(new PathStr(PathBase.Root));
             }
         }
 
@@ -1006,7 +1006,7 @@ namespace NotepadTheNextVersion.ListItems
                 RenameItem = (Utils.CreateMenuItem("rename", (object sender, EventArgs e) =>
                 {
                     IActionable a = (Page.CurrentBox.SelectedItem as IListingsListItem).ActionableItem;
-                    a.NavToRename(Page.NavigationService);
+                    a.NavToRename(Page.NavigationService, Page);
                 }));
                 MoveItem = Utils.CreateMenuItem("move", (object sender, EventArgs e) =>
                 {

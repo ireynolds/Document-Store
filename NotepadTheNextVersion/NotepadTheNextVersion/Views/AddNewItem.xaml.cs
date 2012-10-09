@@ -51,7 +51,7 @@ namespace NotepadTheNextVersion.ListItems
             string tempPath = FileUtils.GetNumberedDirectoryPath("Untitled", _currentDirectory.Path.PathString);
             Directory newDirectory = new Directory(new PathStr(tempPath)) { IsTemp = true };
             FileUtils.CreateDirectory(newDirectory.Path.Parent.PathString, newDirectory.DisplayName);
-            newDirectory.NavToRename(NavigationService);
+            newDirectory.NavToRename(NavigationService, this);
         }
 
         private void Doc_Tap(object sender, System.Windows.Input.GestureEventArgs e)
@@ -60,7 +60,7 @@ namespace NotepadTheNextVersion.ListItems
             string tempPath = FileUtils.GetNumberedDocumentPath("Untitled", _currentDirectory.Path.PathString);
             Document newDocument = new Document(new PathStr(tempPath)) { IsTemp = true };
             FileUtils.CreateDocument(newDocument.Path.Parent.PathString, newDocument.DisplayName);
-            newDocument.NavToRename(NavigationService);
+            newDocument.NavToRename(NavigationService, this);
         }
 
         #endregion

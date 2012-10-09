@@ -140,7 +140,7 @@ namespace NotepadTheNextVersion.ListItems
                 newDoc.Save();
             }
 
-            NavigationService.GoBack();
+            ImportBox.Text = string.Empty;
         }
 
         void Export_Click(object sender, RoutedEventArgs e)
