@@ -986,6 +986,8 @@ namespace NotepadTheNextVersion.ListItems
                         deletedItems.Add(li);
                     }
                     Page.BeginDeleteAnimations(deletedItems);
+                    if (SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList).Count == 0)
+                        Page._masterPivot.Items.Remove(Page._favesPivot);
                 });
                 FaveButton = Utils.CreateIconButton("add", App.FaveIcon, (object sender, EventArgs e) =>
                 {
