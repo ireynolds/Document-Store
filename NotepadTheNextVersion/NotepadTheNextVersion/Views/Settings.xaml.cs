@@ -12,6 +12,7 @@ using Microsoft.Phone.Controls;
 using NotepadTheNextVersion.Enumerations;
 using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Models;
+using System;
 
 namespace NotepadTheNextVersion.ListItems
 {
@@ -24,6 +25,12 @@ namespace NotepadTheNextVersion.ListItems
         {
             InitializeComponent();
             _appSettings = new NotepadTheNextVersion.Settings();
+            this.Loaded += PageLoaded;
+        }
+
+        private void PageLoaded(object sender, EventArgs e)
+        {
+            this.Loaded -= PageLoaded;
             UpdateView();
         }
 

@@ -26,15 +26,21 @@ namespace NotepadTheNextVersion.ListItems
         public SendAs()
         {
             InitializeComponent();
+            this.Loaded += PageLoaded;
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             if (_hasBeenNavigatedTo)
                 Utils.TryGoBack(NavigationService);
+            base.OnNavigatedTo(e);
+        }
+
+        private void PageLoaded(object sender, EventArgs e)
+        {
+            this.Loaded -= PageLoaded;
             GetArgs();
             UpdateView();
-            base.OnNavigatedTo(e);
         }
 
         #region Event Handlers

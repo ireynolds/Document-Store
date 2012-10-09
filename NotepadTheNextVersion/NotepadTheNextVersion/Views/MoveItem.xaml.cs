@@ -37,6 +37,7 @@ namespace NotepadTheNextVersion.ListItems
         public MoveItem()
         {
             InitializeComponent();
+            this.Loaded += PageLoaded;
         }
 
         protected override void OnNavigatedFrom(System.Windows.Navigation.NavigationEventArgs e)
@@ -48,6 +49,11 @@ namespace NotepadTheNextVersion.ListItems
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
             base.OnNavigatedTo(e);
+        }
+
+        private void PageLoaded(object sender, EventArgs e)
+        {
+            this.Loaded -= PageLoaded;
             GetArguments();
             UpdateView();
             ContentBox.SelectionChanged += new SelectionChangedEventHandler(ContentBox_SelectionChanged);

@@ -28,11 +28,17 @@ namespace NotepadTheNextVersion.ListItems
         public AddNewItem()
         {
             InitializeComponent();
+            this.Loaded += PageLoaded;
         }
 
         protected override void OnNavigatedTo(System.Windows.Navigation.NavigationEventArgs e)
         {
  	        base.OnNavigatedTo(e);
+        }
+
+        private void PageLoaded(object sender, EventArgs e)
+        {
+            this.Loaded -= PageLoaded;
             GetArgs();
             UpdateView();
         }
