@@ -880,6 +880,11 @@ namespace NotepadTheNextVersion.ListItems
             };
             if (_pageMode != PageMode.Trash)
                 SetPageMode(PageMode.View);
+            if (_pageMode == PageMode.Trash)
+            {
+                foreach (IListingsListItem item in deletedItems)
+                    CurrentBox.Items.Remove(item);
+            }
             deletedItems[0].IsSelectableAnimationCompleted += (s2, e2) =>
             {
                 foreach (IListingsListItem item in deletedItems)
@@ -1105,6 +1110,7 @@ namespace NotepadTheNextVersion.ListItems
                 _menuItems = new ItemList() { EmptyItem };
                 SetElements(_appBar, _buttons, _menuItems);
                 SetAllEnabled(_appBar, false);
+                EmptyItem.IsEnabled = true;
                 Page.AddHandler(Page.CurrentBox, new SelectionChangedEventHandler(this.SelectedItemChanged));
                 _appBar.Mode = ApplicationBarMode.Default;
                 _appBar.IsMenuEnabled = true;
