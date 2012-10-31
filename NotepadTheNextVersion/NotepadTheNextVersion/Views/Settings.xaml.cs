@@ -12,7 +12,6 @@ using Microsoft.Phone.Controls;
 using NotepadTheNextVersion.Enumerations;
 using NotepadTheNextVersion.Utilities;
 using NotepadTheNextVersion.Models;
-using System;
 using Microsoft.Live.Controls;
 using Microsoft.Live;
 
