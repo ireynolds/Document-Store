@@ -72,14 +72,14 @@ namespace NotepadTheNextVersion.Utilities
         /// <param name="parentPath">Includes extensions.</param>
         /// <param name="name">No extension.</param>
         /// <returns></returns>
-        public static Document CreateDocument(string parentPath, string name)
+        public static LDocument CreateDocument(string parentPath, string name)
         {
             using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 name = name.Trim() + DOCUMENT_EXTENSION;
                 var f = isf.CreateFile(System.IO.Path.Combine(parentPath, name));
                 f.Close();
-                return new Document(new PathStr(name));
+                return new LDocument(new PathStr(name));
             }
         }
 
@@ -89,13 +89,13 @@ namespace NotepadTheNextVersion.Utilities
         /// <param name="parentPath">Includes extensions.</param>
         /// <param name="name">No extension.</param>
         /// <returns></returns>
-        public static Directory CreateDirectory(string parentPath, string name)
+        public static LDirectory CreateDirectory(string parentPath, string name)
         {
             using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
                 name = name.Trim() + DIRECTORY_EXTENSION;
                 isf.CreateDirectory(System.IO.Path.Combine(parentPath, name));
-                return new Directory(new PathStr(name));
+                return new LDirectory(new PathStr(name));
             }
         }
 
@@ -235,7 +235,7 @@ namespace NotepadTheNextVersion.Utilities
         /// </summary>
         /// <param name="path">Must contain the full filepath, including root. Must include ".doc", ".dir".</param>
         /// <returns></returns>
-        public static Document CreateFileFromString(string path)
+        public static LDocument CreateFileFromString(string path)
         {
             if (!IsDoc(path) && !IsDir(path))
                 throw new Exception();
@@ -259,7 +259,7 @@ namespace NotepadTheNextVersion.Utilities
                 // Skip the first because "root" is already in the path.
                 for (int i = 1; i < pathArray.Length; i++)
                     p = p.NavigateIn(pathArray[i], ItemType.Default);
-                return new Document(p);
+                return new LDocument(p);
             }
         }
 
@@ -269,24 +269,24 @@ namespace NotepadTheNextVersion.Utilities
         /// </summary>
         /// <param name="bases"></param>
         /// <returns></returns>
-        public static IList<Directory> GetAllDirectories(params Directory[] bases)
+        public static IList<LDirectory> GetAllDirectories(params LDirectory[] bases)
         {
             if (bases.Length == 0)
                 throw new ArgumentException("Zero arguments to GetAllDirectories");
 
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Queue<Directory> dirsQ = new Queue<Directory>();
-                List<Directory> dirsL = new List<Directory>();
+                Queue<LDirectory> dirsQ = new Queue<LDirectory>();
+                List<LDirectory> dirsL = new List<LDirectory>();
                 foreach (var b in bases)
                     dirsQ.Enqueue(b);
 
                 while (dirsQ.Count != 0)
                 {
-                    Directory dir = dirsQ.Dequeue();
+                    LDirectory dir = dirsQ.Dequeue();
                     dirsL.Add(dir);
                     foreach (string subDirName in isf.GetDirectoryNames(System.IO.Path.Combine(dir.Path.PathString, "*")))
-                        dirsQ.Enqueue(new Directory(dir.Path.NavigateIn(subDirName, ItemType.Default)));
+                        dirsQ.Enqueue(new LDirectory(dir.Path.NavigateIn(subDirName, ItemType.Default)));
                 }
                 return dirsL;
             }
@@ -297,17 +297,17 @@ namespace NotepadTheNextVersion.Utilities
         /// </summary>
         /// <param name="bases"></param>
         /// <returns></returns>
-        public static IList<Document> GetAllDocuments(params Directory[] bases)
+        public static IList<LDocument> GetAllDocuments(params LDirectory[] bases)
         {
             if (bases.Length == 0)
                 throw new ArgumentException("Zero arguments to GetAllDocuments");
 
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                IList<Document> docs = new List<Document>();
-                foreach (Directory d in GetAllDirectories(bases))
+                IList<LDocument> docs = new List<LDocument>();
+                foreach (LDirectory d in GetAllDirectories(bases))
                     foreach (string s in isf.GetFileNames(d.Path.PathString + "\\*"))
-                        docs.Add(new Document(d.Path.NavigateIn(s, ItemType.Default)));
+                        docs.Add(new LDocument(d.Path.NavigateIn(s, ItemType.Default)));
                 return docs;
             }
         }

@@ -16,7 +16,7 @@ using Microsoft.Phone.Controls;
 
 namespace NotepadTheNextVersion.Models
 {
-    public class Directory : IActionable, IComparable<Directory>
+    public class LDirectory : IActionable, IComparable<LDirectory>
     {
         protected PathStr _path;
 
@@ -84,23 +84,23 @@ namespace NotepadTheNextVersion.Models
             get { return new PathStr(_path); }
         }
 
-        protected Directory() { }
+        protected LDirectory() { }
 
-        public Directory(PathStr p)
+        public LDirectory(PathStr p)
         {
             if (!FileUtils.IsDir(p.PathString))
                 throw new Exception();
             _path = p;
         }
 
-        public Directory(Directory parent, string name)
+        public LDirectory(LDirectory parent, string name)
         {
             if (!FileUtils.IsDir(name))
                 throw new Exception();
             _path = parent.Path.NavigateIn(name, ItemType.Directory);
         }
 
-        public Directory(PathBase Base)
+        public LDirectory(PathBase Base)
             : this(new PathStr(Base)) { }
 
         public void Open(NavigationService NavigationService)
@@ -113,9 +113,9 @@ namespace NotepadTheNextVersion.Models
             NavigationService.Navigate(App.MoveItem.AddArg(this));
         }
 
-        public IActionable Move(Directory newParent) 
+        public virtual IActionable Move(LDirectory newParent) 
         {
-            var newLocation = new Directory(newParent.Path.NavigateIn(Name));
+            var newLocation = new LDirectory(newParent.Path.NavigateIn(Name));
             if (FileUtils.DirectoryExists(newLocation.Path.PathString))
             {
                 MessageBox.Show("A directory with the specified name already exists.", "An error occurred", MessageBoxButton.OK);
@@ -149,7 +149,7 @@ namespace NotepadTheNextVersion.Models
                                                      .AddArg("prevpage", page.NavigationService.CurrentSource.OriginalString));
         }
 
-        public IActionable Rename(string newDirectoryName)
+        public virtual IActionable Rename(string newDirectoryName)
         {
             PathStr newLocation = Path.Parent.NavigateIn(newDirectoryName, ItemType.Directory);
             if (FileUtils.DirectoryExists(newLocation.PathString))
@@ -167,7 +167,7 @@ namespace NotepadTheNextVersion.Models
                 MessageBox.Show("Notepad could not rename the directory. There may be illegal characters in the specified name.\n\nIf applicable, remove any special characters or punctuation in the name.", "An error occurred", MessageBoxButton.OK);
                 return null;
             }
-            Directory newDir = new Directory(newLocation);
+            LDirectory newDir = new LDirectory(newLocation);
             if (IsFavorite)
                 FileUtils.ReplaceFavorite(this, newDir);
             if (IsPinned)
@@ -175,7 +175,7 @@ namespace NotepadTheNextVersion.Models
             return newDir;
         }
 
-        public IActionable Delete(bool permanently = false)
+        public virtual IActionable Delete(bool permanently = false)
         {
             if (isTrash || permanently)
             {
@@ -187,8 +187,8 @@ namespace NotepadTheNextVersion.Models
             }
             else // if (!isTrash)
             {
-                Directory trash = new Directory(new PathStr(PathBase.Trash));
-                Directory newLoc = new Directory(trash.Path.NavigateIn(Name, ItemType.Default));
+                LDirectory trash = new LDirectory(new PathStr(PathBase.Trash));
+                LDirectory newLoc = new LDirectory(trash.Path.NavigateIn(Name, ItemType.Default));
                 if (newLoc.Exists())
                     newLoc.Delete();
 
@@ -240,7 +240,7 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable SwapRoot()
         {
-            Directory d = new Directory(Path.UpdateRoot());
+            LDirectory d = new LDirectory(Path.UpdateRoot());
             if (this.IsFavorite)
             {
                 this.IsFavorite = false;
@@ -251,13 +251,13 @@ namespace NotepadTheNextVersion.Models
 
         public int CompareTo(IActionable other)
         {
-            if (other.GetType() == typeof(Document))
+            if (other.GetType() == typeof(LDocument))
                 return -1;
             else
                 return this.Name.CompareTo(other.Name);
         }
 
-        public int CompareTo(Directory other)
+        public int CompareTo(LDirectory other)
         {
             return CompareTo((IActionable)other);
         }

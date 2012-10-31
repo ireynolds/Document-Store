@@ -23,7 +23,7 @@ namespace NotepadTheNextVersion.ListItems
     public partial class AddNewItem : PhoneApplicationPage
     {
         // The parent directory of the to-be-created item
-        private Directory _currentDirectory;
+        private LDirectory _currentDirectory;
 
         public AddNewItem()
         {
@@ -55,7 +55,7 @@ namespace NotepadTheNextVersion.ListItems
         {    
             // Create a temporary directory that will be renamed in the new window
             string tempPath = FileUtils.GetNumberedDirectoryPath("Untitled", _currentDirectory.Path.PathString);
-            Directory newDirectory = new Directory(new PathStr(tempPath)) { IsTemp = true };
+            LDirectory newDirectory = new LDirectory(new PathStr(tempPath)) { IsTemp = true };
             FileUtils.CreateDirectory(newDirectory.Path.Parent.PathString, newDirectory.DisplayName);
             newDirectory.NavToRename(NavigationService, this);
         }
@@ -64,7 +64,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             // Create a temporary document that will be renamed in the next window
             string tempPath = FileUtils.GetNumberedDocumentPath("Untitled", _currentDirectory.Path.PathString);
-            Document newDocument = new Document(new PathStr(tempPath)) { IsTemp = true };
+            LDocument newDocument = new LDocument(new PathStr(tempPath)) { IsTemp = true };
             FileUtils.CreateDocument(newDocument.Path.Parent.PathString, newDocument.DisplayName);
             newDocument.NavToRename(NavigationService, this);
         }
@@ -104,7 +104,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            _currentDirectory = (Directory)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
+            _currentDirectory = (LDirectory)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
         }
 
         #endregion

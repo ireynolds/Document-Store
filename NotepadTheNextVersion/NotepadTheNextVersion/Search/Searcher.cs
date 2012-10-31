@@ -16,7 +16,7 @@ namespace NotepadTheNextVersion.ListItems
     public class Searcher
     {
         private BackgroundWorker _worker;
-        private IList<Document> _scope;
+        private IList<LDocument> _scope;
         private static Regex WhitespaceRgx = new Regex("[\r\n\t]+");
         private string _next;
         private Dictionary<string, Triple> _pastResults;
@@ -31,7 +31,7 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        public Searcher(IList<Document> DocumentsToSearch)
+        public Searcher(IList<LDocument> DocumentsToSearch)
         {
             _worker = new BackgroundWorker();
             _worker.DoWork += new DoWorkEventHandler(Search);
@@ -51,7 +51,7 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        private void SetScope(IList<Document> scope)
+        private void SetScope(IList<LDocument> scope)
         {
             _scope = scope;
         }
@@ -61,7 +61,7 @@ namespace NotepadTheNextVersion.ListItems
             string pattern = (string)e.Argument;
             string lastPattern;
             List<SearchResult> results = new List<SearchResult>();
-            List<Document> resultScope = new List<Document>();
+            List<LDocument> resultScope = new List<LDocument>();
             
             if (pattern.Equals(string.Empty))
             {
@@ -80,7 +80,7 @@ namespace NotepadTheNextVersion.ListItems
             
             // Search
             Regex rgx = new Regex(Regex.Escape(pattern), RegexOptions.IgnoreCase);
-            foreach (Document doc in _scope)
+            foreach (LDocument doc in _scope)
             {
                 SearchResult result = new SearchResult(doc, pattern);
 
@@ -139,10 +139,10 @@ namespace NotepadTheNextVersion.ListItems
             SearchCompleted(pattern, results);
         }
 
-        private List<Document> Copy(IList<Document> docs)
+        private List<LDocument> Copy(IList<LDocument> docs)
         {
-            List<Document> copy = new List<Document>();
-            foreach (Document d in docs)
+            List<LDocument> copy = new List<LDocument>();
+            foreach (LDocument d in docs)
                 copy.Add(d);
             return copy;
         }

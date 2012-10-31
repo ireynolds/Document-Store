@@ -18,7 +18,7 @@ namespace NotepadTheNextVersion.ListItems
 {
     public class MoveListItem : ContentControl
     {
-        public Directory DirectoryItem;
+        public LDirectory DirectoryItem;
         private StackPanel _panel;
         private TextBlock name;
 
@@ -36,7 +36,7 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        public MoveListItem(Directory d)
+        public MoveListItem(LDirectory d)
         {
             DirectoryItem = d;
 

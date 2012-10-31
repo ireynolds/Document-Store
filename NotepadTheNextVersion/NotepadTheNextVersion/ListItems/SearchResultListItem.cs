@@ -25,7 +25,7 @@ namespace NotepadTheNextVersion.ListItems
         private TextBlock _textBlock;
         private TextBlock _titleBlock;
 
-        public Document Source
+        public LDocument Source
         {
             get
             {

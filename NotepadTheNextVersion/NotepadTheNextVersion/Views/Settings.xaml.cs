@@ -146,7 +146,7 @@ namespace NotepadTheNextVersion.ListItems
                 newName = System.IO.Path.Combine(newName + FileUtils.DIRECTORY_EXTENSION, "");
 
                 if (FileUtils.DirectoryExists(newName))
-                    (new Directory(new PathStr(newName))).Delete(true);
+                    (new LDirectory(new PathStr(newName))).Delete(true);
                 using (var isf = IsolatedStorageFile.GetUserStoreForApplication())
                 {
                     isf.MoveDirectory(oldName, newName);

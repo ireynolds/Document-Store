@@ -16,9 +16,9 @@ using System.Collections.Generic;
 
 namespace NotepadTheNextVersion.Models
 {
-    public class IActionableComparer : IComparer<Directory>
+    public class IActionableComparer : IComparer<LDirectory>
     {
-        public int Compare(Directory a, Directory b)
+        public int Compare(LDirectory a, LDirectory b)
         {
             return a.Path.PathString.CompareTo(b.Path.PathString);
         }

@@ -24,7 +24,7 @@ namespace NotepadTheNextVersion
             var NavToDocs = SettingUtils.GetSetting<bool>(Setting.OpenToFoldersList);
             if (NavToDocs)
             {
-                (new Directory(PathBase.Root)).Open(NavigationService);
+                (new LDirectory(PathBase.Root)).Open(NavigationService);
             }
             else
             {
@@ -32,11 +32,11 @@ namespace NotepadTheNextVersion
             }
         }
 
-        private Document CreateTempFile()
+        private LDocument CreateTempFile()
         {
-            Directory root = new Directory(PathBase.Root);
+            LDirectory root = new LDirectory(PathBase.Root);
             string path = FileUtils.GetNumberedDocumentPath("Temp", root.Path.PathString);
-            var doc = new Document(new PathStr(path)) { IsTemp = true };
+            var doc = new LDocument(new PathStr(path)) { IsTemp = true };
             FileUtils.CreateDocument(doc.Path.Parent.PathString, doc.DisplayName);
             return doc;
         }

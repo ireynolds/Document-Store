@@ -126,7 +126,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 string docName = GetDocName(docs[i].Trim());
                 string docText = docs[i + 1].Trim();
-                Document newDoc; 
+                LDocument newDoc; 
                 try
                 {
                     newDoc = FileUtils.CreateFileFromString(docName);
@@ -147,8 +147,8 @@ namespace NotepadTheNextVersion.ListItems
         {
             EmailComposeTask t = new EmailComposeTask();
             StringBuilder b = new StringBuilder();
-            IList<Document> docs = FileUtils.GetAllDocuments(new Directory(PathBase.Root));
-            foreach (Document d in docs)
+            IList<LDocument> docs = FileUtils.GetAllDocuments(new LDirectory(PathBase.Root));
+            foreach (LDocument d in docs)
                 b.Append(String.Format("==== {0} ====\n\n{1}\n\n", d.Path.PathString, d.Text));
             t.Body = b.ToString();
             t.Subject = String.Format("Notepad backup ({0})", DateTime.Now.ToShortDateString());

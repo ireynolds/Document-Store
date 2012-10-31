@@ -17,7 +17,7 @@ namespace NotepadTheNextVersion.ListItems
 {
     public partial class SendAs : PhoneApplicationPage
     {
-        private Document _currentDocument;
+        private LDocument _currentDocument;
         private bool _hasBeenNavigatedTo;
 
         private SolidColorBrush _background;
@@ -95,7 +95,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            _currentDocument = (Document)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
+            _currentDocument = (LDocument)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
         }
 
         #endregion

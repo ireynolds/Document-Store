@@ -32,7 +32,7 @@ namespace NotepadTheNextVersion.ListItems
         private Searcher _searcher;
         private ListBox ContentBox;
         private string _lastPattern;
-        private IList<Document> _universalScope;
+        private IList<LDocument> _universalScope;
         private TextBlock _emptyNoticeBlock;
         private bool _isShowingEmptyNotice { get { return LayoutRoot.Children.Contains(_emptyNoticeBlock); } }
 
@@ -48,7 +48,7 @@ namespace NotepadTheNextVersion.ListItems
         {
             base.OnNavigatedTo(e);
 
-            _universalScope = FileUtils.GetAllDocuments(new Directory(PathBase.Root));
+            _universalScope = FileUtils.GetAllDocuments(new LDirectory(PathBase.Root));
             _searcher = new Searcher(_universalScope);
             _searcher.SearchCompleted += new SearchCompletedEventHandler(SearchCompleted);
 
@@ -178,9 +178,9 @@ namespace NotepadTheNextVersion.ListItems
             return scope;
         }
 
-        private IList<Document> ExtractScope(ItemCollection items)
+        private IList<LDocument> ExtractScope(ItemCollection items)
         {
-            IList<Document> docs = new List<Document>();
+            IList<LDocument> docs = new List<LDocument>();
             foreach (SearchResultListItem item in items)
                 docs.Add(item.Source);
             return docs;

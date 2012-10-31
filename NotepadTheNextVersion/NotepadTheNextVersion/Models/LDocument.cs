@@ -18,7 +18,7 @@ using Microsoft.Phone.Controls;
 
 namespace NotepadTheNextVersion.Models
 {
-    public class Document : IActionable, IComparable<Document>
+    public class LDocument : IActionable, IComparable<LDocument>
     {
 
         // The path of this
@@ -108,14 +108,14 @@ namespace NotepadTheNextVersion.Models
             }
         }
 
-        public Document(PathStr p)
+        public LDocument(PathStr p)
         {
             if (!FileUtils.IsDoc(p.PathString))
                 throw new Exception();
             _path = p;
         }
 
-        public Document(Directory parent, string name)
+        public LDocument(LDirectory parent, string name)
         {
             if (!FileUtils.IsDoc(name))
                 throw new Exception();
@@ -132,9 +132,9 @@ namespace NotepadTheNextVersion.Models
             NavigationService.Navigate(App.MoveItem.AddArg(this));
         }
 
-        public IActionable Move(Directory newParent)
+        public IActionable Move(LDirectory newParent)
         {
-            var newLocation = new Document(newParent.Path.NavigateIn(Name));
+            var newLocation = new LDocument(newParent.Path.NavigateIn(Name));
             if (FileUtils.DocumentExists(newLocation.Path.PathString))
             {
                 MessageBox.Show("A document with the specified name already exists.", "An error occurred", MessageBoxButton.OK);
@@ -186,7 +186,7 @@ namespace NotepadTheNextVersion.Models
                 MessageBox.Show("There may be illegal characters in the specified name.\n\nIf applicable, remove any special characters or punctuation in the name.", "An error occurred", MessageBoxButton.OK);
                 throw;
             }
-            var newDoc = new Document(newLocation);
+            var newDoc = new LDocument(newLocation);
             if (IsFavorite)
                 FileUtils.ReplaceFavorite(this, newDoc);
             if (IsPinned)
@@ -208,8 +208,8 @@ namespace NotepadTheNextVersion.Models
             }
             else // if (!isTrash)
             {
-                Directory trash = new Directory(new PathStr(PathBase.Trash));
-                Document newLoc = new Document(trash.Path.NavigateIn(Name, ItemType.Default));
+                LDirectory trash = new LDirectory(new PathStr(PathBase.Trash));
+                LDocument newLoc = new LDocument(trash.Path.NavigateIn(Name, ItemType.Default));
                 if (newLoc.Exists())
                     newLoc.Delete();
 
@@ -268,13 +268,13 @@ namespace NotepadTheNextVersion.Models
 
         public int CompareTo(IActionable other)
         {
-            if (other.GetType() == typeof(Directory))
+            if (other.GetType() == typeof(LDirectory))
                 return 1;
             else
                 return this.Name.CompareTo(other.Name);
         }
 
-        public int CompareTo(Document other)
+        public int CompareTo(LDocument other)
         {
             return CompareTo((IActionable)other);
         }
@@ -298,7 +298,7 @@ namespace NotepadTheNextVersion.Models
 
         public IActionable SwapRoot()
         {
-            Document d = new Document(Path.UpdateRoot());
+            LDocument d = new LDocument(Path.UpdateRoot());
             if (this.IsFavorite)
             {
                 this.IsFavorite = false;

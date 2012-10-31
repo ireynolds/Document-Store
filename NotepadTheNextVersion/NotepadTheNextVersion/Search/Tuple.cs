@@ -19,10 +19,10 @@ namespace NotepadTheNextVersion.Models
 {
     public struct Triple
     {
-        public List<Document> ResultScope;
+        public List<LDocument> ResultScope;
         public List<SearchResult> SearchResults;
 
-        public Triple(List<Document> ResultScope, List<SearchResult> SearchResults)
+        public Triple(List<LDocument> ResultScope, List<SearchResult> SearchResults)
         {
             this.ResultScope = ResultScope;
             this.SearchResults = SearchResults;

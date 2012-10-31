@@ -20,7 +20,7 @@ namespace NotepadTheNextVersion.ListItems
 {
     public class SearchResult : IComparable<SearchResult>
     {
-        private Document _document;
+        private LDocument _document;
         private IList<Match> _titleMatches;
         private IList<Match> _textMatches;
         private string _pattern;
@@ -59,7 +59,7 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        public Document Source
+        public LDocument Source
         {
             get
             {
@@ -103,7 +103,7 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        public SearchResult(Document document, string pattern)
+        public SearchResult(LDocument document, string pattern)
         {
             _document = document;
             _pattern = pattern;

@@ -73,14 +73,14 @@ namespace NotepadTheNextVersion.ListItems
         {
             using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
             {
-                Queue<Directory> dirsQ = new Queue<Directory>();
-                List<Directory> dirsL = new List<Directory>();
-                dirsQ.Enqueue(new Directory(new PathStr(PathBase.Root)));
-                dirsQ.Enqueue(new Directory(new PathStr(PathBase.Trash)));
+                Queue<LDirectory> dirsQ = new Queue<LDirectory>();
+                List<LDirectory> dirsL = new List<LDirectory>();
+                dirsQ.Enqueue(new LDirectory(new PathStr(PathBase.Root)));
+                dirsQ.Enqueue(new LDirectory(new PathStr(PathBase.Trash)));
 
                 while (dirsQ.Count != 0)
                 {
-                    Directory dir = dirsQ.Dequeue();
+                    LDirectory dir = dirsQ.Dequeue();
 
                     if (IsInIgnoreList(dir, _actionables[0]))
                         continue;
@@ -88,12 +88,12 @@ namespace NotepadTheNextVersion.ListItems
                     dirsL.Add(dir);
                     foreach (string subDirName in isf.GetDirectoryNames(System.IO.Path.Combine(dir.Path.PathString, "*")))
                     {
-                        dirsQ.Enqueue(new Directory(dir.Path.NavigateIn(subDirName, ItemType.Default)));
+                        dirsQ.Enqueue(new LDirectory(dir.Path.NavigateIn(subDirName, ItemType.Default)));
                     }
                 }
 
                 dirsL.Sort(new IActionableComparer());
-                foreach (Directory d in dirsL)
+                foreach (LDirectory d in dirsL)
                 {
                     var item = createNewDirItem(d);
                     item.IsEnabled = !IsParent(d);
@@ -102,7 +102,7 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        private bool IsParent(Directory d)
+        private bool IsParent(LDirectory d)
         {
             var parentPath = d.Path.PathString;
             foreach (var item in _actionables)
@@ -113,12 +113,12 @@ namespace NotepadTheNextVersion.ListItems
             return false;
         }
 
-        private MoveListItem createNewDirItem(Directory d)
+        private MoveListItem createNewDirItem(LDirectory d)
         {
             return new MoveListItem(d);
         }
 
-        private bool IsInIgnoreList(Directory dest, IActionable itemToMove)
+        private bool IsInIgnoreList(LDirectory dest, IActionable itemToMove)
         {
             bool b = false;
             foreach (IActionable a in _actionables)
@@ -129,7 +129,7 @@ namespace NotepadTheNextVersion.ListItems
                    dest.Path.IsInTrash;
         }
 
-        private void TryMoveItem(IActionable a, Directory newParent)
+        private void TryMoveItem(IActionable a, LDirectory newParent)
         {
             var newLocation = Utils.CreateActionableFromPath(new PathStr(newParent.Path.NavigateIn(a.Name)));
             if (newLocation.Exists())
@@ -138,7 +138,9 @@ namespace NotepadTheNextVersion.ListItems
                 MessageBoxResult r = MessageBox.Show(string.Format("There is already an {0} with the same name at the specified destination. Tap OK to overwrite the existing {0}, or Cancel to skip this item.", type), a.DisplayName, MessageBoxButton.OKCancel);
                 if (r != MessageBoxResult.OK)
                     return;
-                newLocation.Delete(true);
+                IActionable d = newLocation.Delete(true);
+                if (d.Equals(newLocation))
+                    return;
             }
             try
             {
@@ -161,7 +163,7 @@ namespace NotepadTheNextVersion.ListItems
             if (!(ContentBox.SelectedItem as MoveListItem).IsEnabled)
                 return;
 
-            Directory newLoc = (ContentBox.SelectedItem as MoveListItem).DirectoryItem;
+            LDirectory newLoc = (ContentBox.SelectedItem as MoveListItem).DirectoryItem;
             ContentBox.SelectedIndex = -1;
 
             Queue<IActionable> items = new Queue<IActionable>(_actionables);

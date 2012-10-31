@@ -107,9 +107,9 @@ namespace NotepadTheNextVersion.ListItems
 
         public static IListingsListItem CreateListItem(IActionable a)
         {
-            if (a is Document)
+            if (a is LDocument)
                 return new DocumentListItem(a);
-            else if (a is Directory)
+            else if (a is LDirectory)
                 return new DirectoryListItem(a);
             else
                 throw new Exception("Unexpected type");

@@ -64,7 +64,7 @@ namespace NotepadTheNextVersion.Models
         /// </summary>
         /// <param name="newLocation">The parent of the new location.</param>
         /// <returns></returns>
-        IActionable Move(Directory newLocation);
+        IActionable Move(LDirectory newLocation);
 
         /// <summary>
         /// Navigates to a page that renames this. 
@@ -85,7 +85,8 @@ namespace NotepadTheNextVersion.Models
         /// same name, overwrites that file. If this is in trash, deletes from Isolated Storage and returns null. 
         /// </summary>
         /// <returns>
-        /// If the item was moved to trash, returns the new item. If it was deleted from trash, return null.
+        /// If the item was moved to trash, returns the new item. If it was deleted from trash, return null. If 
+        /// the item was not deleted, returns this.
         /// </returns>
         IActionable Delete(bool permanently = false);
 

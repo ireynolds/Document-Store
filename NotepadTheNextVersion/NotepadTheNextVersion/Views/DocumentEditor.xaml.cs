@@ -26,7 +26,7 @@ namespace NotepadTheNextVersion.ListItems
 {
     public partial class DocumentEditor : PhoneApplicationPage
     {
-        private Document _doc;
+        private LDocument _doc;
         private TextBox DocTextBox;
         private TextBlock DocTitleBlock;
         private SolidColorBrush _background;
@@ -97,7 +97,7 @@ namespace NotepadTheNextVersion.ListItems
             if (!_doc.Exists())
             {
                 _doc.IsTemp = true;
-                NavigationService.Navigate(App.Listings.AddArg(new Directory(PathBase.Root)));
+                NavigationService.Navigate(App.Listings.AddArg(new LDirectory(PathBase.Root)));
                 return;
             }
             UpdateColors();
@@ -105,7 +105,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void GetArgs()
         {
-            _doc = (Document)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
+            _doc = (LDocument)Utils.CreateActionableFromPath(new PathStr(NavigationContext.QueryString["param"]));
             if (NavigationContext.QueryString.ContainsKey("istemp"))
                 _doc.IsTemp = bool.Parse(NavigationContext.QueryString["istemp"]);
         }
@@ -271,7 +271,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private void FoldersIconButton_Click(object sender, EventArgs e)
         {
-            NavigationService.Navigate(App.Listings.AddArg(new Directory(new PathStr(_doc.Path.Parent.PathString))));
+            NavigationService.Navigate(App.Listings.AddArg(new LDirectory(new PathStr(_doc.Path.Parent.PathString))));
         }
 
         void DocTextBox_SizeChanged(object sender, SizeChangedEventArgs e)

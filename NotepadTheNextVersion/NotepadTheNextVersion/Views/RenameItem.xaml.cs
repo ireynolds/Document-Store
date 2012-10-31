@@ -107,7 +107,8 @@ namespace NotepadTheNextVersion.ListItems
             try
             {
                 var act = _actionable.Rename(newName);
-                NavigateOnSuccess(act);
+                if (!act.Equals(_actionable))   
+                    NavigateOnSuccess(act);
             }
             catch (Exception ex)
             {
@@ -124,7 +125,7 @@ namespace NotepadTheNextVersion.ListItems
             {
                 Utils.TryGoBack(NavigationService);
             }
-            else if ((prevPage.StartsWith(App.AddNewItem.OriginalString) && _actionable is Document))
+            else if ((prevPage.StartsWith(App.AddNewItem.OriginalString) && _actionable is LDocument))
             {
                 act.Open(NavigationService);
             }
@@ -233,7 +234,7 @@ namespace NotepadTheNextVersion.ListItems
 
         private bool IsUniqueFileName(string name)
         {
-            if (_actionable is Document)
+            if (_actionable is LDocument)
             {
                 Models.PathStr newPath = _actionable.Path.Parent.NavigateIn(name, Enumerations.ItemType.Document);
                 return !FileUtils.DocumentExists(newPath.PathString);

@@ -27,8 +27,8 @@ namespace NotepadTheNextVersion.ListItems
 {
     public partial class Listings : PhoneApplicationPage
     {
-        private Directory _currBeforeTrash;
-        private Directory _curr;
+        private LDirectory _currBeforeTrash;
+        private LDirectory _curr;
         private PageMode _pageMode;
         private IList<IListingsListItem> _items;
         private IList<IListingsListItem> _faves;
@@ -84,14 +84,14 @@ namespace NotepadTheNextVersion.ListItems
             }
         }
 
-        public Directory CurrentDirectory
+        public LDirectory CurrentDirectory
         {
             get
             {
-                return new Directory(_curr.Path);
+                return new LDirectory(_curr.Path);
             }
         }
-
+        
         #region Storyboard constants (in millis)
 
         private const int SLIDE_X_OUT_DURATION = 150;
@@ -136,9 +136,9 @@ namespace NotepadTheNextVersion.ListItems
                 if (!_curr.Exists())
                 {
                     MessageBox.Show("The selected directory could not be found.", "An error occurred", MessageBoxButton.OK);
-                    NavigationService.Navigate(App.Listings.AddArg(new Directory(PathBase.Root)));
+                    NavigationService.Navigate(App.Listings.AddArg(new LDirectory(PathBase.Root)));
                 }
-                _curr = (Directory)_curr.SwapRoot();
+                _curr = (LDirectory)_curr.SwapRoot();
             }
             NavigateTo(_curr);
         }
@@ -176,10 +176,10 @@ namespace NotepadTheNextVersion.ListItems
                 PathStr parent = _curr.Path.Parent;
                 if (!parent.PathString.Equals(string.Empty))
                 {
-                    NavigateBack(new Directory(parent));
+                    NavigateBack(new LDirectory(parent));
                     e.Cancel = true;
                 }
-                else if (_curr.Path.PathString.Equals(new Directory(PathBase.Root).Path.PathString))
+                else if (_curr.Path.PathString.Equals(new LDirectory(PathBase.Root).Path.PathString))
                 {
                     if (!App.AppSettings.Contains("HasExitedBefore"))
                     {
@@ -274,7 +274,7 @@ namespace NotepadTheNextVersion.ListItems
             return s;
         }
 
-        private Storyboard GetInForwardPageSB(Directory destination)
+        private Storyboard GetInForwardPageSB(LDirectory destination)
         {
             Storyboard s = new Storyboard();
             TextBlock append = InitPathPanelFromPath(destination.Path.DisplayPathString);
@@ -343,7 +343,7 @@ namespace NotepadTheNextVersion.ListItems
             return s;
         }
 
-        private Storyboard GetNavToSB(Directory openingDirectory)
+        private Storyboard GetNavToSB(LDirectory openingDirectory)
         {
             Storyboard s = new Storyboard();
             
@@ -413,7 +413,7 @@ namespace NotepadTheNextVersion.ListItems
             if (_animationTimer != null)
                 _animationTimer.Stop();
 
-            Directory destination = selectedItem.ActionableItem as Directory;
+            LDirectory destination = selectedItem.ActionableItem as LDirectory;
             Storyboard sb = GetOutForwardPageSB(selectedItem);
             sb.Completed += delegate(object sender, EventArgs e)
             {
@@ -443,7 +443,7 @@ namespace NotepadTheNextVersion.ListItems
             sb.Begin();
         }
 
-        private void NavigateBack(Directory destination)
+        private void NavigateBack(LDirectory destination)
         {
             if (_animationTimer != null)
                 _animationTimer.Stop();
@@ -484,7 +484,7 @@ namespace NotepadTheNextVersion.ListItems
             _animationTimer.Start();
         }
 
-        private void NavigateTo(Directory curr)
+        private void NavigateTo(LDirectory curr)
         {
             if (_animationTimer != null)
                 _animationTimer.Stop();
@@ -518,7 +518,7 @@ namespace NotepadTheNextVersion.ListItems
             NavigationService.Navigate(destination);
         }
 
-        private void NavigateOut(Directory destination)
+        private void NavigateOut(LDirectory destination)
         {
             Storyboard sb = GetNavFromSB();
             sb.Completed += delegate(object sender, EventArgs e)
@@ -573,12 +573,78 @@ namespace NotepadTheNextVersion.ListItems
             if (NavigationContext.QueryString.TryGetValue("param", out s))
             {
                 PathStr p = new PathStr(s);
-                _curr = new Directory(p);
+                _curr = new LDirectory(p);
             }
             else
             {
-                _curr = (Directory)Utils.CreateActionableFromPath(new PathStr(PathBase.Root));
+                _curr = (LDirectory)Utils.CreateActionableFromPath(new PathStr(PathBase.Root));
             }
+        }
+
+        private ICollection<IListingsListItem> GetDirectories()
+        {
+            IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication();
+            List<string> dirs = new List<string>();
+            foreach (string dir in isf.GetDirectoryNames(_curr.Path.PathString + "/*"))
+                if (!dir.StartsWith(".") || SettingUtils.GetSetting<bool>(Setting.ShowHiddenItems))
+                    dirs.Add(dir);
+            dirs.Sort();
+            isf.Dispose();
+
+            // Add directories
+            ICollection<IListingsListItem> Items = new Collection<IListingsListItem>();
+            foreach (string dir in dirs)
+            {
+                LDirectory d = new LDirectory(_curr.Path.NavigateIn(dir, ItemType.Default));
+                IListingsListItem li = IListingsListItem.CreateListItem(d);
+                Items.Add(li);
+            }
+            return Items;
+        }
+
+        private ICollection<IListingsListItem> GetDocuments()
+        {
+            IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication();
+            List<string> docs = new List<string>();
+            foreach (string doc in isf.GetFileNames(_curr.Path.PathString + "/*"))
+                if (!doc.StartsWith(".") || SettingUtils.GetSetting<bool>(Setting.ShowHiddenItems))
+                    docs.Add(doc);
+            docs.Sort();
+            isf.Dispose();
+
+            // Add documents
+            ICollection<IListingsListItem> Items = new Collection<IListingsListItem>();
+            foreach (string doc in docs)
+            {
+                LDocument d = new LDocument(_curr.Path.NavigateIn(doc, ItemType.Default));
+                IListingsListItem li = IListingsListItem.CreateListItem(d);
+                Items.Add(li);
+            }
+            return Items;
+        }
+
+        private ICollection<IListingsListItem> GetSkyDriveDirectories()
+        {
+            ICollection<IListingsListItem> Items = new Collection<IListingsListItem>();
+            if (_curr.Path.Equals(new PathStr(PathBase.Root)))
+            {
+                var client = new SkydriveClient();
+                client.GetDirectories((o, e) =>
+                {
+                    var data = (List<object>)e.Result["data"];
+                    foreach (IDictionary<string, object> dict in data)
+                    {
+                        // get data
+                        var name = dict["name"];
+
+                        PathStr p = new SDirectory(new PathStr(_curr.Path.PathString + "/" + name + FileUtils.SKYDRIVE_DIRECTORY_EXTENSION));
+                        IActionable a = (p);
+                        IListingsListItem l = IListingsListItem.CreateListItem(a);
+                        Items.Add(l);
+                    }
+                });
+            }
+            return Items;
         }
 
         // Changes the currently-viewed folder and updates the view
@@ -588,66 +654,25 @@ namespace NotepadTheNextVersion.ListItems
             {
                 IList<IListingsListItem> Items = new List<IListingsListItem>();
 
-                if (_curr.Path.Equals(new PathStr(PathBase.Root)))
-                {
-                    var client = new SkydriveClient();
-                    IList<Directory> skydriveDirs = null;
-                    client.GetDirectories((o, e) =>
-                    {
-                        var data = (List<object>)e.Result["data"];
-                        foreach (IDictionary<string, object> dict in data)
-                        {
-                            var name = dict["name"];
-                        }
-                    });
-                }
-
                 // Re-fill ContentBox
-                using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+                if (!IsolatedStorageFile.GetUserStoreForApplication().DirectoryExists(_curr.Path.PathString))
                 {
-                    List<string> dirs = new List<string>();
-                    try
-                    {
-                        foreach (string dir in isf.GetDirectoryNames(_curr.Path.PathString + "/*"))
-                            if (!dir.StartsWith(".") || SettingUtils.GetSetting<bool>(Setting.ShowHiddenItems))
-                                dirs.Add(dir);
-                    }
-                    catch (System.IO.DirectoryNotFoundException ex)
-                    {
-                        MessageBox.Show("The specified directory could not be found.", "An error occurred", MessageBoxButton.OK);
-                        throw;
-                    }
-                    dirs.Sort();
-
-                    // Add directories
-                    foreach (string dir in dirs)
-                    {
-                        Directory d = new Directory(_curr.Path.NavigateIn(dir, ItemType.Default));
-                        IListingsListItem li = IListingsListItem.CreateListItem(d);
-                        Items.Add(li);
-                    }
-
-                    List<string> docs = new List<string>();
-                    foreach (string doc in isf.GetFileNames(_curr.Path.PathString + "/*"))
-                        if (!doc.StartsWith(".") || SettingUtils.GetSetting<bool>(Setting.ShowHiddenItems))
-                            docs.Add(doc);
-                    docs.Sort();
-
-                    // Add documents
-                    foreach (string doc in docs)
-                    {
-                        Document d = new Document(_curr.Path.NavigateIn(doc, ItemType.Default));
-                        IListingsListItem li = IListingsListItem.CreateListItem(d);
-                        Items.Add(li);
-                    }
+                    MessageBox.Show("The specified directory could not be found.", "An error occurred", MessageBoxButton.OK);
+                    return;
                 }
+
+                foreach (IListingsListItem item in GetDocuments())
+                    Items.Add(item);
+                foreach (IListingsListItem item in GetDirectories())
+                    Items.Add(item);
+                foreach (IListingsListItem item in GetSkyDriveDirectories())
+                    Items.Add(item);
+                _items = Items;
 
                 if (_pageMode == PageMode.Edit)
                     SetPageMode(PageMode.View);
 
-                _items = Items;
-
-                Directory trash = new Directory(PathBase.Trash);
+                LDirectory trash = new LDirectory(PathBase.Trash);
                 if (_curr.Path.Equals(trash.Path))
                     foreach (var item in _items)
                         item.IsSelectable = true;
@@ -662,7 +687,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             catch (Exception ex)
             {
-                (new Directory(PathBase.Root)).Open(NavigationService);
+                (new LDirectory(PathBase.Root)).Open(NavigationService);
             }
         }
 
@@ -830,7 +855,7 @@ namespace NotepadTheNextVersion.ListItems
                 CurrentBox.SelectionMode = SelectionMode.Multiple;
                 _currBeforeTrash = _curr;
                 ApplicationBar = (new Listings.TrashAppBar(this)).AppBar;
-                NavigateOut(new Directory(PathBase.Trash));
+                NavigateOut(new LDirectory(PathBase.Trash));
             }
             else if (type == PageMode.Favorites)
             {
@@ -1001,8 +1026,9 @@ namespace NotepadTheNextVersion.ListItems
                     IList<IListingsListItem> deletedItems = new List<IListingsListItem>();
                     foreach (IListingsListItem li in Page.CurrentBox.SelectedItems)
                     {
-                        li.ActionableItem.Delete();
-                        deletedItems.Add(li);
+                        IActionable result = li.ActionableItem.Delete();
+                        if (!result.Equals(li.ActionableItem))
+                            deletedItems.Add(li);
                     }
                     Page.BeginDeleteAnimations(deletedItems);
                     if (SettingUtils.GetSetting<Collection<string>>(Setting.FavoritesList).Count == 0)
@@ -1129,7 +1155,7 @@ namespace NotepadTheNextVersion.ListItems
                 _appBar.Mode = ApplicationBarMode.Default;
                 _appBar.IsMenuEnabled = true;
 
-                Directory trash = new Directory(PathBase.Trash);
+                LDirectory trash = new LDirectory(PathBase.Trash);
                 Storyboard sb = Page.GetNavToSB(trash);
                 sb.Completed += new EventHandler((object sender, EventArgs e) =>
                 {
