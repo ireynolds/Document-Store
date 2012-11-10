@@ -164,7 +164,13 @@ namespace NotepadTheNextVersion.Utilities
         /// <returns></returns>
         public static bool IsDir(string path)
         {
-            return System.IO.Path.GetExtension(path).Equals(DIRECTORY_EXTENSION);
+            return System.IO.Path.GetExtension(path).Equals(DIRECTORY_EXTENSION) 
+                   || path.Equals("root") 
+                   || path.Equals("root/")
+                   || path.Equals("root\\")
+                   || path.Equals("trash")
+                   || path.Equals("trash/")
+                   || path.Equals("trash\\");
         }
 
         /// <summary>

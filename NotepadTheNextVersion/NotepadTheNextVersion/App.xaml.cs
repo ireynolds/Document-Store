@@ -177,6 +177,31 @@ namespace NotepadTheNextVersion
                     isf.CreateDirectory(rootName);
                 if (!isf.DirectoryExists("trash.dir"))
                     isf.CreateDirectory("trash.dir");
+                if (isf.DirectoryExists("root") && !IsolatedStorageSettings.ApplicationSettings.Contains("HasMovedRoot"))
+                {
+                    IActionable a = new Models.Directory(new PathStr("root"));
+                    
+                    var newName = "lost_files_" + new Random().Next();
+                    var newLoc = new Models.Directory(new PathStr(PathBase.Root).NavigateIn(newName, ItemType.Directory));
+                    if (!isf.DirectoryExists(newName) && !newLoc.Exists())
+                    {
+                        a = a.Rename(newName);
+                        a = a.Move(new Models.Directory(PathBase.Root));
+
+                        var apologyName = "apology_" + new Random().Next();
+                        var apologyFile = new Models.Document(new PathStr(PathBase.Root).NavigateIn(apologyName, ItemType.Document));
+                        if (!apologyFile.Exists())
+                        {
+                            var f = isf.CreateFile(apologyFile.Path.PathString);
+                            var sw = new StreamWriter(f);
+                            sw.Write("When I last updated the app I changed the folder that all of your documents were stored in. This made it look like you lost all of your documents. It was a careless oversight and a huge mistake, and I can promise it won't happen again. You should find all of your files in the lost_files directory. Sorry!");
+                            sw.Close();
+                        }
+
+                        IsolatedStorageSettings.ApplicationSettings["HasMovedRoot"] = true;
+                        IsolatedStorageSettings.ApplicationSettings.Save();
+                    }
+                }
             }
 
             // Add test data

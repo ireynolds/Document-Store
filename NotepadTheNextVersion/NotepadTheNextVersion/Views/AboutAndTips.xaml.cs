@@ -62,7 +62,7 @@ namespace NotepadTheNextVersion.ListItems
 
             AboutPanel.Children.Add(new TextBlock()
             {
-                Text = "Notepad v5.0.1",
+                Text = "Notepad v5.0.2",
                 FontSize = 35,
                 FontFamily = new FontFamily("Segoe WP SemiLight"),
                 Margin = new Thickness(0, 0, 0, 30)
