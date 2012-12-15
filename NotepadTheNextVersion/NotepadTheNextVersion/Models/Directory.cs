@@ -86,8 +86,20 @@ namespace NotepadTheNextVersion.Models
 
         public Directory(PathStr p)
         {
+            // This is code to fix my big bug
             if (!FileUtils.IsDir(p.PathString))
-                throw new Exception();
+            {
+                // throw new Exception();
+                if (!FileUtils.IsDoc(p.PathString))
+                {
+                    using (IsolatedStorageFile isf = IsolatedStorageFile.GetUserStoreForApplication())
+                    {
+                        var nn = p.PathString + FileUtils.DIRECTORY_EXTENSION;
+                        isf.MoveDirectory(p.PathString, nn);
+                    }
+                    p = new PathStr(p.PathString + FileUtils.DIRECTORY_EXTENSION);
+                }
+            }
             _path = p;
         }
 

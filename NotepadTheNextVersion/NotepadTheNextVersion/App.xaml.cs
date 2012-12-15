@@ -181,14 +181,16 @@ namespace NotepadTheNextVersion
                 {
                     IActionable a = new Models.Directory(new PathStr("root"));
                     
-                    var newName = "lost_files_" + new Random().Next();
+                    //var newName = "lost_files_" + new Random().Next();
+                    var newName = "lost_files_";
                     var newLoc = new Models.Directory(new PathStr(PathBase.Root).NavigateIn(newName, ItemType.Directory));
                     if (!isf.DirectoryExists(newName) && !newLoc.Exists())
                     {
                         a = a.Rename(newName);
                         a = a.Move(new Models.Directory(PathBase.Root));
 
-                        var apologyName = "apology_" + new Random().Next();
+                        //var apologyName = "apology_" + new Random().Next();
+                        var apologyName = "apology_";
                         var apologyFile = new Models.Document(new PathStr(PathBase.Root).NavigateIn(apologyName, ItemType.Document));
                         if (!apologyFile.Exists())
                         {
