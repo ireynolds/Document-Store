@@ -57,7 +57,7 @@ namespace NotepadTheNextVersion.ListItems
         protected override void InitCheckBox()
         {
             base.InitCheckBox();
-            _checkBox.Margin = _checkBox.Margin = new Thickness(0, -18, 0, 0);
+            _checkBox.Margin = _checkBox.Margin = new Thickness(0, 0, 0, 0);
         }
 
         protected override void OverrideHighlightColor()

@@ -68,6 +68,7 @@ namespace NotepadTheNextVersion.ListItems
                 Margin = new Thickness(0, 0, 0, 30)
             });
 
+            /*
             var b = new HyperlinkButton();
             b.Content = "Visit Notepad's website.";
             b.Margin = new Thickness(-12, 0, 0, 30);
@@ -80,6 +81,7 @@ namespace NotepadTheNextVersion.ListItems
                     t.Show();
                 };
             AboutPanel.Children.Add(b);
+             * */
 
             AboutPanel.Children.Add(new TextBlock() { Text = "Software Engineer: Isaac Reynolds" });
             AboutPanel.Children.Add(new TextBlock() { Text = "Front-end Engineer: Isaac Reynolds" });
@@ -92,12 +94,14 @@ namespace NotepadTheNextVersion.ListItems
                 Margin = new Thickness(0, 20, 0, 0),
                 TextWrapping = TextWrapping.Wrap
             });
+            /*
             AboutPanel.Children.Add(new TextBlock()
             {
                 Text = "Notepad is released under the MS-PL (http://opensource.org/licenses/ms-pl).",
                 Margin = new Thickness(0, 100, 0, 0),
                 TextWrapping = TextWrapping.Wrap
             });
+             * */
 
             AboutScrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Disabled;
         }
