@@ -62,7 +62,7 @@ namespace NotepadTheNextVersion.ListItems
 
             AboutPanel.Children.Add(new TextBlock()
             {
-                Text = "Notepad v5.0.3",
+                Text = "Document Store v1.0.0",
                 FontSize = 35,
                 FontFamily = new FontFamily("Segoe WP SemiLight"),
                 Margin = new Thickness(0, 0, 0, 30)
@@ -70,7 +70,7 @@ namespace NotepadTheNextVersion.ListItems
 
             /*
             var b = new HyperlinkButton();
-            b.Content = "Visit Notepad's website.";
+            b.Content = "Visit Document Store's website.";
             b.Margin = new Thickness(-12, 0, 0, 30);
             b.HorizontalAlignment = System.Windows.HorizontalAlignment.Left;
             b.FontSize = 26;
@@ -97,7 +97,7 @@ namespace NotepadTheNextVersion.ListItems
             /*
             AboutPanel.Children.Add(new TextBlock()
             {
-                Text = "Notepad is released under the MS-PL (http://opensource.org/licenses/ms-pl).",
+                Text = "Document Store is released under the MS-PL (http://opensource.org/licenses/ms-pl).",
                 Margin = new Thickness(0, 100, 0, 0),
                 TextWrapping = TextWrapping.Wrap
             });
@@ -111,10 +111,10 @@ namespace NotepadTheNextVersion.ListItems
             ContactPanel.Margin = new Thickness(12, 0, 0, 0);
 
             AddNewTitleBlock(ContactPanel, "questions or complaints");
-            AddNewDescriptionBlock(ContactPanel, "If there's something going on with Notepad that confuses or bothers you.");
+            AddNewDescriptionBlock(ContactPanel, "If there's something going on with Document Store that confuses or bothers you.");
 
             AddNewTitleBlock(ContactPanel, "suggestions or how-ya-doin");
-            AddNewDescriptionBlock(ContactPanel, "If there's something you'd really love to see from me or Notepad, or if you'd" + 
+            AddNewDescriptionBlock(ContactPanel, "If there's something you'd really love to see from me or Document Store, or if you'd" + 
                 " just like to say Hi.");
 
             HyperlinkButton b1 = new HyperlinkButton();
@@ -141,7 +141,7 @@ namespace NotepadTheNextVersion.ListItems
             TipsPanel.Margin = new Thickness(12, 0, 0, 0);
 
             AddNewTitleBlock(TipsPanel, "open to document explorer");
-            AddNewDescriptionBlock(TipsPanel, "Open the settings screen and enable \"Open to document explorer\". When you open Notepad, you'll skip the document editor page and open to the directory explorer instead.");
+            AddNewDescriptionBlock(TipsPanel, "Open the settings screen and enable \"Open to document explorer\". When you open Document Store, you'll skip the document editor page and open to the directory explorer instead.");
 
             AddNewTitleBlock(TipsPanel, "delete, move, rename");
             AddNewDescriptionBlock(TipsPanel, "While you’re using the document explorer, tap the \"select\" icon in the application bar. Select some items in the list and use the application bar to delete them, move them, or rename them.");

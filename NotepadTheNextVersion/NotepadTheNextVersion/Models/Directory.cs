@@ -138,7 +138,7 @@ namespace NotepadTheNextVersion.Models
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Notepad could not move the directory. There may be an existing directory at the specified destination.", "An error occurred", MessageBoxButton.OK);
+                MessageBox.Show("Document Store could not move the directory. There may be an existing directory at the specified destination.", "An error occurred", MessageBoxButton.OK);
                 return null;
             }
             if (IsFavorite)
@@ -174,7 +174,7 @@ namespace NotepadTheNextVersion.Models
             }
             catch (IsolatedStorageException ex)
             {
-                MessageBox.Show("Notepad could not rename the directory. There may be illegal characters in the specified name.\n\nIf applicable, remove any special characters or punctuation in the name.", "An error occurred", MessageBoxButton.OK);
+                MessageBox.Show("Document Store could not rename the directory. There may be illegal characters in the specified name.\n\nIf applicable, remove any special characters or punctuation in the name.", "An error occurred", MessageBoxButton.OK);
                 return null;
             }
             Directory newDir = new Directory(newLocation);

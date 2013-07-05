@@ -45,7 +45,7 @@
     <!--LayoutRoot is the root grid where all page content is placed-->
     <Grid x:Name="LayoutRoot" Background="Transparent">
         <!--Pivot Control-->
-        <controls:Pivot Name="_masterPivot" Title="NOTEPAD">
+        <controls:Pivot Name="_masterPivot" Title="DOCUMENT STORE">
             <!--Pivot item one-->
             <controls:PivotItem Header="export">
                 <StackPanel Name="ExportPanel"/>

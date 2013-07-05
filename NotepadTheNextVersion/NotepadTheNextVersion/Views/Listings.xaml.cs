@@ -188,7 +188,7 @@ namespace NotepadTheNextVersion.ListItems
                             {
                                 App.AppSettings.Add("HasExitedBefore", true);
                                 App.AppSettings.Save();
-                                MessageBox.Show("When you press the back key from the root directory, the application will exit.", "Exiting Notepad", MessageBoxButton.OK);
+                                MessageBox.Show("When you press the back key from the root directory, the application will exit.", "Exiting Document Store", MessageBoxButton.OK);
                             }
                             throw new ApplicationMustExitException();
                         });

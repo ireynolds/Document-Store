@@ -1,25 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Deployment xmlns="http://schemas.microsoft.com/windowsphone/2012/deployment" AppPlatformVersion="8.0">
   <DefaultLanguage xmlns="" code="en-US" />
-  <App xmlns="" ProductID="{224219c8-ea9b-4e3d-b74f-052a2e20af56}" Title="Notepad" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="NotepadTheNextVersion author" Description="Sample description" Publisher="NotepadTheNextVersion" PublisherID="{f0b32638-ce3d-4beb-bbae-cf7c1cfbaaab}">
-    <IconPath IsRelative="true" IsResource="false">Application_IconImage_62x62.png</IconPath>
+  <App xmlns="" ProductID="{224219c8-ea9b-4e3d-b74f-052a2e20af56}" Title="Document Store" RuntimeType="Silverlight" Version="1.0.0.0" Genre="apps.normal" Author="NotepadTheNextVersion author" Description="" Publisher="NotepadTheNextVersion" PublisherID="{f0b32638-ce3d-4beb-bbae-cf7c1cfbaaab}">
+    <IconPath IsRelative="true" IsResource="false">ApplicationIcon.png</IconPath>
     <Capabilities>
-      <Capability Name="ID_CAP_GAMERSERVICES" />
-      <Capability Name="ID_CAP_IDENTITY_DEVICE" />
-      <Capability Name="ID_CAP_IDENTITY_USER" />
-      <Capability Name="ID_CAP_LOCATION" />
-      <Capability Name="ID_CAP_MICROPHONE" />
-      <Capability Name="ID_CAP_NETWORKING" />
-      <Capability Name="ID_CAP_PHONEDIALER" />
-      <Capability Name="ID_CAP_PUSH_NOTIFICATION" />
-      <Capability Name="ID_CAP_SENSORS" />
-      <Capability Name="ID_CAP_WEBBROWSERCOMPONENT" />
-      <Capability Name="ID_CAP_ISV_CAMERA" />
-      <Capability Name="ID_CAP_CONTACTS" />
-      <Capability Name="ID_CAP_APPOINTMENTS" />
-      <Capability Name="ID_CAP_MEDIALIB_AUDIO" />
-      <Capability Name="ID_CAP_MEDIALIB_PHOTO" />
-      <Capability Name="ID_CAP_MEDIALIB_PLAYBACK" />
     </Capabilities>
     <Tasks>
       <DefaultTask Name="_default" NavigationPage="MainPage.xaml" />
@@ -27,15 +11,19 @@
     <Tokens>
       <PrimaryToken TokenID="NotepadTheNextVersionToken" TaskName="_default">
         <TemplateFlip>
-          <SmallImageURI IsResource="false" IsRelative="true">Application_TileImage_173x173.png</SmallImageURI>
+          <SmallImageURI IsResource="false" IsRelative="true">ApplicationIcon.png</SmallImageURI>
           <Count>0</Count>
-          <BackgroundImageURI IsResource="false" IsRelative="true">Application_TileImage_173x173.png</BackgroundImageURI>
-          <Title>Notepad</Title>
-          <BackContent></BackContent>
-          <BackBackgroundImageURI></BackBackgroundImageURI>
-          <BackTitle></BackTitle>
-          <DeviceLockImageURI></DeviceLockImageURI>
-          <HasLarge>false</HasLarge>
+          <BackgroundImageURI IsResource="false" IsRelative="true">ApplicationIcon.png</BackgroundImageURI>
+          <Title>Document Store</Title>
+          <BackContent>
+          </BackContent>
+          <BackBackgroundImageURI>
+          </BackBackgroundImageURI>
+          <BackTitle>
+          </BackTitle>
+          <DeviceLockImageURI>
+          </DeviceLockImageURI>
+          <HasLarge>False</HasLarge>
         </TemplateFlip>
       </PrimaryToken>
     </Tokens>

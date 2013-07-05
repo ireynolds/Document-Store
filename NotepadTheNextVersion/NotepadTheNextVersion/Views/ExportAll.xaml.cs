@@ -53,7 +53,7 @@ namespace NotepadTheNextVersion.ListItems
             ExportPanel.Children.Add(new TextBlock()
             {
                 Text = "Export puts the text of each of your documents into an email" +
-                       " for you. The text is structured so that it can be imported into Notepad later" +
+                       " for you. The text is structured so that it can be imported into Document Store later" +
                        " using the Import tool.",
                 Margin = new Thickness(12, 0, 0, 30),
                 TextWrapping = TextWrapping.Wrap,
@@ -76,7 +76,7 @@ namespace NotepadTheNextVersion.ListItems
             ImportPanel.Children.Add(new TextBlock()
             {
                 Text = "Open a email sent using the Export tool and paste its text into the textbox below, then tap Import." +
-                       " Notepad will recreate each file and folder that existed when you sent the export email.",
+                       " Document Store will recreate each file and folder that existed when you sent the export email.",
                 Margin = new Thickness(12, 0, 0, 30),
                 TextWrapping = TextWrapping.Wrap,
             });
@@ -133,7 +133,7 @@ namespace NotepadTheNextVersion.ListItems
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Notepad could not parse the data.", "An error occurred", MessageBoxButton.OK);
+                    MessageBox.Show("Document Store could not parse the data.", "An error occurred", MessageBoxButton.OK);
                     return;
                 }
                 newDoc.Text = docText;
@@ -151,7 +151,7 @@ namespace NotepadTheNextVersion.ListItems
             foreach (Document d in docs)
                 b.Append(String.Format("==== {0} ====\n\n{1}\n\n", d.Path.PathString, d.Text));
             t.Body = b.ToString();
-            t.Subject = String.Format("Notepad backup ({0})", DateTime.Now.ToShortDateString());
+            t.Subject = String.Format("Document Store backup ({0})", DateTime.Now.ToShortDateString());
             t.Show();
         }
 

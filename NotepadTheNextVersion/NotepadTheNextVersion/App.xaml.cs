@@ -255,7 +255,7 @@ namespace NotepadTheNextVersion
         private void Application_UnhandledException(object sender, ApplicationUnhandledExceptionEventArgs e)
         {
             if (!(e.ExceptionObject is ApplicationMustExitException))
-                MessageBox.Show(e.ExceptionObject.GetType().Name + ": " + e.ExceptionObject.Message + "\r\rNotepad will now exit.", "An error occurred", MessageBoxButton.OK);
+                MessageBox.Show(e.ExceptionObject.GetType().Name + ": " + e.ExceptionObject.Message + "\r\rDocument Store will now exit.", "An error occurred", MessageBoxButton.OK);
 
             if (System.Diagnostics.Debugger.IsAttached)
             {

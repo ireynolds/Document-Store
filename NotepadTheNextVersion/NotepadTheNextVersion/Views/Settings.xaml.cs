@@ -136,7 +136,7 @@ namespace NotepadTheNextVersion.ListItems
             }
             catch (IsolatedStorageException)
             {
-                MessageBox.Show("Notepad was unable to change the name of the home directory. Please try again later.", "An error occurred", MessageBoxButton.OK);
+                MessageBox.Show("Document Store was unable to change the name of the home directory. Please try again later.", "An error occurred", MessageBoxButton.OK);
             }
         }
     }

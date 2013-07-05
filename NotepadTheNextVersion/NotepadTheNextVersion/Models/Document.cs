@@ -147,7 +147,7 @@ namespace NotepadTheNextVersion.Models
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Notepad could not move the document. There may be an existing document at the specified destination.", "An error occurred", MessageBoxButton.OK);
+                MessageBox.Show("Document Store could not move the document. There may be an existing document at the specified destination.", "An error occurred", MessageBoxButton.OK);
                 return null;
             }
             if (IsFavorite)
